@@ -16,8 +16,19 @@ use App\Http\Controllers\JoinUsController;
 use App\Http\Controllers\LayananController;
 
 use App\Http\Controllers\ProjectController;
-
 use App\Http\Controllers\UserFeedbackController;
+use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\AdminPenawaranController;
+use App\Http\Controllers\Admin\AdminProjectController;
+use App\Http\Controllers\Admin\AdminSuratPerjanjianController;
+use App\Http\Controllers\Admin\AdminFeedbackController;
+use App\Http\Controllers\Admin\AdminReviewController;
+use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\Admin\AdminPortfolioController;
+use App\Http\Controllers\Admin\AdminBeritaController;
+use App\Http\Controllers\Admin\AdminTeamController;
+use App\Http\Controllers\Admin\AdminSettingController;
+use App\Http\Controllers\Admin\AdminUserFileController;
 
 Route::get('/layanan/{slug}', [LayananController::class, 'show'])->name('layanan.show');
 
@@ -87,6 +98,63 @@ Route::view('/login', 'auth.login')->name('login');
 Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:6,1');
 
 Route::post('/logout', [AuthController::class, 'logout']);
+
+// AdminLTE Backend Panel Routes
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
+
+    // Projects
+    Route::get('/projects', [AdminProjectController::class, 'index'])->name('projects.index');
+    Route::get('/projects/{project}/edit', [AdminProjectController::class, 'edit'])->name('projects.edit');
+    Route::put('/projects/{project}', [AdminProjectController::class, 'update'])->name('projects.update');
+    Route::delete('/projects/{project}', [AdminProjectController::class, 'destroy'])->name('projects.destroy');
+
+    // Penawaran (RFQ Leads)
+    Route::get('/penawaran', [AdminPenawaranController::class, 'index'])->name('penawaran.index');
+    Route::delete('/penawaran/{penawaran}', [AdminPenawaranController::class, 'destroy'])->name('penawaran.destroy');
+
+    // Surat Perjanjian (SPK)
+    Route::get('/surat-perjanjian', [AdminSuratPerjanjianController::class, 'index'])->name('surat-perjanjian.index');
+    Route::patch('/surat-perjanjian/{suratPerjanjian}/status', [AdminSuratPerjanjianController::class, 'updateStatus'])->name('surat-perjanjian.status');
+    Route::delete('/surat-perjanjian/{suratPerjanjian}', [AdminSuratPerjanjianController::class, 'destroy'])->name('surat-perjanjian.destroy');
+
+    // Feedbacks
+    Route::get('/feedbacks', [AdminFeedbackController::class, 'index'])->name('feedbacks.index');
+    Route::patch('/feedbacks/{userFeedback}/status', [AdminFeedbackController::class, 'updateStatus'])->name('feedbacks.status');
+    Route::delete('/feedbacks/{userFeedback}', [AdminFeedbackController::class, 'destroy'])->name('feedbacks.destroy');
+
+    // Reviews
+    Route::get('/reviews', [AdminReviewController::class, 'index'])->name('reviews.index');
+    Route::patch('/reviews/{review}/toggle', [AdminReviewController::class, 'toggleApprove'])->name('reviews.toggle');
+    Route::delete('/reviews/{review}', [AdminReviewController::class, 'destroy'])->name('reviews.destroy');
+
+    // Users
+    Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
+    Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
+
+    // User Files & Designs
+    Route::get('/user-files', [AdminUserFileController::class, 'index'])->name('user-files.index');
+    Route::delete('/user-files/{userFile}', [AdminUserFileController::class, 'destroy'])->name('user-files.destroy');
+
+    // Portfolios
+    Route::get('/portfolios', [AdminPortfolioController::class, 'index'])->name('portfolios.index');
+    Route::delete('/portfolios/{portfolio}', [AdminPortfolioController::class, 'destroy'])->name('portfolios.destroy');
+
+    // Berita & Artikel
+    Route::get('/berita', [AdminBeritaController::class, 'index'])->name('berita.index');
+    Route::patch('/berita/{berita}/publish', [AdminBeritaController::class, 'togglePublish'])->name('berita.publish');
+    Route::delete('/berita/{berita}', [AdminBeritaController::class, 'destroy'])->name('berita.destroy');
+
+    // Team & Join Us
+    Route::get('/team', [AdminTeamController::class, 'index'])->name('team.index');
+    Route::patch('/team/{teamMember}/status', [AdminTeamController::class, 'updateStatus'])->name('team.status');
+    Route::patch('/team/{teamMember}/visibility', [AdminTeamController::class, 'toggleVisibility'])->name('team.visibility');
+    Route::delete('/team/{teamMember}', [AdminTeamController::class, 'destroy'])->name('team.destroy');
+
+    // Site Settings
+    Route::get('/settings', [AdminSettingController::class, 'index'])->name('settings.index');
+    Route::put('/settings', [AdminSettingController::class, 'update'])->name('settings.update');
+});
 
 Route::get('/', function () {
 
