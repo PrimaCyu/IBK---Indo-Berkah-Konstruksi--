@@ -8,9 +8,32 @@ use Illuminate\Http\Request;
 
 class AdminReviewController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $reviews = Review::with(['user', 'project'])->latest()->paginate(10);
+        $query = Review::with(['user', 'project'])->latest();
+
+        if ($request->filled('status')) {
+            if ($request->status === 'approved') {
+                $query->where('is_approved', true);
+            } elseif ($request->status === 'pending') {
+                $query->where('is_approved', false);
+            }
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('message', 'like', "%{$search}%")
+                  ->orWhereHas('user', function ($uq) use ($search) {
+                      $uq->where('name', 'like', "%{$search}%");
+                  })
+                  ->orWhereHas('project', function ($pq) use ($search) {
+                      $pq->where('nama_proyek', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        $reviews = $query->paginate(10)->withQueryString();
         return view('admin.reviews.index', compact('reviews'));
     }
 
@@ -20,14 +43,13 @@ class AdminReviewController extends Controller
             'is_approved' => !$review->is_approved,
         ]);
 
-        $statusText = $review->is_approved ? 'disetujui dan tampil di website' : 'disembunyikan dari website';
-        return back()->with('success', "Review berhasil {$statusText}.");
+        $statusText = $review->is_approved ? 'disetujui dan ditayangkan di beranda' : 'ditarik dari beranda';
+        return back()->with('success', "Ulasan berhasil {$statusText}.");
     }
 
     public function destroy(Review $review)
     {
         $review->delete();
-        return back()->with('success', 'Review berhasil dihapus.');
+        return back()->with('success', 'Ulasan berhasil dihapus.');
     }
 }
-

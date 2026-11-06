@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Project;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class AdminProjectController extends Controller
 {
@@ -27,7 +28,8 @@ class AdminProjectController extends Controller
                 $q->where('nama_proyek', 'like', "%{$search}%")
                   ->orWhere('alamat_proyek', 'like', "%{$search}%")
                   ->orWhereHas('user', function ($uq) use ($search) {
-                      $uq->where('name', 'like', "%{$search}%");
+                      $uq->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
                   });
             });
         }
@@ -37,9 +39,50 @@ class AdminProjectController extends Controller
         return view('admin.projects.index', compact('projects'));
     }
 
+    public function create()
+    {
+        $users = User::orderBy('name')->get();
+        return view('admin.projects.create', compact('users'));
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'nama_proyek'         => 'required|string|max:255',
+            'user_id'             => 'required|exists:users,id',
+            'kategori'            => 'required|string',
+            'alamat_proyek'       => 'nullable|string|max:500',
+            'deskripsi'           => 'nullable|string',
+            'progress_percentage' => 'required|integer|min:0|max:100',
+            'status'              => 'required|in:aktif,selesai,dibatalkan',
+            'portfolio_approved'  => 'nullable|boolean',
+            'main_image'          => 'nullable|image|max:3072',
+        ]);
+
+        $imagePath = null;
+        if ($request->hasFile('main_image')) {
+            $imagePath = $request->file('main_image')->store('projects', 'public');
+        }
+
+        Project::create([
+            'nama_proyek'         => $request->nama_proyek,
+            'user_id'             => $request->user_id,
+            'kategori'            => $request->kategori,
+            'alamat_proyek'       => $request->alamat_proyek,
+            'deskripsi'           => $request->deskripsi,
+            'progress_percentage' => $request->progress_percentage,
+            'status'              => $request->status,
+            'portfolio_approved'  => $request->boolean('portfolio_approved'),
+            'main_image'          => $imagePath,
+            'completed_at'        => $request->status === 'selesai' ? now() : null,
+        ]);
+
+        return redirect()->route('admin.projects.index')->with('success', 'Proyek baru berhasil ditambahkan.');
+    }
+
     public function edit(Project $project)
     {
-        $users = User::where('role', 'owner')->get();
+        $users = User::orderBy('name')->get();
         return view('admin.projects.edit', compact('project', 'users'));
     }
 
@@ -47,22 +90,34 @@ class AdminProjectController extends Controller
     {
         $request->validate([
             'nama_proyek'         => 'required|string|max:255',
+            'user_id'             => 'required|exists:users,id',
             'alamat_proyek'       => 'nullable|string|max:500',
             'kategori'            => 'required|string',
             'progress_percentage' => 'required|integer|min:0|max:100',
             'status'              => 'required|in:aktif,selesai,dibatalkan',
             'portfolio_approved'  => 'nullable|boolean',
             'deskripsi'           => 'nullable|string',
+            'main_image'          => 'nullable|image|max:3072',
         ]);
+
+        $imagePath = $project->main_image;
+        if ($request->hasFile('main_image')) {
+            if ($project->main_image && Storage::disk('public')->exists($project->main_image)) {
+                Storage::disk('public')->delete($project->main_image);
+            }
+            $imagePath = $request->file('main_image')->store('projects', 'public');
+        }
 
         $project->update([
             'nama_proyek'         => $request->nama_proyek,
+            'user_id'             => $request->user_id,
             'alamat_proyek'       => $request->alamat_proyek,
             'kategori'            => $request->kategori,
             'progress_percentage' => $request->progress_percentage,
             'status'              => $request->status,
             'portfolio_approved'  => $request->boolean('portfolio_approved'),
             'deskripsi'           => $request->deskripsi,
+            'main_image'          => $imagePath,
             'completed_at'        => $request->status === 'selesai' ? ($project->completed_at ?? now()) : null,
         ]);
 
@@ -71,8 +126,10 @@ class AdminProjectController extends Controller
 
     public function destroy(Project $project)
     {
+        if ($project->main_image && Storage::disk('public')->exists($project->main_image)) {
+            Storage::disk('public')->delete($project->main_image);
+        }
         $project->delete();
         return back()->with('success', 'Proyek berhasil dihapus.');
     }
 }
-

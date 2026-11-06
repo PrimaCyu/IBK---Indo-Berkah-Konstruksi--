@@ -1,8 +1,7 @@
 @extends('admin.layouts.app')
 
 @section('title', 'Edit Proyek: ' . $project->nama_proyek)
-@section('page-title', 'Perbarui Proyek')
-@section('page-subtitle', 'Update persentase progres, status penyelesaian, dan izin tampil di portofolio')
+@section('page-title', 'Edit Proyek')
 
 @section('breadcrumb')
     <li class="breadcrumb-item"><a href="/admin">Dashboard</a></li>
@@ -11,102 +10,148 @@
 @endsection
 
 @section('content')
+
 <div class="row justify-content-center">
-    <div class="col-lg-8">
-        <div class="card shadow-sm border-0">
-            <div class="card-header bg-white py-3">
-                <h5 class="card-title mb-0 fw-bold">
-                    <i class="bi bi-pencil-square text-primary me-2"></i> Form Perubahan Data Proyek
-                </h5>
+    <div class="col-lg-9">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span class="fw-bold"><i class="fas fa-edit me-2 text-primary"></i>Ubah Data Proyek: {{ $project->nama_proyek }}</span>
+                <a href="/admin/projects" class="btn btn-sm btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> Kembali
+                </a>
             </div>
-            <div class="card-body p-4">
-                <form action="/admin/projects/{{ $project->id }}" method="POST">
-                    @csrf
-                    @method('PUT')
+            <form action="{{ route('admin.projects.update', $project) }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                @method('PUT')
+                <div class="card-body">
+                    <div class="row g-3">
+                        <!-- Nama Proyek -->
+                        <div class="col-md-8">
+                            <label class="form-label">Nama Proyek <span class="text-danger">*</span></label>
+                            <input type="text" name="nama_proyek" class="form-control form-control-sm @error('nama_proyek') is-invalid @enderror" value="{{ old('nama_proyek', $project->nama_proyek) }}" required>
+                            @error('nama_proyek')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
 
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Klien / Pemilik Proyek</label>
-                        <input type="text" class="form-control bg-light" value="{{ $project->user->name ?? 'Belum terhubung' }} ({{ $project->user->email ?? '-' }})" disabled>
-                        <small class="text-muted">Klien terikat otomatis dari pendaftaran proyek.</small>
-                    </div>
+                        <!-- Klien -->
+                        <div class="col-md-4">
+                            <label class="form-label">Klien / Pemilik <span class="text-danger">*</span></label>
+                            <select name="user_id" class="form-select form-select-sm @error('user_id') is-invalid @enderror" required>
+                                @foreach($users as $user)
+                                    <option value="{{ $user->id }}" {{ old('user_id', $project->user_id) == $user->id ? 'selected' : '' }}>
+                                        {{ $user->name }} ({{ $user->email }})
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('user_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
 
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Nama Proyek <span class="text-danger">*</span></label>
-                        <input type="text" name="nama_proyek" class="form-control @error('nama_proyek') is-invalid @enderror" value="{{ old('nama_proyek', $project->nama_proyek) }}" required>
-                        @error('nama_proyek') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Alamat / Lokasi Proyek</label>
-                        <textarea name="alamat_proyek" class="form-control" rows="2">{{ old('alamat_proyek', $project->alamat_proyek) }}</textarea>
-                    </div>
-
-                    <div class="row g-3 mb-3">
+                        <!-- Kategori -->
                         <div class="col-md-6">
-                            <label class="form-label fw-bold">Kategori Layanan <span class="text-danger">*</span></label>
-                            <select name="kategori" class="form-select" required>
+                            <label class="form-label">Kategori Proyek <span class="text-danger">*</span></label>
+                            <select name="kategori" class="form-select form-select-sm @error('kategori') is-invalid @enderror" required>
                                 <option value="Pembangunan Rumah" {{ old('kategori', $project->kategori) === 'Pembangunan Rumah' ? 'selected' : '' }}>Pembangunan Rumah</option>
                                 <option value="Gedung Komersial" {{ old('kategori', $project->kategori) === 'Gedung Komersial' ? 'selected' : '' }}>Gedung Komersial</option>
                                 <option value="Renovasi Bangunan" {{ old('kategori', $project->kategori) === 'Renovasi Bangunan' ? 'selected' : '' }}>Renovasi Bangunan</option>
                                 <option value="Konsultasi Konstruksi" {{ old('kategori', $project->kategori) === 'Konsultasi Konstruksi' ? 'selected' : '' }}>Konsultasi Konstruksi</option>
                             </select>
+                            @error('kategori')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
+
+                        <!-- Status -->
                         <div class="col-md-6">
-                            <label class="form-label fw-bold">Status Proyek <span class="text-danger">*</span></label>
-                            <select name="status" class="form-select" required>
-                                <option value="aktif" {{ old('status', $project->status) === 'aktif' ? 'selected' : '' }}>Aktif (Sedang Dikerjakan)</option>
-                                <option value="selesai" {{ old('status', $project->status) === 'selesai' ? 'selected' : '' }}>Selesai (100% Selesai)</option>
+                            <label class="form-label">Status Proyek <span class="text-danger">*</span></label>
+                            <select name="status" class="form-select form-select-sm @error('status') is-invalid @enderror" required>
+                                <option value="aktif" {{ old('status', $project->status) === 'aktif' ? 'selected' : '' }}>Aktif (Berjalan)</option>
+                                <option value="selesai" {{ old('status', $project->status) === 'selesai' ? 'selected' : '' }}>Selesai</option>
                                 <option value="dibatalkan" {{ old('status', $project->status) === 'dibatalkan' ? 'selected' : '' }}>Dibatalkan</option>
                             </select>
+                            @error('status')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
-                    </div>
 
-                    <!-- Progress Slider & Input -->
-                    <div class="card p-3 bg-light border-0 mb-4 rounded-3">
-                        <label class="form-label fw-bold d-flex justify-content-between">
-                            <span>Persentase Progres Lapangan</span>
-                            <span class="text-primary fw-bolder fs-5" id="progressValDisplay">{{ old('progress_percentage', $project->progress_percentage) }}%</span>
-                        </label>
-                        <input type="range" class="form-range" min="0" max="100" step="5" id="progressRange" 
-                               value="{{ old('progress_percentage', $project->progress_percentage) }}"
-                               oninput="document.getElementById('progressInput').value = this.value; document.getElementById('progressValDisplay').innerText = this.value + '%'">
-                        <div class="input-group mt-2" style="max-width: 180px;">
-                            <input type="number" name="progress_percentage" id="progressInput" min="0" max="100" class="form-control" 
+                        <!-- Alamat -->
+                        <div class="col-12">
+                            <label class="form-label">Lokasi / Alamat Proyek</label>
+                            <input type="text" name="alamat_proyek" class="form-control form-control-sm @error('alamat_proyek') is-invalid @enderror" value="{{ old('alamat_proyek', $project->alamat_proyek) }}">
+                            @error('alamat_proyek')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <!-- Progres Slider -->
+                        <div class="col-12">
+                            <label class="form-label d-flex justify-content-between align-items-center">
+                                <span>Persentase Progres Pengerjaan</span>
+                                <span class="fw-bold text-primary fs-6" id="progDisplay">{{ old('progress_percentage', $project->progress_percentage) }}%</span>
+                            </label>
+                            <input type="range" class="form-range" min="0" max="100" step="5" id="progRange" 
                                    value="{{ old('progress_percentage', $project->progress_percentage) }}"
-                                   oninput="document.getElementById('progressRange').value = this.value; document.getElementById('progressValDisplay').innerText = this.value + '%'" required>
-                            <span class="input-group-text">%</span>
+                                   oninput="document.getElementById('progInput').value = this.value; document.getElementById('progDisplay').innerText = this.value + '%'">
+                            <div class="input-group input-group-sm mt-1" style="max-width: 140px;">
+                                <input type="number" name="progress_percentage" id="progInput" min="0" max="100" class="form-control @error('progress_percentage') is-invalid @enderror" 
+                                       value="{{ old('progress_percentage', $project->progress_percentage) }}"
+                                       oninput="document.getElementById('progRange').value = this.value; document.getElementById('progDisplay').innerText = this.value + '%'" required>
+                                <span class="input-group-text">%</span>
+                            </div>
+                            @error('progress_percentage')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
-                        <small class="text-muted mt-2 d-block">Ubah persentase sesuai capaian fisik tukang di lapangan.</small>
-                    </div>
 
-                    <!-- Portofolio Toggle -->
-                    <div class="form-check form-switch p-3 bg-light rounded-3 mb-4 ps-5">
-                        <input class="form-check-input ms-n5" type="checkbox" name="portfolio_approved" id="portfolio_approved" value="1" {{ old('portfolio_approved', $project->portfolio_approved) ? 'checked' : '' }}>
-                        <label class="form-check-label fw-bold text-dark" for="portfolio_approved">
-                            Tampilkan Otomatis di Portofolio Website Publik
-                        </label>
-                        <small class="d-block text-muted">
-                            Jika dicentang dan status proyek adalah <strong>Selesai</strong>, sistem otomatis membuat portofolio publik beserta foto galeri proyek ini.
-                        </small>
-                    </div>
+                        <!-- Foto Utama -->
+                        <div class="col-md-6">
+                            <label class="form-label">Foto Utama Proyek</label>
+                            @if($project->main_image)
+                                <div class="mb-2">
+                                    <img src="{{ asset('storage/' . $project->main_image) }}" alt="Foto Proyek" class="rounded border object-fit-cover" style="width: 120px; height: 80px;">
+                                    <small class="d-block text-muted">Foto saat ini</small>
+                                </div>
+                            @endif
+                            <input type="file" name="main_image" class="form-control form-control-sm @error('main_image') is-invalid @enderror" accept="image/*">
+                            <small class="text-muted">Biarkan kosong jika tidak ingin mengubah foto</small>
+                            @error('main_image')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
 
-                    <div class="mb-4">
-                        <label class="form-label fw-bold">Deskripsi / Catatan Proyek</label>
-                        <textarea name="deskripsi" class="form-control" rows="4">{{ old('deskripsi', $project->deskripsi) }}</textarea>
-                    </div>
+                        <!-- Tampilkan di Portofolio -->
+                        <div class="col-md-6 d-flex align-items-center pt-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="portfolio_approved" value="1" id="portfolioApproved" {{ old('portfolio_approved', $project->portfolio_approved) ? 'checked' : '' }}>
+                                <label class="form-check-label small" for="portfolioApproved">
+                                    Tampilkan di Portofolio Publik Website
+                                </label>
+                            </div>
+                        </div>
 
-                    <div class="d-flex justify-content-between">
-                        <a href="/admin/projects" class="btn btn-outline-secondary px-4">
-                            <i class="bi bi-arrow-left me-1"></i> Batal
-                        </a>
-                        <button type="submit" class="btn btn-warning px-4 fw-bold" style="background-color: var(--ibk-gold); border-color: var(--ibk-gold); color: #111;">
-                            <i class="bi bi-save me-1"></i> Simpan Perubahan
-                        </button>
+                        <!-- Deskripsi -->
+                        <div class="col-12">
+                            <label class="form-label">Deskripsi & Ruang Lingkup</label>
+                            <textarea name="deskripsi" class="form-control form-control-sm @error('deskripsi') is-invalid @enderror" rows="4">{{ old('deskripsi', $project->deskripsi) }}</textarea>
+                            @error('deskripsi')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
                     </div>
-                </form>
-            </div>
+                </div>
+                <div class="card-footer d-flex justify-content-between align-items-center">
+                    <a href="/admin/projects" class="btn btn-sm btn-secondary">
+                        <i class="fas fa-times me-1"></i> Batal
+                    </a>
+                    <button type="submit" class="btn btn-sm btn-primary">
+                        <i class="fas fa-save me-1"></i> Perbarui Proyek
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
-@endsection
 
+@endsection

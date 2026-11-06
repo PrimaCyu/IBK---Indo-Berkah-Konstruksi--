@@ -1,8 +1,7 @@
 @extends('admin.layouts.app')
 
-@section('title', 'Masukan Lapangan Klien')
-@section('page-title', 'Catatan & Masukan Lapangan')
-@section('page-subtitle', 'Kelola feedback dan catatan yang dikirim oleh klien melalui portal dashboard')
+@section('title', 'Masukan Lapangan')
+@section('page-title', 'Masukan & Catatan Lapangan')
 
 @section('breadcrumb')
     <li class="breadcrumb-item"><a href="/admin">Dashboard</a></li>
@@ -10,26 +9,60 @@
 @endsection
 
 @section('content')
-<div class="card shadow-sm border-0">
-    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-        <h5 class="card-title mb-0 fw-bold">
-            <i class="bi bi-chat-left-dots-fill text-warning me-2"></i> Daftar Masukan & Catatan Klien ({{ $feedbacks->total() }})
-        </h5>
-        <span class="badge badge-gold px-3 py-2 rounded-pill">Total: {{ $feedbacks->total() }} Catatan</span>
+
+<!-- Filter Bar -->
+<div class="card mb-3">
+    <div class="card-body p-3">
+        <form method="GET" action="/admin/feedbacks" class="row g-2 align-items-center">
+            <div class="col-md-5">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
+                    <input type="text" name="search" value="{{ request('search') }}" class="form-control" placeholder="Cari judul, isi catatan, klien, atau proyek...">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select name="status" class="form-select form-select-sm">
+                    <option value="">Semua Status</option>
+                    <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Pending</option>
+                    <option value="diproses" {{ request('status') === 'diproses' ? 'selected' : '' }}>Diproses</option>
+                    <option value="selesai" {{ request('status') === 'selesai' ? 'selected' : '' }}>Selesai</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-flex gap-1">
+                <button type="submit" class="btn btn-sm btn-primary w-100">
+                    <i class="fas fa-filter me-1"></i> Filter
+                </button>
+                @if(request()->hasAny(['search', 'status']))
+                    <a href="/admin/feedbacks" class="btn btn-sm btn-outline-secondary" title="Reset">
+                        <i class="fas fa-times"></i>
+                    </a>
+                @endif
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Table Card -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-2">
+            <span class="fw-bold"><i class="fas fa-comment-dots me-2 text-primary"></i>Catatan & Permintaan dari Klien Lapangan</span>
+            <span class="badge bg-secondary-subtle text-secondary border font-monospace">{{ $feedbacks->total() }} Data</span>
+        </div>
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-hover table-modern align-middle mb-0">
-                <thead class="table-light">
+            <table class="table table-hover table-striped mb-0">
+                <thead>
                     <tr>
-                        <th style="width: 50px;">No</th>
+                        <th style="width: 40px;">No</th>
                         <th>Klien</th>
-                        <th>Proyek Terkait</th>
+                        <th>Proyek</th>
                         <th>Judul Masukan</th>
                         <th>Isi Catatan</th>
                         <th>Status</th>
-                        <th>Waktu Kirim</th>
-                        <th class="text-end" style="width: 160px;">Aksi</th>
+                        <th>Tanggal</th>
+                        <th class="text-end" style="width: 150px;">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -37,72 +70,113 @@
                         <tr>
                             <td class="text-muted">{{ $feedbacks->firstItem() + $index }}</td>
                             <td>
-                                <div class="fw-bold text-dark">{{ $item->user->name ?? 'Klien' }}</div>
-                                <small class="text-muted">{{ $item->user->email ?? '-' }}</small>
+                                <div class="fw-semibold">{{ $item->user->name ?? '-' }}</div>
+                                <small class="text-muted">{{ $item->user->email ?? '' }}</small>
                             </td>
                             <td>
-                                <span class="badge bg-light text-dark border">
-                                    {{ $item->project->nama_proyek ?? 'Proyek Umum' }}
-                                </span>
+                                <span class="badge bg-light text-dark border">{{ $item->project->nama_proyek ?? 'Umum' }}</span>
                             </td>
                             <td>
-                                <span class="fw-semibold text-dark">{{ $item->title ?? 'Catatan Lapangan' }}</span>
+                                <span class="fw-semibold">{{ $item->title ?? 'Catatan' }}</span>
                             </td>
                             <td>
-                                <div class="small text-secondary" style="max-width: 300px; max-height: 60px; overflow: hidden;">
-                                    {!! $item->content !!}
-                                </div>
+                                <small class="text-muted text-truncate d-inline-block" style="max-width: 250px;">
+                                    {{ strip_tags($item->content) }}
+                                </small>
                             </td>
                             <td>
                                 @if($item->status === 'selesai')
-                                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1">Selesai</span>
+                                    <span class="badge bg-success">Selesai</span>
                                 @elseif($item->status === 'diproses')
-                                    <span class="badge bg-info-subtle text-info border border-info-subtle rounded-pill px-3 py-1">Diproses</span>
+                                    <span class="badge bg-info text-dark">Diproses</span>
                                 @else
-                                    <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-3 py-1">Pending</span>
+                                    <span class="badge bg-warning text-dark">Pending</span>
                                 @endif
                             </td>
                             <td>
-                                <small class="text-muted">{{ $item->created_at->diffForHumans() }}</small>
+                                <small class="text-muted">{{ $item->created_at->format('d/m/Y H:i') }}</small>
                             </td>
                             <td class="text-end">
-                                <div class="d-flex justify-content-end gap-1">
-                                    <form action="/admin/feedbacks/{{ $item->id }}/status" method="POST" class="d-inline">
-                                        @csrf
-                                        @method('PATCH')
-                                        @if($item->status === 'pending')
-                                            <input type="hidden" name="status" value="diproses">
-                                            <button type="submit" class="btn btn-sm btn-outline-info rounded-pill px-2" title="Tandai Sedang Diproses">
-                                                <i class="bi bi-clock-history"></i> Proses
-                                            </button>
-                                        @elseif($item->status === 'diproses')
-                                            <input type="hidden" name="status" value="selesai">
-                                            <button type="submit" class="btn btn-sm btn-outline-success rounded-pill px-2" title="Tandai Selesai">
-                                                <i class="bi bi-check2-circle"></i> Selesai
-                                            </button>
-                                        @else
-                                            <input type="hidden" name="status" value="pending">
-                                            <button type="submit" class="btn btn-sm btn-outline-secondary rounded-pill px-2" title="Kembalikan ke Pending">
-                                                <i class="bi bi-arrow-counterclockwise"></i> Reset
-                                            </button>
-                                        @endif
-                                    </form>
-
-                                    <form action="/admin/feedbacks/{{ $item->id }}" method="POST" onsubmit="return confirm('Hapus catatan ini?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-circle p-1" style="width: 32px; height: 32px;" title="Hapus">
-                                            <i class="bi bi-trash"></i>
+                                <button type="button" class="btn btn-xs btn-outline-secondary py-1 px-2" data-bs-toggle="modal" data-bs-target="#fbDetail{{ $item->id }}" title="Baca Lengkap">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <form action="/admin/feedbacks/{{ $item->id }}/status" method="POST" class="d-inline">
+                                    @csrf
+                                    @method('PATCH')
+                                    @if($item->status === 'pending')
+                                        <input type="hidden" name="status" value="diproses">
+                                        <button type="submit" class="btn btn-xs btn-outline-info py-1 px-2" title="Tandai Sedang Diproses">
+                                            <i class="fas fa-play"></i>
                                         </button>
-                                    </form>
+                                    @elseif($item->status === 'diproses')
+                                        <input type="hidden" name="status" value="selesai">
+                                        <button type="submit" class="btn btn-xs btn-outline-success py-1 px-2" title="Tandai Selesai">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    @else
+                                        <input type="hidden" name="status" value="pending">
+                                        <button type="submit" class="btn btn-xs btn-outline-secondary py-1 px-2" title="Kembalikan ke Pending">
+                                            <i class="fas fa-undo"></i>
+                                        </button>
+                                    @endif
+                                </form>
+                                <form action="/admin/feedbacks/{{ $item->id }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus catatan masukan ini?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-xs btn-outline-danger py-1 px-2" title="Hapus">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+
+                                <!-- Modal Detail Feedback -->
+                                <div class="modal fade" id="fbDetail{{ $item->id }}" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered text-start">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h6 class="modal-title fw-bold"><i class="fas fa-comment-dots me-2 text-primary"></i>Masukan Lapangan: {{ $item->title ?? 'Tanpa Judul' }}</h6>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <dl class="row mb-0 small">
+                                                    <dt class="col-sm-3 text-muted">Klien</dt>
+                                                    <dd class="col-sm-9 fw-semibold">{{ $item->user->name ?? '-' }} ({{ $item->user->email ?? '-' }})</dd>
+
+                                                    <dt class="col-sm-3 text-muted">Proyek</dt>
+                                                    <dd class="col-sm-9">{{ $item->project->nama_proyek ?? 'Umum' }}</dd>
+
+                                                    <dt class="col-sm-3 text-muted">Status</dt>
+                                                    <dd class="col-sm-9">
+                                                        @if($item->status === 'selesai')
+                                                            <span class="badge bg-success">Selesai</span>
+                                                        @elseif($item->status === 'diproses')
+                                                            <span class="badge bg-info text-dark">Diproses</span>
+                                                        @else
+                                                            <span class="badge bg-warning text-dark">Pending</span>
+                                                        @endif
+                                                    </dd>
+
+                                                    <dt class="col-sm-3 text-muted">Tanggal</dt>
+                                                    <dd class="col-sm-9">{{ $item->created_at->format('d F Y, H:i') }} WIB</dd>
+
+                                                    <dt class="col-sm-3 text-muted">Isi Catatan</dt>
+                                                    <dd class="col-sm-9">
+                                                        <div class="p-2 bg-light rounded border text-secondary" style="white-space: pre-wrap;">{{ $item->content }}</div>
+                                                    </dd>
+                                                </dl>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </td>
                         </tr>
                     @empty
                         <tr>
                             <td colspan="8" class="text-center py-5 text-muted">
-                                <i class="bi bi-chat-left-dots fs-1 d-block mb-2 text-secondary"></i>
-                                Belum ada masukan atau catatan dari klien.
+                                <div class="mb-2"><i class="fas fa-comment-dots fs-3 text-secondary"></i></div>
+                                <div>Belum ada masukan lapangan yang masuk.</div>
                             </td>
                         </tr>
                     @endforelse
@@ -111,10 +185,10 @@
         </div>
     </div>
     @if($feedbacks->hasPages())
-        <div class="card-footer bg-white border-0 py-3">
+        <div class="card-footer py-2">
             {{ $feedbacks->links('pagination::bootstrap-5') }}
         </div>
     @endif
 </div>
-@endsection
 
+@endsection

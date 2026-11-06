@@ -8,9 +8,22 @@ use Illuminate\Http\Request;
 
 class AdminPenawaranController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $penawarans = Penawaran::latest()->paginate(10);
+        $query = Penawaran::latest();
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('nama', 'like', "%{$search}%")
+                  ->orWhere('telepon', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('alamat', 'like', "%{$search}%")
+                  ->orWhere('budget', 'like', "%{$search}%");
+            });
+        }
+
+        $penawarans = $query->paginate(10)->withQueryString();
         return view('admin.penawaran.index', compact('penawarans'));
     }
 
@@ -20,4 +33,3 @@ class AdminPenawaranController extends Controller
         return back()->with('success', 'Data penawaran berhasil dihapus.');
     }
 }
-

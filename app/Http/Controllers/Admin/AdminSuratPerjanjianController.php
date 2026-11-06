@@ -8,9 +8,26 @@ use Illuminate\Http\Request;
 
 class AdminSuratPerjanjianController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $suratPerjanjians = SuratPerjanjian::latest()->paginate(10);
+        $query = SuratPerjanjian::latest();
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('nama', 'like', "%{$search}%")
+                  ->orWhere('telepon', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('keterangan', 'like', "%{$search}%")
+                  ->orWhere('catatan_admin', 'like', "%{$search}%");
+            });
+        }
+
+        $suratPerjanjians = $query->paginate(10)->withQueryString();
         return view('admin.surat-perjanjian.index', compact('suratPerjanjians'));
     }
 
@@ -35,4 +52,3 @@ class AdminSuratPerjanjianController extends Controller
         return back()->with('success', 'Surat perjanjian berhasil dihapus.');
     }
 }
-

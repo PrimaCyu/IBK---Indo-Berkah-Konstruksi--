@@ -105,6 +105,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // Projects
     Route::get('/projects', [AdminProjectController::class, 'index'])->name('projects.index');
+    Route::get('/projects/create', [AdminProjectController::class, 'create'])->name('projects.create');
+    Route::post('/projects', [AdminProjectController::class, 'store'])->name('projects.store');
     Route::get('/projects/{project}/edit', [AdminProjectController::class, 'edit'])->name('projects.edit');
     Route::put('/projects/{project}', [AdminProjectController::class, 'update'])->name('projects.update');
     Route::delete('/projects/{project}', [AdminProjectController::class, 'destroy'])->name('projects.destroy');
@@ -130,23 +132,28 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // Users
     Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
+    Route::post('/users', [AdminUserController::class, 'store'])->name('users.store');
     Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
 
     // User Files & Designs
     Route::get('/user-files', [AdminUserFileController::class, 'index'])->name('user-files.index');
+    Route::post('/user-files', [AdminUserFileController::class, 'store'])->name('user-files.store');
     Route::delete('/user-files/{userFile}', [AdminUserFileController::class, 'destroy'])->name('user-files.destroy');
 
     // Portfolios
     Route::get('/portfolios', [AdminPortfolioController::class, 'index'])->name('portfolios.index');
+    Route::post('/portfolios', [AdminPortfolioController::class, 'store'])->name('portfolios.store');
     Route::delete('/portfolios/{portfolio}', [AdminPortfolioController::class, 'destroy'])->name('portfolios.destroy');
 
     // Berita & Artikel
     Route::get('/berita', [AdminBeritaController::class, 'index'])->name('berita.index');
+    Route::post('/berita', [AdminBeritaController::class, 'store'])->name('berita.store');
     Route::patch('/berita/{berita}/publish', [AdminBeritaController::class, 'togglePublish'])->name('berita.publish');
     Route::delete('/berita/{berita}', [AdminBeritaController::class, 'destroy'])->name('berita.destroy');
 
     // Team & Join Us
     Route::get('/team', [AdminTeamController::class, 'index'])->name('team.index');
+    Route::post('/team', [AdminTeamController::class, 'store'])->name('team.store');
     Route::patch('/team/{teamMember}/status', [AdminTeamController::class, 'updateStatus'])->name('team.status');
     Route::patch('/team/{teamMember}/visibility', [AdminTeamController::class, 'toggleVisibility'])->name('team.visibility');
     Route::delete('/team/{teamMember}', [AdminTeamController::class, 'destroy'])->name('team.destroy');

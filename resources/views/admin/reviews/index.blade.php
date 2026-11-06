@@ -1,116 +1,134 @@
 @extends('admin.layouts.app')
 
-@section('title', 'Ulasan & Testimoni')
-@section('page-title', 'Moderasi Ulasan Klien')
-@section('page-subtitle', 'Setujui atau sembunyikan testimoni yang akan ditampilkan di halaman depan website')
+@section('title', 'Ulasan Klien')
+@section('page-title', 'Review & Testimoni Klien')
 
 @section('breadcrumb')
     <li class="breadcrumb-item"><a href="/admin">Dashboard</a></li>
-    <li class="breadcrumb-item active">Review</li>
+    <li class="breadcrumb-item active">Ulasan</li>
 @endsection
 
 @section('content')
-<div class="card shadow-sm border-0">
-    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-        <h5 class="card-title mb-0 fw-bold">
-            <i class="bi bi-star-fill text-warning me-2"></i> Daftar Testimoni & Ulasan Klien
-        </h5>
-        <span class="badge badge-gold px-3 py-2 rounded-pill">Total: {{ $reviews->total() }} Ulasan</span>
+
+<!-- Filter Bar -->
+<div class="card mb-3">
+    <div class="card-body p-3">
+        <form method="GET" action="/admin/reviews" class="row g-2 align-items-center">
+            <div class="col-md-5">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
+                    <input type="text" name="search" value="{{ request('search') }}" class="form-control" placeholder="Cari isi ulasan, klien, atau nama proyek...">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select name="status" class="form-select form-select-sm">
+                    <option value="">Semua Status Publikasi</option>
+                    <option value="approved" {{ request('status') === 'approved' ? 'selected' : '' }}>Ditayangkan di Website</option>
+                    <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Draf / Menunggu</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-flex gap-1">
+                <button type="submit" class="btn btn-sm btn-primary w-100">
+                    <i class="fas fa-filter me-1"></i> Filter
+                </button>
+                @if(request()->hasAny(['search', 'status']))
+                    <a href="/admin/reviews" class="btn btn-sm btn-outline-secondary" title="Reset">
+                        <i class="fas fa-times"></i>
+                    </a>
+                @endif
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Table Card -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-2">
+            <span class="fw-bold"><i class="fas fa-star me-2 text-primary"></i>Daftar Moderasi Testimoni Klien</span>
+            <span class="badge bg-secondary-subtle text-secondary border font-monospace">{{ $reviews->total() }} Data</span>
+        </div>
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-hover table-modern align-middle mb-0">
-                <thead class="table-light">
+            <table class="table table-hover table-striped mb-0">
+                <thead>
                     <tr>
-                        <th style="width: 50px;">No</th>
-                        <th>Foto Lampiran</th>
+                        <th style="width: 40px;">No</th>
+                        <th>Foto</th>
                         <th>Klien</th>
                         <th>Proyek</th>
                         <th>Isi Ulasan Testimoni</th>
-                        <th>Status Tampil</th>
-                        <th>Waktu</th>
-                        <th class="text-end" style="width: 170px;">Aksi</th>
+                        <th>Status Publikasi</th>
+                        <th>Tanggal</th>
+                        <th class="text-end" style="width: 140px;">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($reviews as $index => $item)
                         <tr>
                             <td class="text-muted">{{ $reviews->firstItem() + $index }}</td>
-                            <td>
+                            <td style="width: 50px;">
                                 @if($item->image)
                                     <a href="{{ asset('storage/' . $item->image) }}" target="_blank">
-                                        <img src="{{ asset('storage/' . $item->image) }}" alt="Foto" class="rounded shadow-sm object-fit-cover" style="width: 50px; height: 50px;">
+                                        <img src="{{ asset('storage/' . $item->image) }}" alt="Foto" class="rounded border object-fit-cover" style="width: 40px; height: 40px;">
                                     </a>
                                 @else
-                                    <span class="text-muted small">-</span>
+                                    <div class="rounded-circle bg-light border text-muted d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; font-size: 0.75rem;">
+                                        <i class="fas fa-user"></i>
+                                    </div>
                                 @endif
                             </td>
                             <td>
-                                <div class="fw-bold text-dark">{{ $item->user->name ?? 'Klien' }}</div>
-                                <small class="text-muted">{{ $item->user->email ?? '-' }}</small>
+                                <div class="fw-semibold">{{ $item->user->name ?? '-' }}</div>
+                                <small class="text-muted">{{ $item->user->email ?? '' }}</small>
                             </td>
                             <td>
-                                <span class="badge bg-light text-dark border">
-                                    {{ $item->project->nama_proyek ?? 'Umum' }}
-                                </span>
+                                <span class="badge bg-light text-dark border">{{ $item->project->nama_proyek ?? 'Umum' }}</span>
                             </td>
                             <td>
-                                <div class="small text-secondary" style="max-width: 320px;">
+                                <div class="text-secondary small fst-italic" style="max-width: 320px;">
                                     "{{ $item->message }}"
                                 </div>
                             </td>
                             <td>
                                 @if($item->is_approved)
-                                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1">
-                                        <i class="bi bi-check-circle-fill me-1"></i> Ditampilkan
-                                    </span>
+                                    <span class="badge bg-success"><i class="fas fa-check me-1"></i> Tayang</span>
                                 @else
-                                    <span class="badge bg-secondary-subtle text-secondary border rounded-pill px-3 py-1">
-                                        Disembunyikan
-                                    </span>
+                                    <span class="badge bg-secondary">Draf</span>
                                 @endif
                             </td>
                             <td>
-                                <small class="text-muted">{{ $item->created_at->diffForHumans() }}</small>
+                                <small class="text-muted">{{ $item->created_at->format('d/m/Y') }}</small>
                             </td>
                             <td class="text-end">
-                                <div class="d-flex justify-content-end gap-1">
-                                    <form action="/admin/reviews/{{ $item->id }}/toggle" method="POST" class="d-inline">
-                                        @csrf
-                                        @method('PATCH')
-                                        @if($item->is_approved)
-                                            <button type="submit" class="btn btn-sm btn-outline-warning rounded-pill px-2" title="Sembunyikan dari Website">
-                                                <i class="bi bi-eye-slash"></i> Tarik
-                                            </button>
-                                        @else
-                                            <button type="submit" class="btn btn-sm btn-outline-success rounded-pill px-2" title="Tampilkan di Website">
-                                                <i class="bi bi-check2"></i> Tayangkan
-                                            </button>
-                                        @endif
-                                    </form>
-
-                                    <form action="/admin/reviews/{{ $item->id }}" method="POST" onsubmit="return confirm('Hapus ulasan ini?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-circle p-1" style="width: 32px; height: 32px;" title="Hapus">
-                                            <i class="bi bi-trash"></i>
+                                <form action="/admin/reviews/{{ $item->id }}/toggle" method="POST" class="d-inline">
+                                    @csrf
+                                    @method('PATCH')
+                                    @if($item->is_approved)
+                                        <button type="submit" class="btn btn-xs btn-outline-warning py-1 px-2" title="Tarik dari Beranda Publik">
+                                            <i class="fas fa-eye-slash me-1"></i> Draf
                                         </button>
-                                    </form>
-                                </div>
+                                    @else
+                                        <button type="submit" class="btn btn-xs btn-outline-success py-1 px-2" title="Tayangkan di Beranda">
+                                            <i class="fas fa-check me-1"></i> Tayang
+                                        </button>
+                                    @endif
+                                </form>
+                                <form action="/admin/reviews/{{ $item->id }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus testimoni ini?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-xs btn-outline-danger py-1 px-2" title="Hapus">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="text-center py-5">
-                                <div class="py-4">
-                                    <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center mb-3 shadow-sm border" style="width: 70px; height: 70px;">
-                                        <i class="bi bi-star-fill text-warning fs-2"></i>
-                                    </div>
-                                    <h6 class="fw-bold text-dark mb-1">Belum Ada Review Testimoni</h6>
-                                    <p class="text-muted small mb-0" style="max-width: 420px; margin: 0 auto;">
-                                        Ulasan dari klien akan muncul di sini setelah mereka memberikan testimoni melalui Client Portal ketika proyek selesai.
-                                    </p>
-                                </div>
+                            <td colspan="8" class="text-center py-5 text-muted">
+                                <div class="mb-2"><i class="fas fa-star fs-3 text-secondary"></i></div>
+                                <div>Belum ada ulasan atau testimoni dari klien.</div>
                             </td>
                         </tr>
                     @endforelse
@@ -119,10 +137,10 @@
         </div>
     </div>
     @if($reviews->hasPages())
-        <div class="card-footer bg-white border-0 py-3">
+        <div class="card-footer py-2">
             {{ $reviews->links('pagination::bootstrap-5') }}
         </div>
     @endif
 </div>
-@endsection
 
+@endsection
