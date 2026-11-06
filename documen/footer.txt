@@ -1,0 +1,102 @@
+footer
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+<body>
+    
+</body>
+<footer class="bg-zinc-900 text-white">
+    <div class="max-w-7xl mx-auto px-6 py-16">
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+
+            <!-- Company -->
+            <div>
+                <h3 class="text-2xl font-bold mb-4">
+                    Indo Berkah Konsruksi
+                </h3>
+
+                <p class="text-gray-400 leading-relaxed">
+                    Kami menyediakan layanan pembangunan rumah,
+                    gedung komersial, renovasi bangunan, dan
+                    konsultasi konstruksi dengan standar kualitas
+                    terbaik dan pengerjaan profesional.
+                </p>
+            </div>
+
+            <!-- Menu -->
+            <div>
+                <h4 class="text-lg font-semibold mb-4">
+                    Navigasi
+                </h4>
+
+                <ul class="space-y-3 text-gray-400">
+                    <li><a href="/" class="hover:text-amber-400">Beranda</a></li>
+                    <li><a href="/tentang-kami" class="hover:text-amber-400">Tentang Kami</a></li>
+                    <li><a href="{{ url('/') }}#program" class="hover:text-amber-400">Layanan</a></li>
+                    <li><a href="/portofolio" class="hover:text-amber-400">Portfolio</a></li>
+                    <li><a href="#" class="hover:text-amber-400">Kontak</a></li>
+                </ul>
+            </div>
+
+            <!-- Services -->
+            <div>
+                <h4 class="text-lg font-semibold mb-4">
+                    Layanan
+                </h4>
+
+                <ul class="space-y-3 text-gray-400">
+                    <li>Pembangunan Rumah</li>
+                    <li>Gedung Komersial</li>
+                    <li>Renovasi Bangunan</li>
+                    <li>Konsultasi Konstruksi</li>
+                </ul>
+            </div>
+
+            <!-- Contact -->
+            <div>
+                <h4 class="text-lg font-semibold mb-4">
+                    Hubungi Kami
+                </h4>
+
+                <div class="space-y-4 text-gray-400">
+                    <p>+62 87865309966</p>
+                    <p>✉️ partners@indoberkahkonstruksi.com</p>
+
+                    <div class="flex gap-4 pt-2">
+                        <a href="https://web.facebook.com/profile.php?id=100094364576203&_rdc=1&_rdr#" class="hover:text-amber-400 w-8 h-8">
+                            <img src="image/facebook.png" alt="">
+                        </a>
+
+                        <a href="https://www.instagram.com/ibkonstruksi/" class="hover:text-amber-400 w-8 h-8">
+                            <img src="image/instagram.png" alt="">
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Bottom -->
+        <div class="border-t border-zinc-800 mt-12 pt-6 flex flex-col md:flex-row justify-between items-center">
+
+            <p class="text-gray-500 text-sm">
+                © 2026 Bali Build. All Rights Reserved.
+            </p>
+
+            <p class="text-gray-500 text-sm mt-2 md:mt-0">
+                Menjaga Kualitas Mewujud Berkah
+            </p>
+
+        </div>
+
+    </div>
+</footer>

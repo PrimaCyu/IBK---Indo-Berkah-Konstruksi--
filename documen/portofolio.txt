@@ -1,0 +1,492 @@
+portofolio
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Portofolio</title>
+    <link rel="icon" href="{{ asset('favicon.ico') }}">
+     @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+<body class="bg-gray-100">
+    @include('layout.header')
+
+    
+<section class="bg-gray-100 py-16 mt-20 px-4">
+    <div class="max-w-7xl mx-auto">
+
+        <ul class="inline-flex overflow-hidden border border-gray-300 rounded-full bg-white mb-10">
+            
+            <li>
+                <button class="px-5 py-3 text-amber-500 hover:bg-amber-50 transition duration-300">
+                    Semua
+                </button>
+            </li>
+
+            <li>
+                <button class="px-5 py-3 hover:text-amber-400">
+                    Pembangunan Rumah
+                </button>
+            </li>
+
+            <li>
+                <button class="px-5 py-3 hover:text-amber-400">
+                    Gedung Komersial
+                </button>
+            </li>
+
+            <li>
+                <button class="px-5 py-3 hover:text-amber-400 ">
+                    Konsultasi Konstruksi
+                </button>
+            </li>
+
+            <li>
+                <button class="px-5 py-3 hover:text-amber-400 ">
+                    Renovasi Bangunan
+                </button>
+            </li>
+
+        </ul>
+
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+
+            <!-- Card -->
+            <div class="group">
+                <div class="overflow-hidden rounded-lg shadow">
+                    <img
+                        src="image/Portofolio/porto1.jpg"
+                        alt=""
+                        class="w-full aspect-[4/3] object-cover
+                               group-hover:scale-105 duration-500"
+                    >
+                </div>
+
+                <h3 class="mt-4 text-xl font-bold">
+                    Melakukan Desain Interior Di Sesetan
+                </h3>
+
+                <p class="mt-2 text-gray-500">
+                    Hunian, Interior
+                </p>
+            </div>
+
+            <!-- Card -->
+            <div class="group">
+                <div class="overflow-hidden rounded-lg shadow">
+                    <img
+                        src="image/Portofolio/porto2.jpg"
+                        alt=""
+                        class="w-full aspect-[4/3] object-cover
+                               group-hover:scale-105 duration-500"
+                    >
+                </div>
+
+                <h3 class="mt-4 text-xl font-bold">
+                    Pembangunan Kos-kosan di Gatsu
+                </h3>
+
+                <p class="mt-2 text-gray-500">
+                    Hunian
+                </p>
+            </div>
+
+
+             <div class="group">
+                <div class="overflow-hidden rounded-lg shadow">
+                    <img
+                        src="image/Portofolio/porto3.jpg"
+                        alt=""
+                        class="w-full aspect-[4/3] object-cover
+                               group-hover:scale-105 duration-500"
+                    >
+                </div>
+
+                <h3 class="mt-4 text-xl font-bold">
+                    Pembangunan Kos-kosan di Sanur 
+                </h3>
+
+                <p class="mt-2 text-gray-500">
+                    Hunian
+                </p>
+            </div>
+
+
+             <div class="group">
+                <div class="overflow-hidden rounded-lg shadow">
+                    <img
+                        src="image/Portofolio/porto4.jpg"
+                        alt=""
+                        class="w-full aspect-[4/3] object-cover
+                               group-hover:scale-105 duration-500"
+                    >
+                </div>
+
+                <h3 class="mt-4 text-xl font-bold">
+                    Pembangunan Rumah di Sesetan
+                </h3>
+
+                <p class="mt-2 text-gray-500">
+                    Hunian
+                </p>
+            </div>
+
+             <div class="group">
+                <div class="overflow-hidden rounded-lg shadow">
+                    <img
+                        src="image/Portofolio/porto5.jpg"
+                        alt=""
+                        class="w-full aspect-[4/3] object-cover
+                               group-hover:scale-105 duration-500"
+                    >
+                </div>
+
+                <h3 class="mt-4 text-xl font-bold">
+                    Rumah Minimalis #2
+                </h3>
+
+                <p class="mt-2 text-gray-500">
+                    Hunian
+                </p>
+            </div>
+
+            <div class="group">
+                <div class="overflow-hidden rounded-lg shadow">
+                    <img
+                        src="image/Portofolio/porto6.jpg"
+                        alt=""
+                        class="w-full aspect-[4/3] object-cover
+                               group-hover:scale-105 duration-500"
+                    >
+                </div>
+
+                <h3 class="mt-4 text-xl font-bold">
+                    Rumah Minimalis #2
+                </h3>
+
+                <p class="mt-2 text-gray-500">
+                    Hunian
+                </p>
+            </div>
+
+            <div class="group">
+                <div class="overflow-hidden rounded-lg shadow">
+                    <img
+                        src="image/Portofolio/porto7.jpg"
+                        alt=""
+                        class="w-full aspect-[4/3] object-cover
+                               group-hover:scale-105 duration-500"
+                    >
+                </div>
+
+                <h3 class="mt-4 text-xl font-bold">
+                    Rumah Minimalis #2
+                </h3>
+
+                <p class="mt-2 text-gray-500">
+                    Hunian
+                </p>
+            </div>
+
+             <div class="group">
+                <div class="overflow-hidden rounded-lg shadow">
+                    <img
+                        src="image/Portofolio/porto8.jpg"
+                        alt=""
+                        class="w-full aspect-[4/3] object-cover
+                               group-hover:scale-105 duration-500"
+                    >
+                </div>
+
+                <h3 class="mt-4 text-xl font-bold">
+                    Rumah Minimalis #2
+                </h3>
+
+                <p class="mt-2 text-gray-500">
+                    Hunian
+                </p>
+            </div>
+
+             <div class="group">
+                <div class="overflow-hidden rounded-lg shadow">
+                    <img
+                        src="image/Portofolio/porto9.jpg"
+                        alt=""
+                        class="w-full aspect-[4/3] object-cover
+                               group-hover:scale-105 duration-500"
+                    >
+                </div>
+
+                <h3 class="mt-4 text-xl font-bold">
+                    Rumah Minimalis #2
+                </h3>
+
+                <p class="mt-2 text-gray-500">
+                    Hunian
+                </p>
+            </div>
+
+             <div class="group">
+                <div class="overflow-hidden rounded-lg shadow">
+                    <img
+                        src="image/Portofolio/porto10.jpg"
+                        alt=""
+                        class="w-full aspec t-4/3 object-cover
+                               group-hover:scale-105 duration-500"
+                    >
+                </div>
+
+                <h3 class="mt-4 text-xl font-bold">
+                    Rumah Minimalis #2
+                </h3>
+
+                <p class="mt-2 text-gray-500">
+                    Hunian
+                </p>
+            </div>
+
+             <div class="group">
+                <div class="overflow-hidden rounded-lg shadow">
+                    <img
+                        src="image/Portofolio/porto11.jpg"
+                        alt=""
+                        class="w-full aspect-[4/3] object-cover
+                               group-hover:scale-105 duration-500"
+                    >
+                </div>
+
+                <h3 class="mt-4 text-xl font-bold">
+                    Rumah Minimalis #2
+                </h3>
+
+                <p class="mt-2 text-gray-500">
+                    Hunian
+                </p>
+            </div>
+
+             <div class="group">
+                <div class="overflow-hidden rounded-lg shadow">
+                    <img
+                        src="image/Portofolio/porto10.jpg"
+                        alt=""
+                        class="w-full aspect-[4/3] object-cover
+                               group-hover:scale-105 duration-500"
+                    >
+                </div>
+
+                <h3 class="mt-4 text-xl font-bold">
+                    Rumah Minimalis #2
+                </h3>
+
+                <p class="mt-2 text-gray-500">
+                    Hunian
+                </p>
+            </div>
+
+             <div class="group">
+                <div class="overflow-hidden rounded-lg shadow">
+                    <img
+                        src="image/Portofolio/porto11.jpg"
+                        alt=""
+                        class="w-full aspect-[4/3] object-cover
+                               group-hover:scale-105 duration-500"
+                    >
+                </div>
+
+                <h3 class="mt-4 text-xl font-bold">
+                    Rumah Minimalis #2
+                </h3>
+
+                <p class="mt-2 text-gray-500">
+                    Hunian
+                </p>
+            </div>
+            
+            <div class="group">
+                <div class="overflow-hidden rounded-lg shadow">
+                    <img
+                        src="image/Portofolio/porto12.jpg"
+                        alt=""
+                        class="w-full aspect-[4/3] object-cover
+                               group-hover:scale-105 duration-500"
+                    >
+                </div>
+
+                <h3 class="mt-4 text-xl font-bold">
+                    Rumah Minimalis #2
+                </h3>
+
+                <p class="mt-2 text-gray-500">
+                    Hunian
+                </p>
+            </div>
+
+            <div class="group">
+                <div class="overflow-hidden rounded-lg shadow">
+                    <img
+                        src="image/Portofolio/porto13.png"
+                        alt=""
+                        class="w-full aspect-[4/3] object-cover
+                               group-hover:scale-105 duration-500"
+                    >
+                </div>
+
+                <h3 class="mt-4 text-xl font-bold">
+                    Rumah Minimalis #2
+                </h3>
+
+                <p class="mt-2 text-gray-500">
+                    Hunian
+                </p>
+            </div>
+
+            <div class="group">
+                <div class="overflow-hidden rounded-lg shadow">
+                    <img
+                        src="image/Portofolio/porto14.jpg"
+                        alt=""
+                        class="w-full aspect-[4/3] object-cover
+                               group-hover:scale-105 duration-500"
+                    >
+                </div>
+
+                <h3 class="mt-4 text-xl font-bold">
+                    Rumah Minimalis #2
+                </h3>
+
+                <p class="mt-2 text-gray-500">
+                    Hunian
+                </p>
+            </div>
+
+            <div class="group">
+                <div class="overflow-hidden rounded-lg shadow">
+                    <img
+                        src="image/Portofolio/porto15.jpg"
+                        alt=""
+                        class="w-full aspect-[4/3] object-cover
+                               group-hover:scale-105 duration-500"
+                    >
+                </div>
+
+                <h3 class="mt-4 text-xl font-bold">
+                    Rumah Minimalis #2
+                </h3>
+
+                <p class="mt-2 text-gray-500">
+                    Hunian
+                </p>
+            </div>
+
+            <div class="group">
+                <div class="overflow-hidden rounded-lg shadow">
+                    <img
+                        src="image/Portofolio/porto16.jpg"
+                        alt=""
+                        class="w-full aspect-[4/3] object-cover
+                               group-hover:scale-105 duration-500"
+                    >
+                </div>
+
+                <h3 class="mt-4 text-xl font-bold">
+                    Rumah Minimalis #2
+                </h3>
+
+                <p class="mt-2 text-gray-500">
+                    Hunian
+                </p>
+            </div>
+
+            <div class="group">
+                <div class="overflow-hidden rounded-lg shadow">
+                    <img
+                        src="image/Portofolio/porto17.jpg"
+                        alt=""
+                        class="w-full aspect-[4/3] object-cover
+                               group-hover:scale-105 duration-500"
+                    >
+                </div>
+
+                <h3 class="mt-4 text-xl font-bold">
+                    Rumah Minimalis #2
+                </h3>
+
+                <p class="mt-2 text-gray-500">
+                    Hunian
+                </p>
+            </div>
+
+            <div class="group">
+                <div class="overflow-hidden rounded-lg shadow">
+                    <img
+                        src="image/Portofolio/porto18.jpg"
+                        alt=""
+                        class="w-full aspect-[4/3] object-cover
+                               group-hover:scale-105 duration-500"
+                    >
+                </div>
+
+                <h3 class="mt-4 text-xl font-bold">
+                    Rumah Minimalis #2
+                </h3>
+
+                <p class="mt-2 text-gray-500">
+                    Hunian
+                </p>
+            </div>
+
+            <div class="group">
+                <div class="overflow-hidden rounded-lg shadow">
+                    <img
+                        src="image/Portofolio/porto19.jpg"
+                        alt=""
+                        class="w-full aspect-[4/3] object-cover
+                               group-hover:scale-105 duration-500"
+                    >
+                </div>
+
+                <h3 class="mt-4 text-xl font-bold">
+                    Rumah Minimalis #2
+                </h3>
+
+                <p class="mt-2 text-gray-500">
+                    Hunian
+                </p>
+            </div>
+
+            <div class="group">
+                <div class="overflow-hidden rounded-lg shadow">
+                    <img
+                        src="image/Portofolio/porto20.jpg"
+                        alt=""
+                        class="w-full aspect-[4/3] object-cover
+                               group-hover:scale-105 duration-500"
+                    >
+                </div>
+
+                <h3 class="mt-4 text-xl font-bold">
+                    Rumah Minimalis #2
+                </h3>
+
+                <p class="mt-2 text-gray-500">
+                    Hunian
+                </p>
+            </div>
+
+
+             
+            
+        </div>
+
+    </div>
+
+ 
+
+
+</section>
+@include('layout.footer') 
+</body>
+</html>

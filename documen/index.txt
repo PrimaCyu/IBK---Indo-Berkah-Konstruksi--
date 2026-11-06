@@ -1,0 +1,371 @@
+index
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Indo Berkah Konstruksi</title>
+    <link rel="icon" href="{{ asset('favicon.ico') }}">
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+<body class="bg-gray">
+@include('layout.header')    
+
+<section id="hero"
+    class="w-full h-[830px] relative bg-cover bg-center bg-[#1A1613]/50 bg-blend-multiply transition-all duration-1000">
+
+    <div class="absolute inset-0 bg-black/5"></div>
+
+        <div class="absolute inset-0 flex flex-col items-center justify-center text-center text-white z-10">
+
+            <div class="absolute inset-0 flex flex-col items-center text-center justify-center text-white z-10">
+                <h1 class="text-6xl font-bold leading-tight">
+                    Menjaga Kualitas <br> Mewujud Berkah
+                </h1>
+            
+                <p class="mt-5 text-lg max-w-md mx-auto">
+                    Ciptakan rumah impian dengan desain modern,
+                    elegan, dan minimalis.
+                </p>
+            
+                <button class="mt-32 px-6 py-3 bg-[#C5A880] text-[#1E293B] rounded-full hover:bg-zinc-200 transition">
+                    <a href="/portofolio">pelajari lebih lanjut</a>
+                </button>
+            </div>
+        </div>
+</section>
+
+
+<section id="program" class="w-full bg-[#F8F8F8] py-20 px-4">
+
+    <!-- Judul -->
+    <div class="text-center max-w-2xl mx-auto mb-14">
+        <h2 class="text-4xl font-bold text-black mb-3">
+            Program Kontruksi
+        </h2>
+    </div>
+
+    <!-- Card Program -->
+    <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+        <!-- Card 1 -->
+        <div class="bg-white rounded-lg p-8 shadow-md hover:shadow-lg transition duration-300">
+            <div class="mb-6">
+                <img src="image/ElementProgram/building-construction-industry-18-svgrepo-com.svg" alt="" class="w-16 h-16">
+            </div>
+
+            <h3 class="text-xl font-semibold text-black mb-4">
+                Renovasi Bangunan
+            </h3>
+
+            <p class="text-gray-500 leading-8">
+                Kami menawarkan solusi renovasi dan perbaikan bangunan yang
+                efisien untuk meningkatkan fungsi, estetika, dan kenyamanan
+                properti Anda.
+            </p>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="bg-white rounded-lg p-8 shadow-md hover:shadow-lg transition duration-300">
+            <div class="mb-6">
+                <img src="image/ElementProgram/blueprint-building-construction-svgrepo-com.svg" alt="" class="w-16 h-16">
+            </div>
+
+            <h3 class="text-xl font-semibold text-black mb-4">
+                Konsultasi Konstruksi
+            </h3>
+
+            <p class="text-gray-500 leading-8">
+                Layanan ini mencakup konsultasi perencanaan desain dan
+                konstruksi, membantu Anda mewujudkan proyek sesuai anggaran
+                dan kebutuhan.
+            </p>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="bg-white rounded-lg p-8 shadow-md hover:shadow-lg transition duration-300">
+            <div class="mb-6">
+                <img src="image/ElementProgram/building-construction-industry-5-svgrepo-com.svg" alt="" class="w-16 h-16">
+            </div>
+
+            <h3 class="text-xl font-semibold text-black mb-4">
+                Gedung Komersial
+            </h3>
+
+            <p class="text-gray-500 leading-8">
+                Indo Berkah Konstruksi melayani pembangunan gedung komersial
+                seperti kantor, ruko, dan hotel dengan fokus pada efisiensi
+                serta ketahanan struktur.
+            </p>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="bg-white rounded-lg p-8 shadow-md hover:shadow-lg transition duration-300">
+            <div class="mb-6">
+                <img src="image/ElementProgram/building-construction-industry-20-svgrepo-com.svg" alt="" class="w-16 h-16">
+            </div>
+
+            <h3 class="text-xl font-semibold text-black mb-4">
+                Pembangunan Rumah
+            </h3>
+
+            <p class="text-gray-500 leading-8">
+                Kami menyediakan layanan pembangunan rumah dari tahap
+                perencanaan hingga selesai dengan desain yang disesuaikan
+                kebutuhan dan kualitas konstruksi terbaik.
+            </p>
+        </div>
+
+    </div>
+
+</section>
+
+<section class="h-[65vh] flex ">
+    
+    <!-- KIRI -->
+    <div
+        class="w-[75%] bg-cover bg-center relative"
+        style="background-image:url('image/pexels-introspectivedsgn-18426839.jpg');
+        background-position:right center ;"
+    >
+        <div class="absolute inset-0 bg-black/40 "></div>
+
+        <div class="relative z-10 h-full flex items-center px-24">
+            <div>
+                <div class="border-l-8 border-white pl-6">
+                    <h1 class="text-5xl font-bold text-white">
+                        Indo
+                        <br>
+                        Berkah Konstruksi
+                    </h1>
+                </div>
+
+                <p class="mt-8 text-white text-sm">
+                    Menjaga Kualitas Mewujud Berkah
+                </p>
+
+                <button
+                    class="mt-10 border-2 border-white text-white px-8 py-4 tracking-[4px] font-semibold hover:bg-yellow-500 transition"
+                >
+                    <a href="/tentang-kami ">Tentang Kami</a>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- KANAN -->
+    <div class="w-[25%] bg-gray-300  px-8 py-12 ">
+        <h2 class="text-4xl font-bold mb-12">
+            Tentang Kami
+        </h2>
+
+        <div class="space-y-10">
+                <div>
+                    <h3 class="font-bold text-xl  ">
+                        INDO BERKAH KONSTRUKSI    
+                         <span class="font-normal ">adalah perusahaan jasa konstruksi yang menyediakan layanan pembangunan rumah, gedung, infrastruktur, renovasi, serta konstruksi besi dan baja. 
+                            Kami siap menangani proyek skala kecil maupun besar dengan kualitas dan profesionalisme terbaik.</span>
+                    </h3>
+                </div>
+                
+        </div>
+    </div>
+
+</section>
+
+<section id="portofolio" class=" py-20   px-4">
+    <div class="max-w-7xl mx-auto">
+
+      <div class="flex items-center gap-4 mb-10 justify-between">
+
+    <!-- Filter -->
+    <ul class="inline-flex overflow-hidden border border-gray-300 rounded-full bg-white">
+
+        <li>
+            <button class="px-5 py-3 text-amber-500">
+                Semua
+            </button>
+        </li>
+
+        <li>
+            <button class="px-5 py-3 hover:text-amber-400">
+                Pembangunan Rumah
+            </button>
+        </li>
+
+        <li>
+            <button class="px-5 py-3 hover:text-amber-400">
+                Gedung Komersial
+            </button>
+        </li>
+
+        <li>
+            <button class="px-5 py-3 hover:text-amber-400">
+                Konsultasi Konstruksi
+            </button>
+        </li>
+
+        <li>
+            <button class="px-5 py-3 hover:text-amber-400">
+                Renovasi Bangunan
+            </button>
+        </li>
+
+    </ul>
+
+    <!-- Tombol Panah -->
+    <button class="w-15 h-12 flex items-center justify-center border border-gray-300 rounded-full hover:bg-gray-100 transition">
+        <a href="{{ route('portofolio') }}"> <svg xmlns="http://www.w3.org/2000/svg"
+            class="w-5 h-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor">
+                <path stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 5l7 7-7 7"/>
+        </svg></a>
+    </button>
+
+</div>
+
+       
+        
+        <div class="flex gap-8 overflow-x-auto scrollbar-hide scroll-smooth pb-4">
+
+            <!-- Card -->
+            <div class="group w-80 shrink-0">
+                <div class="overflow-hidden rounded-lg shadow">
+                    <img
+                        src="image/Portofolio/porto1.jpg"
+                        alt=""
+                        class="w-full aspect-[4/3] object-cover
+                               group-hover:scale-105 duration-500"
+                    >
+                </div>
+
+                <h3 class="mt-4 text-xl font-bold">
+                    Melakukan Desain Interior Di Sesetan
+                </h3>
+
+                <p class="mt-2 text-gray-500">
+                    Hunian, Interior
+                </p>
+            </div>
+            
+            <div class="group w-80 shrink-0">
+                <div class="overflow-hidden rounded-lg shadow">
+                    <img
+                        src="image/Portofolio/porto2.jpg"
+                        alt=""
+                        class="w-full aspect-[4/3] object-cover
+                               group-hover:scale-105 duration-500"
+                    >
+                </div>
+
+                <h3 class="mt-4 text-xl font-bold">
+                    Melakukan Desain Interior Di Sesetan
+                </h3>
+
+                <p class="mt-2 text-gray-500">
+                    Hunian, Interior
+                </p>
+            </div>
+
+            <div class="group w-80 shrink-0">
+                <div class="overflow-hidden rounded-lg shadow">
+                    <img
+                        src="image/Portofolio/porto3.jpg"
+                        alt=""
+                        class="w-full aspect-[4/3] object-cover
+                               group-hover:scale-105 duration-500"
+                    >
+                </div>
+
+                <h3 class="mt-4 text-xl font-bold">
+                    Melakukan Desain Interior Di Sesetan
+                </h3>
+
+                <p class="mt-2 text-gray-500">
+                    Hunian, Interior
+                </p>
+            </div>
+
+            <div class="group w-80 shrink-0">
+                <div class="overflow-hidden rounded-lg shadow">
+                    <img
+                        src="image/Portofolio/porto4.jpg"
+                        alt=""
+                        class="w-full aspect-[4/3] object-cover
+                               group-hover:scale-105 duration-500"
+                    >
+                </div>
+
+                <h3 class="mt-4 text-xl font-bold">
+                    Melakukan Desain Interior Di Sesetan
+                </h3>
+
+                <p class="mt-2 text-gray-500">
+                    Hunian, Interior
+                </p>
+            </div>
+    </div>
+</section>
+
+<section id="review" class="py-20 bg-white">
+    <div class="max-w-4xl mx-auto px-6">
+
+        <div class="text-center mb-20">
+            <span class="text-sm tracking-[0.4em] uppercase text-zinc-400">
+                Client Review
+            </span>
+
+            <h2 class="mt-4 text-5xl font-light text-zinc-900">
+                Dipercaya Oleh Banyak Klien
+            </h2>
+        </div>
+
+        <div class="space-y-20">
+
+            @forelse($reviews as $review)
+
+                <div class="border-l border-zinc-500 pl-8">
+
+                    <p class="text-2xl leading-relaxed text-zinc-700 font-light">
+                        "{{ $review->message }}"
+                    </p>
+
+                    <div class="mt-8">
+                        <h4 class="font-medium text-zinc-900">
+                            {{ $review->user->name }}
+                        </h4>
+
+                        <p class="text-zinc-400 text-sm mt-1">
+                            Klien IBK Construction
+                        </p>
+                    </div>
+
+                </div>
+
+            @empty
+
+                <div class="border-l border-zinc-500 pl-8">
+                    <p class="text-zinc-500">
+                        Belum ada review dari klien.
+                    </p>
+                </div>
+
+            @endforelse
+
+        </div>
+
+    </div>
+</section>
+
+    
+
+@include('layout.footer') 
+</body>
+</html>

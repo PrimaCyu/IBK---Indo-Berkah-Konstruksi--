@@ -1,0 +1,246 @@
+client
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Partner Client</title>
+    <link rel="icon" href="{{ asset('favicon.ico') }}">
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+<body >
+     @include('layout.header')
+
+ <section class="w-full bg-white py-40">
+    <div class="max-w-7xl mx-auto px-4">
+
+        <h2 class="text-2xl font-bold text-center mb-10">
+            Client & Partner Kami
+        </h2>
+
+        <!-- GRID LOGO -->
+        <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-6 items-center">
+
+            <!-- 1 -->
+            <a href="https://example1.com" target="_blank" class="flex justify-center">
+                <img src="{{ asset('image/LogoClient/client_220406070617_yayasan-guna-widya-paramesthi.webp') }}"
+                     class="h-12 object-contain grayscale hover:grayscale-0 transition duration-300"
+                     alt="Client 1">
+            </a>
+
+            <!-- 2 -->
+            <a href="https://example2.com" target="_blank" class="flex justify-center">
+                <img src="{{ asset('image/LogoClient/client_220406070617_yayasan-guna-widya-paramesthi.webp') }}"
+                     class="h-12 object-contain grayscale hover:grayscale-0 transition duration-300"
+                     alt="Client 2">
+            </a>
+
+            <!-- 3 -->
+            <a href="https://example3.com" target="_blank" class="flex justify-center">
+                <img src="{{ asset('image/LogoClient/client_220406070617_yayasan-guna-widya-paramesthi.webp') }}"
+                     class="h-12 object-contain grayscale hover:grayscale-0 transition duration-300"
+                     alt="Client 3">
+            </a>
+
+            <!-- 4 -->
+            <a href="https://example4.com" target="_blank" class="flex justify-center">
+                <img src="{{ asset('image/LogoClient/client_220406070617_yayasan-guna-widya-paramesthi.webp') }}"
+                     class="h-12 object-contain grayscale hover:grayscale-0 transition duration-300"
+                     alt="Client 4">
+            </a>
+
+            <!-- 5 -->
+            <a href="https://example5.com" target="_blank" class="flex justify-center">
+                <img src="{{ asset('image/LogoClient/client_220406070617_yayasan-guna-widya-paramesthi.webp') }}"
+                     class="h-12 object-contain grayscale hover:grayscale-0 transition duration-300"
+                     alt="Client 5">
+            </a>
+
+            <!-- 6 -->
+            <a href="https://example6.com" target="_blank" class="flex justify-center">
+                <img src="{{ asset('image/LogoClient/client_220406070617_yayasan-guna-widya-paramesthi.webp') }}"
+                     class="h-12 object-contain grayscale hover:grayscale-0 transition duration-300"
+                     alt="Client 6">
+            </a>
+
+            <!-- 7 -->
+            <a href="https://example7.com" target="_blank" class="flex justify-center">
+                <img src="{{ asset('image/LogoClient/client_220406070617_yayasan-guna-widya-paramesthi.webp') }}"
+                     class="h-12 object-contain grayscale hover:grayscale-0 transition duration-300"
+                     alt="Client 7">
+            </a>
+
+            <!-- 8 -->
+            <a href="https://example8.com" target="_blank" class="flex justify-center">
+                <img src="{{ asset('image/LogoClient/client_220406070617_yayasan-guna-widya-paramesthi.webp') }}"
+                     class="h-12 object-contain grayscale hover:grayscale-0 transition duration-300"
+                     alt="Client 8">
+            </a>
+
+            <a href="https://example8.com" target="_blank" class="flex justify-center">
+                <img src="{{ asset('image/LogoClient/client_220406070617_yayasan-guna-widya-paramesthi.webp') }}"
+                     class="h-12 object-contain grayscale hover:grayscale-0 transition duration-300"
+                     alt="Client 8">
+            </a>
+
+            <a href="https://example8.com" target="_blank" class="flex justify-center">
+                <img src="{{ asset('image/LogoClient/client_220406070617_yayasan-guna-widya-paramesthi.webp') }}"
+                     class="h-12 object-contain grayscale hover:grayscale-0 transition duration-300"
+                     alt="Client 8">
+            </a>
+
+            <a href="https://example8.com" target="_blank" class="flex justify-center">
+                <img src="{{ asset('image/LogoClient/client_220406070617_yayasan-guna-widya-paramesthi.webp') }}"
+                     class="h-12 object-contain grayscale hover:grayscale-0 transition duration-300"
+                     alt="Client 8">
+            </a>
+
+            <a href="https://example8.com" target="_blank" class="flex justify-center">
+                <img src="{{ asset('image/LogoClient/client_220406070617_yayasan-guna-widya-paramesthi.webp') }}"
+                     class="h-12 object-contain grayscale hover:grayscale-0 transition duration-300"
+                     alt="Client 8">
+            </a>
+
+            <a href="https://example8.com" target="_blank" class="flex justify-center">
+                <img src="{{ asset('image/LogoClient/client_220406070617_yayasan-guna-widya-paramesthi.webp') }}"
+                     class="h-12 object-contain grayscale hover:grayscale-0 transition duration-300"
+                     alt="Client 8">
+            </a>
+
+            <a href="https://example8.com" target="_blank" class="flex justify-center">
+                <img src="{{ asset('image/LogoClient/client_220406070617_yayasan-guna-widya-paramesthi.webp') }}"
+                     class="h-12 object-contain grayscale hover:grayscale-0 transition duration-300"
+                     alt="Client 8">
+            </a>
+
+            <a href="https://example8.com" target="_blank" class="flex justify-center">
+                <img src="{{ asset('image/LogoClient/client_220406070617_yayasan-guna-widya-paramesthi.webp') }}"
+                     class="h-12 object-contain grayscale hover:grayscale-0 transition duration-300"
+                     alt="Client 8">
+            </a>
+
+            <a href="https://example8.com" target="_blank" class="flex justify-center">
+                <img src="{{ asset('image/LogoClient/client_220406070617_yayasan-guna-widya-paramesthi.webp') }}"
+                     class="h-12 object-contain grayscale hover:grayscale-0 transition duration-300"
+                     alt="Client 8">
+            </a>
+
+            <a href="https://example8.com" target="_blank" class="flex justify-center">
+                <img src="{{ asset('image/LogoClient/client_220406070617_yayasan-guna-widya-paramesthi.webp') }}"
+                     class="h-12 object-contain grayscale hover:grayscale-0 transition duration-300"
+                     alt="Client 8">
+            </a>
+
+            <a href="https://example8.com" target="_blank" class="flex justify-center">
+                <img src="{{ asset('image/LogoClient/client_220406070617_yayasan-guna-widya-paramesthi.webp') }}"
+                     class="h-12 object-contain grayscale hover:grayscale-0 transition duration-300"
+                     alt="Client 8">
+            </a>
+
+            <a href="https://example8.com" target="_blank" class="flex justify-center">
+                <img src="{{ asset('image/LogoClient/client_220406070617_yayasan-guna-widya-paramesthi.webp') }}"
+                     class="h-12 object-contain grayscale hover:grayscale-0 transition duration-300"
+                     alt="Client 8">
+            </a>
+
+            <a href="https://example8.com" target="_blank" class="flex justify-center">
+                <img src="{{ asset('image/LogoClient/client_220406070617_yayasan-guna-widya-paramesthi.webp') }}"
+                     class="h-12 object-contain grayscale hover:grayscale-0 transition duration-300"
+                     alt="Client 8">
+            </a>
+
+            <a href="https://example8.com" target="_blank" class="flex justify-center">
+                <img src="{{ asset('image/LogoClient/client_220406070617_yayasan-guna-widya-paramesthi.webp') }}"
+                     class="h-12 object-contain grayscale hover:grayscale-0 transition duration-300"
+                     alt="Client 8">
+            </a>
+
+            <a href="https://example8.com" target="_blank" class="flex justify-center">
+                <img src="{{ asset('image/LogoClient/client_220406070617_yayasan-guna-widya-paramesthi.webp') }}"
+                     class="h-12 object-contain grayscale hover:grayscale-0 transition duration-300"
+                     alt="Client 8">
+            </a>
+
+            <a href="https://example8.com" target="_blank" class="flex justify-center">
+                <img src="{{ asset('image/LogoClient/client_220406070617_yayasan-guna-widya-paramesthi.webp') }}"
+                     class="h-12 object-contain grayscale hover:grayscale-0 transition duration-300"
+                     alt="Client 8">
+            </a>
+
+            <a href="https://example8.com" target="_blank" class="flex justify-center">
+                <img src="{{ asset('image/LogoClient/client_220406070617_yayasan-guna-widya-paramesthi.webp') }}"
+                     class="h-12 object-contain grayscale hover:grayscale-0 transition duration-300"
+                     alt="Client 8">
+            </a>
+
+            <a href="https://example8.com" target="_blank" class="flex justify-center">
+                <img src="{{ asset('image/LogoClient/client_220406070617_yayasan-guna-widya-paramesthi.webp') }}"
+                     class="h-12 object-contain grayscale hover:grayscale-0 transition duration-300"
+                     alt="Client 8">
+            </a>
+
+            <a href="https://example8.com" target="_blank" class="flex justify-center">
+                <img src="{{ asset('image/LogoClient/client_220406070617_yayasan-guna-widya-paramesthi.webp') }}"
+                     class="h-12 object-contain grayscale hover:grayscale-0 transition duration-300"
+                     alt="Client 8">
+            </a>
+
+              <a href="https://example8.com" target="_blank" class="flex justify-center">
+                <img src="{{ asset('image/LogoClient/client_220406070617_yayasan-guna-widya-paramesthi.webp') }}"
+                     class="h-12 object-contain grayscale hover:grayscale-0 transition duration-300"
+                     alt="Client 8">
+            </a>
+
+              <a href="https://example8.com" target="_blank" class="flex justify-center">
+                <img src="{{ asset('image/LogoClient/client_220406070617_yayasan-guna-widya-paramesthi.webp') }}"
+                     class="h-12 object-contain grayscale hover:grayscale-0 transition duration-300"
+                     alt="Client 8">
+            </a>
+
+              <a href="https://example8.com" target="_blank" class="flex justify-center">
+                <img src="{{ asset('image/LogoClient/client_220406070617_yayasan-guna-widya-paramesthi.webp') }}"
+                     class="h-12 object-contain grayscale hover:grayscale-0 transition duration-300"
+                     alt="Client 8">
+            </a>
+
+              <a href="https://example8.com" target="_blank" class="flex justify-center">
+                <img src="{{ asset('image/LogoClient/client_220406070617_yayasan-guna-widya-paramesthi.webp') }}"
+                     class="h-12 object-contain grayscale hover:grayscale-0 transition duration-300"
+                     alt="Client 8">
+            </a>
+
+              <a href="https://example8.com" target="_blank" class="flex justify-center">
+                <img src="{{ asset('image/LogoClient/client_220406070617_yayasan-guna-widya-paramesthi.webp') }}"
+                     class="h-12 object-contain grayscale hover:grayscale-0 transition duration-300"
+                     alt="Client 8">
+            </a>
+
+              <a href="https://example8.com" target="_blank" class="flex justify-center">
+                <img src="{{ asset('image/LogoClient/client_220406070617_yayasan-guna-widya-paramesthi.webp') }}"
+                     class="h-12 object-contain grayscale hover:grayscale-0 transition duration-300"
+                     alt="Client 8">
+            </a>
+
+              <a href="https://example8.com" target="_blank" class="flex justify-center">
+                <img src="{{ asset('image/LogoClient/client_220406070617_yayasan-guna-widya-paramesthi.webp') }}"
+                     class="h-12 object-contain grayscale hover:grayscale-0 transition duration-300"
+                     alt="Client 8">
+            </a>
+
+              <a href="https://example8.com" target="_blank" class="flex justify-center">
+                <img src="{{ asset('image/LogoClient/client_220406070617_yayasan-guna-widya-paramesthi.webp') }}"
+                     class="h-12 object-contain grayscale hover:grayscale-0 transition duration-300"
+                     alt="Client 8">
+            </a>
+
+        </div>
+    </div>
+</section>
+     
+
+</body>
+</html>

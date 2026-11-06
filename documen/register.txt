@@ -1,0 +1,85 @@
+register
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+<body>
+    @include('layout.header')
+
+    <form action="/register" method="POST"
+    class="w-full max-w-md mx-auto bg-beige backdrop-blur-lg  mt-30
+    shadow-2xl rounded-3xl p-8 border border-zinc-200 space-y-5">
+
+    @csrf
+
+    <div>
+        <h1 class="text-3xl font-bold text-zinc-800">
+            Create Account
+        </h1>
+        <p class="text-zinc-500 mt-1">
+            Daftar untuk melanjutkan
+        </p>
+    </div>
+
+    <!-- Nama -->
+    <div class="space-y-2">
+        <label class="text-sm text-zinc-600">Nama</label>
+        <input type="text" name="name" placeholder="Masukkan nama"
+            class="w-full px-4 py-3 rounded-2xl border border-zinc-300
+            focus:outline-none focus:ring-2 focus:ring-black
+            focus:border-transparent transition">
+    </div>
+
+    <!-- Email -->
+    <div class="space-y-2">
+        <label class="text-sm text-zinc-600">Email</label>
+        <input type="email" name="email" placeholder="Masukkan email"
+            class="w-full px-4 py-3 rounded-2xl border border-zinc-300
+            focus:outline-none focus:ring-2 focus:ring-black
+            focus:border-transparent transition">
+    </div>
+
+    <!-- Password -->
+    <div class="space-y-2">
+        <label class="text-sm text-zinc-600">Password</label>
+        <input type="password" name="password" placeholder="Masukkan password"
+            class="w-full px-4 py-3 rounded-2xl border border-zinc-300
+            focus:outline-none focus:ring-2 focus:ring-black
+            focus:border-transparent transition">
+    </div>
+
+    {{-- <!-- Role -->
+    <div class="space-y-2">
+        <label class="text-sm text-zinc-600">Role</label>
+        <select name="role"
+            class="w-full px-4 py-3 rounded-2xl border border-zinc-300
+            focus:outline-none focus:ring-2 focus:ring-black
+            focus:border-transparent transition bg-white">
+            <option value="pemilik">Pemilik</option>
+        </select>
+    </div> --}}
+
+    <!-- Button -->
+    <button type="submit"
+        class="w-full py-3 rounded-2xl bg-black text-white
+        font-medium hover:bg-zinc-800 transition duration-300
+        shadow-lg">
+        Register
+    </button>
+
+    <p class="text-center text-sm text-zinc-500">
+        Sudah punya akun?
+        <a href="/login" class="text-black font-medium hover:underline">
+            Login
+        </a>
+    </p>
+</form>
+
+</body>
+</html>

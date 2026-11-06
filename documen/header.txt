@@ -1,0 +1,98 @@
+header
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="icon" href="{{ asset('favicon.ico') }}">
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+<body class="bg-[#FFFFFF]">
+    
+    <nav class="fixed top-5 left-0 w-full px-10 flex items-center justify-center z-50">
+
+
+        <div class="absolute left-10 h-25 flex items-center border-none outline-none">
+            <img 
+                src="{{ asset('image/logoIBK.png') }}" 
+                alt="Logo PT Indo Berkah" 
+                class="h-full w-auto object-contain border-none outline-none"
+            />
+        </div>
+
+    <div id="dynamicIsland"
+        class="bg-white/90 backdrop-blur-xl border border-white/10 text-[#111827]
+        rounded-full transition-all duration-500 ease-in-out
+        w-180 h-16 px-5 flex items-center justify-between shadow-2xl overflow-hidden ">
+
+        <!-- Logo -->
+      <div class="flex items-center gap-2 shrink-0">
+        <a href="/" 
+        class="w-8 h-8 rounded-full bg-cover block hover:scale-110 transition duration-300"
+        style="background-image: url('{{ asset('image/Logo PT. Indo Berkah.png') }}')">
+        </a>
+        <span class="font-semibold">IDK</span>
+    </div>
+
+
+        <ul id="menu"
+            class="flex items-center gap-5 text-sm transition-all duration-300">
+            <li>
+                <a href="{{ route('portofolio') }}" class="hover:text-zinc-300 transition font-semibold">
+                    Portofolio
+                </a>
+            </li>
+            <li>
+                <a href="{{ url('/') }}#program" class="hover:text-zinc-300 transition font-semibold">
+                     Program
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('partner-client') }}" class="hover:text-zinc-300 transition font-semibold">
+                    Partner&Client  
+                </a>
+            </li>
+             <li>
+                <a href="{{ route('tentang-kami') }}" class="hover:text-zinc-300 transition font-semibold">
+                    Info
+                </a>
+            </li>
+            
+        </ul>
+
+        <div class="flex items-center gap-2 shrink-0">
+            <button id="searchBtn"
+                class="w-30 h-10 rounded-full bg-white/10 hover:bg-white/20 transition flex items-center justify-center">
+
+                <svg xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="w-5 h-5">
+                    <path stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 5.4 5.4a7.5 7.5 0 0 0 11.25 11.25Z" />
+                </svg>
+            </button>
+
+            <input
+                id="searchInput"
+                type="text"
+                placeholder="Search..."
+                class="bg-transparent outline-none text-sm w-0 opacity-0 transition-all duration-500 placeholder:text-zinc-400 font-semibold" />
+        </div>
+    </div>
+
+    <div class="absolute right-10 px-5 py-2 h-13.5 flex  items-center bg-white/90  rounded-full text-black font-medium shadow-2xl">
+    <a href="/login"> 
+            login 
+        </a>
+        <a href="/register" class="ml-1">
+            | Daftar
+        </a>
+    </div>
+</nav>
