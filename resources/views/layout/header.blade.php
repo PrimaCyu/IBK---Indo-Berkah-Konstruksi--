@@ -11,7 +11,7 @@
         'ja' => ['flag' => '🇯🇵', 'code' => 'JA', 'name' => '日本語'],
     ];
 @endphp
-<nav id="mainNavbar" class="fixed top-0 left-0 w-full px-6 md:px-12 {{ $navPadding }} flex items-center justify-between gap-4 z-50 {{ $navBg }} transition-all duration-300">
+<nav id="mainNavbar" class="fixed top-0 left-0 w-full px-6 md:px-8 xl:px-12 {{ $navPadding }} flex items-center justify-between gap-4 z-50 {{ $navBg }} transition-all duration-300">
     <!-- Logo -->
     <div class="flex items-center gap-4 shrink-0">
         <a href="/" class="w-10 h-10 rounded-full bg-cover bg-center block border border-[#C5A880]/30 hover:border-[#C5A880] transition-colors duration-500"
@@ -20,7 +20,7 @@
     </div>
 
     <!-- Menu desktop -->
-    <ul id="menu" class="hidden min-[1536px]:flex items-center gap-6 text-[11px] lg:text-xs font-medium tracking-[0.15em] uppercase text-gray-100">
+    <ul id="menu" class="hidden lg:flex items-center gap-4 xl:gap-6 text-[11px] xl:text-xs font-medium tracking-[0.12em] xl:tracking-[0.15em] uppercase text-gray-100">
         <li><a href="{{ route('tentang-kami') }}" class="hover:text-[#C5A880] transition-colors duration-300">tentang kami</a></li>
         <li><a href="{{ url('our-team') }}" class="hover:text-[#C5A880] transition-colors duration-300">Our Team</a></li>
         <li><a href="{{ url('/') }}#program" class="hover:text-[#C5A880] transition-colors duration-300">Layanan</a></li>
@@ -32,20 +32,20 @@
 
     <div class="flex items-center gap-3 shrink-0">
         <!-- Action (Desktop) -->
-        <div class="hidden min-[1536px]:flex items-center gap-4">
+        <div class="hidden lg:flex items-center gap-3 xl:gap-4">
             @auth
                 @if(Auth::user()->role === 'admin')
-                    <a href="/admin" class="text-xs font-medium tracking-[0.15em] uppercase border border-[#C5A880]/50 text-[#C5A880] px-4 py-2 hover:bg-[#C5A880] hover:text-white transition-all duration-300">Admin Panel</a>
+                    <a href="/admin" class="text-xs font-medium tracking-[0.12em] xl:tracking-[0.15em] uppercase border border-[#C5A880]/50 text-[#C5A880] px-3.5 xl:px-4 py-2 hover:bg-[#C5A880] hover:text-white transition-all duration-300">Admin Panel</a>
                 @else
-                    <a href="/dashbord" class="text-xs font-medium tracking-[0.15em] uppercase border border-[#C5A880]/50 text-[#C5A880] px-4 py-2 hover:bg-[#C5A880] hover:text-white transition-all duration-300">Dashboard</a>
+                    <a href="/dashbord" class="text-xs font-medium tracking-[0.12em] xl:tracking-[0.15em] uppercase border border-[#C5A880]/50 text-[#C5A880] px-3.5 xl:px-4 py-2 hover:bg-[#C5A880] hover:text-white transition-all duration-300">Dashboard</a>
                 @endif
                 <form action="/logout" method="POST" class="inline">
                     @csrf
-                    <button type="submit" class="text-xs font-medium tracking-[0.15em] uppercase text-gray-400 hover:text-red-400 transition-colors duration-300">Keluar</button>
+                    <button type="submit" class="text-xs font-medium tracking-[0.12em] xl:tracking-[0.15em] uppercase text-gray-400 hover:text-red-400 transition-colors duration-300">Keluar</button>
                 </form>
             @else
-                <a href="/login" class="text-xs font-medium tracking-[0.15em] uppercase text-gray-400 hover:text-[#C5A880] transition-colors duration-300">Masuk</a>
-                <a href="/register" class="text-xs font-medium tracking-[0.15em] uppercase border border-[#C5A880]/50 text-[#C5A880] px-6 py-2.5 hover:bg-[#C5A880] hover:text-white transition-all duration-500">Daftar</a>
+                <a href="/login" class="text-xs font-medium tracking-[0.12em] xl:tracking-[0.15em] uppercase text-gray-400 hover:text-[#C5A880] transition-colors duration-300">Masuk</a>
+                <a href="/register" class="text-xs font-medium tracking-[0.12em] xl:tracking-[0.15em] uppercase border border-[#C5A880]/50 text-[#C5A880] px-4 xl:px-6 py-2 xl:py-2.5 hover:bg-[#C5A880] hover:text-white transition-all duration-500">Daftar</a>
             @endauth
         </div>
 
@@ -68,7 +68,7 @@
         </details>
 
         <!-- Mobile Menu Button -->
-        <button type="button" id="mobileMenuBtn" aria-label="Buka menu" aria-controls="mobileMenu" aria-expanded="false" class="w-10 h-10 flex flex-col justify-center items-end gap-1.5 min-[1536px]:hidden text-[#C5A880] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#C5A880]">
+        <button type="button" id="mobileMenuBtn" aria-label="Buka menu" aria-controls="mobileMenu" aria-expanded="false" class="w-10 h-10 flex flex-col justify-center items-end gap-1.5 lg:hidden text-[#C5A880] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#C5A880]">
             <span class="block w-6 h-[1px] bg-[#C5A880] transition-all duration-300" id="bar1"></span>
             <span class="block w-4 h-[1px] bg-[#C5A880] transition-all duration-300" id="bar2"></span>
             <span class="block w-6 h-[1px] bg-[#C5A880] transition-all duration-300" id="bar3"></span>
@@ -76,7 +76,7 @@
     </div>
 
     <!-- Mobile Dropdown Menu -->
-    <div id="mobileMenu" hidden class="absolute top-full left-0 w-full max-h-[calc(100dvh-6.5rem)] overflow-y-auto bg-[#111111]/95 backdrop-blur-xl border-b border-white/5 min-[1536px]:hidden">
+    <div id="mobileMenu" hidden class="absolute top-full left-0 w-full max-h-[calc(100dvh-6.5rem)] overflow-y-auto bg-[#111111]/95 backdrop-blur-xl border-b border-white/5 lg:hidden">
         <ul class="flex flex-col text-xs font-light tracking-[0.2em] uppercase text-gray-300 px-8 py-8 gap-6">
             <li><a href="{{ route('tentang-kami') }}" class="block hover:text-[#C5A880] transition-colors">Tentang Kami</a></li>
             <li><a href="{{ url('our-team') }}" class="block hover:text-[#C5A880] transition-colors">Our Team</a></li>
