@@ -78,21 +78,15 @@
         .sidebar-brand a {
             display: flex;
             align-items: center;
-            gap: 10px;
-            color: #ffffff;
             text-decoration: none;
-            font-size: 0.95rem;
-            font-weight: 700;
-            letter-spacing: 0.3px;
         }
-        .sidebar-brand .brand-badge {
-            background-color: #0d6efd;
-            color: #fff;
-            font-size: 0.75rem;
-            font-weight: 800;
-            padding: 4px 8px;
-            border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(13, 110, 253, 0.3);
+        .sidebar-brand img {
+            display: block;
+            width: 230px;
+            max-width: 100%;
+            height: auto;
+            max-height: 54px;
+            object-fit: contain;
         }
 
         /* Sidebar Mini User Profile */
@@ -131,21 +125,6 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
-        .sidebar-user-status {
-            font-size: 0.7rem;
-            color: #22c55e;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            margin-top: 2px;
-        }
-        .sidebar-user-status .status-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background-color: #22c55e;
-        }
-
         /* Scrollable Sidebar Nav */
         .sidebar-wrapper {
             flex: 1 1 auto;
@@ -335,14 +314,6 @@
             color: #1d4ed8;
             border-color: #bfdbfe;
         }
-        .nav-portal-pill .pulse-indicator {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            background-color: #10b981;
-            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
-        }
-
         /* Notif Badge */
         .notif-badge-pill {
             position: absolute;
@@ -633,7 +604,6 @@
                     </button>
 
                     <a href="/" target="_blank" class="nav-portal-pill d-none d-sm-inline-flex">
-                        <span class="pulse-indicator"></span>
                         <span>Lihat Website</span>
                         <i class="fas fa-arrow-up-right-from-square" style="font-size: 0.7rem; opacity: 0.7;"></i>
                     </a>
@@ -743,9 +713,8 @@
         <aside class="app-sidebar" id="appSidebar">
             <!-- Brand Logo -->
             <div class="sidebar-brand">
-                <a href="/admin">
-                    <span class="brand-badge">IBK</span>
-                    <span>Indo Berkah Konstruksi</span>
+                <a href="/admin" aria-label="Indo Berkah Konstruksi - Dashboard">
+                    <img src="{{ asset('image/Logo/logo-admin.svg') }}" alt="Logo Indo Berkah Konstruksi">
                 </a>
             </div>
 
@@ -756,9 +725,6 @@
                 </div>
                 <div class="sidebar-user-info">
                     <div class="sidebar-user-name">{{ auth()->user()->name ?? 'Administrator' }}</div>
-                    <div class="sidebar-user-status">
-                        <span class="status-dot"></span> Online
-                    </div>
                 </div>
             </div>
 

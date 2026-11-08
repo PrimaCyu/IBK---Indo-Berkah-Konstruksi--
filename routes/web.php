@@ -148,6 +148,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Berita & Artikel
     Route::get('/berita', [AdminBeritaController::class, 'index'])->name('berita.index');
     Route::post('/berita', [AdminBeritaController::class, 'store'])->name('berita.store');
+    Route::put('/berita/{berita}', [AdminBeritaController::class, 'update'])->name('berita.update');
     Route::patch('/berita/{berita}/publish', [AdminBeritaController::class, 'togglePublish'])->name('berita.publish');
     Route::delete('/berita/{berita}', [AdminBeritaController::class, 'destroy'])->name('berita.destroy');
 

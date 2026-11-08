@@ -77,6 +77,51 @@ class AdminBeritaController extends Controller
         return back()->with('success', 'Artikel berita baru berhasil dipublikasikan.');
     }
 
+    public function update(Request $request, Berita $berita)
+    {
+        $request->validate([
+            'title'              => 'required|string|max:255',
+            'kategori_berita_id' => 'required|exists:kategori_beritas,id',
+            'content'            => 'required|string',
+            'image'              => 'nullable|image|max:3072',
+            'is_published'       => 'nullable|boolean',
+            'views'              => 'nullable|integer|min:0',
+        ]);
+
+        $data = [
+            'title'              => $request->title,
+            'kategori_berita_id' => $request->kategori_berita_id,
+            'content'            => $request->content,
+            'is_published'       => $request->boolean('is_published', false),
+        ];
+
+        if ($request->filled('views')) {
+            $data['views'] = (int) $request->views;
+        }
+
+        if ($request->title !== $berita->title) {
+            $slug = Str::slug($request->title);
+            $originalSlug = $slug;
+            $counter = 1;
+            while (Berita::where('slug', $slug)->where('id', '!=', $berita->id)->exists()) {
+                $slug = "{$originalSlug}-{$counter}";
+                $counter++;
+            }
+            $data['slug'] = $slug;
+        }
+
+        if ($request->hasFile('image')) {
+            if ($berita->image && Storage::disk('public')->exists($berita->image)) {
+                Storage::disk('public')->delete($berita->image);
+            }
+            $data['image'] = $request->file('image')->store('berita', 'public');
+        }
+
+        $berita->update($data);
+
+        return back()->with('success', 'Artikel berita berhasil diperbarui.');
+    }
+
     public function togglePublish(Berita $berita)
     {
         $berita->update([
