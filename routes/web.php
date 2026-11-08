@@ -90,8 +90,10 @@ Route::middleware(['auth', 'user'])->group(function () {
     Route::get('/dashbord/project/{project}', [ProjectController::class, 'show'])->name('projects.show');
 });
 
-// login
-Route::view('/register', 'auth.register')->name('register');
+// login & register
+Route::get('/register', function () {
+    return redirect('/penawaran')->with('info', 'Pendaftaran akun klien IBK diproses otomatis setelah pengajuan penawaran proyek Anda disetujui.');
+})->name('register');
 Route::post('/register', [AuthController::class, 'register']);
 
 Route::view('/login', 'auth.login')->name('login');
@@ -113,6 +115,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // Penawaran (RFQ Leads)
     Route::get('/penawaran', [AdminPenawaranController::class, 'index'])->name('penawaran.index');
+    Route::post('/penawaran/{penawaran}/approve', [AdminPenawaranController::class, 'approve'])->name('penawaran.approve');
+    Route::post('/penawaran/{penawaran}/reject', [AdminPenawaranController::class, 'reject'])->name('penawaran.reject');
     Route::delete('/penawaran/{penawaran}', [AdminPenawaranController::class, 'destroy'])->name('penawaran.destroy');
 
     // Surat Perjanjian (SPK)

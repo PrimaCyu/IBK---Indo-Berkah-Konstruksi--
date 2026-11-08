@@ -111,7 +111,7 @@
             Mulai langkah pertama untuk membangun struktur premium impian Anda bersama tim ahli Indo Berkah Konstruksi.
         </p>
         <a href="{{ route('penawaran.index') }}" class="inline-flex items-center justify-center gap-4 text-xs font-bold tracking-[0.2em] uppercase bg-[#C5A880] text-[#111111] px-10 py-5 hover:bg-white hover:text-[#111111] transition-all duration-500 shadow-[0_10px_30px_rgba(197,168,128,0.3)] hover:shadow-[0_10px_40px_rgba(255,255,255,0.4)]">
-            Ajukan Kolaborasi
+            Minta Penawaran
             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
         </a>
     </div>

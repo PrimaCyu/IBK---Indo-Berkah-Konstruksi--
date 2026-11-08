@@ -19,5 +19,12 @@ class Penawaran extends Model
         'deskripsi',
         'budget',
         'alamat',
+        'status',
+        'project_id',
     ];
+
+    public function project()
+    {
+        return $this->belongsTo(Project::class);
+    }
 }
