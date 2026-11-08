@@ -49,6 +49,11 @@ class Project extends Model
         return $this->hasMany(Review::class);
     }
 
+    public function suratPerjanjians()
+    {
+        return $this->hasMany(SuratPerjanjian::class);
+    }
+
     public function portfolio()
     {
         return $this->hasOne(Portfolio::class);

@@ -289,6 +289,7 @@
                     <div class="p-8">
                         <form action="{{ route('surat-perjanjian.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
                             @csrf
+                            <input type="hidden" name="project_id" value="{{ $project->id }}">
                             <input type="hidden" name="nama" value="{{ auth()->user()->name }}">
                             <input type="hidden" name="email" value="{{ auth()->user()->email }}">
 
@@ -334,18 +335,34 @@
                                 <h4 class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 mb-4">Riwayat Surat Perjanjian</h4>
                                 <div class="space-y-3">
                                     @foreach($suratPerjanjians as $surat)
-                                        <div class="flex items-center gap-4 p-4 bg-[#FAFAFA] border border-gray-100 hover:border-[#C5A880] transition-colors group">
-                                            <div class="w-10 h-10 bg-white flex items-center justify-center flex-shrink-0 border border-gray-100">
-                                                <svg class="w-4 h-4 text-[#C5A880]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 01-2-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                        <div class="p-4 bg-[#FAFAFA] border border-gray-100 hover:border-[#C5A880] transition-colors space-y-2">
+                                            <div class="flex items-center gap-4">
+                                                <div class="w-10 h-10 bg-white flex items-center justify-center flex-shrink-0 border border-gray-100">
+                                                    <svg class="w-4 h-4 text-[#C5A880]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                                </div>
+                                                <div class="flex-1 min-w-0">
+                                                    <p class="text-sm font-medium text-gray-900 truncate">{{ basename($surat->file_surat) }}</p>
+                                                    <div class="flex items-center gap-2 mt-1">
+                                                        <span class="text-[10px] text-gray-400 uppercase tracking-[0.1em]">{{ $surat->created_at->format('d M Y, H:i') }}</span>
+                                                        <span class="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 border
+                                                            @if($surat->status === 'diterima') bg-green-50 text-green-700 border-green-200
+                                                            @elseif($surat->status === 'ditolak') bg-red-50 text-red-700 border-red-200
+                                                            @else bg-amber-50 text-amber-700 border-amber-200 @endif">
+                                                            {{ $surat->status === 'diterima' ? 'Sah / Diterima' : ($surat->status === 'ditolak' ? 'Ditolak / Perlu Revisi' : 'Menunggu Review') }}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <a href="{{ Storage::url($surat->file_surat) }}" target="_blank"
+                                                   class="w-8 h-8 bg-white flex items-center justify-center text-gray-900 hover:bg-[#111111] hover:text-white transition-colors border border-gray-200 shrink-0" title="Lihat File">
+                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                                                </a>
                                             </div>
-                                            <div class="flex-1 min-w-0">
-                                                <p class="text-sm font-medium text-gray-900 truncate">{{ basename($surat->file_surat) }}</p>
-                                                <p class="text-[10px] text-gray-400 uppercase tracking-[0.1em] mt-1">{{ $surat->created_at->format('d M Y, H:i') }}</p>
-                                            </div>
-                                            <a href="{{ Storage::url($surat->file_surat) }}" target="_blank"
-                                               class="w-8 h-8 bg-white flex items-center justify-center text-gray-900 hover:bg-[#111111] hover:text-white transition-colors border border-gray-200" title="Lihat File">
-                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                                            </a>
+                                            @if($surat->catatan_admin)
+                                                <div class="p-2.5 bg-white border-l-2 border-[#C5A880] text-xs text-gray-600">
+                                                    <span class="font-bold text-[#C5A880] text-[9px] uppercase tracking-wider block mb-0.5">Catatan Admin IBK:</span>
+                                                    {{ $surat->catatan_admin }}
+                                                </div>
+                                            @endif
                                         </div>
                                     @endforeach
                                 </div>

@@ -8,31 +8,45 @@
     <li class="breadcrumb-item active">Surat Perjanjian</li>
 @endsection
 
+@section('page-actions')
+    <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modalUploadSpk">
+        <i class="fas fa-file-upload me-1"></i> + Unggah SPK Proyek
+    </button>
+@endsection
+
 @section('content')
 
 <!-- Filter Bar -->
 <div class="card mb-3">
     <div class="card-body p-3">
         <form method="GET" action="/admin/surat-perjanjian" class="row g-2 align-items-center">
-            <div class="col-md-5">
+            <div class="col-md-4">
                 <div class="input-group input-group-sm">
                     <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
-                    <input type="text" name="search" value="{{ request('search') }}" class="form-control" placeholder="Cari nama, kontak, atau keterangan...">
+                    <input type="text" name="search" value="{{ request('search') }}" class="form-control" placeholder="Cari nama, proyek, kontak, keterangan...">
                 </div>
+            </div>
+            <div class="col-md-3">
+                <select name="project_id" class="form-select form-select-sm">
+                    <option value="">Semua Proyek</option>
+                    @foreach($projects as $p)
+                        <option value="{{ $p->id }}" {{ request('project_id') == $p->id ? 'selected' : '' }}>{{ $p->nama_proyek }}</option>
+                    @endforeach
+                </select>
             </div>
             <div class="col-md-3">
                 <select name="status" class="form-select form-select-sm">
                     <option value="">Semua Status</option>
-                    <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Pending</option>
-                    <option value="diterima" {{ request('status') === 'diterima' ? 'selected' : '' }}>Diterima</option>
-                    <option value="ditolak" {{ request('status') === 'ditolak' ? 'selected' : '' }}>Ditolak</option>
+                    <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Pending (Menunggu)</option>
+                    <option value="diterima" {{ request('status') === 'diterima' ? 'selected' : '' }}>Diterima (Sah)</option>
+                    <option value="ditolak" {{ request('status') === 'ditolak' ? 'selected' : '' }}>Ditolak (Perlu Revisi)</option>
                 </select>
             </div>
             <div class="col-md-2 d-flex gap-1">
                 <button type="submit" class="btn btn-sm btn-primary w-100">
                     <i class="fas fa-filter me-1"></i> Filter
                 </button>
-                @if(request()->hasAny(['search', 'status']))
+                @if(request()->hasAny(['search', 'project_id', 'status']))
                     <a href="/admin/surat-perjanjian" class="btn btn-sm btn-outline-secondary" title="Reset">
                         <i class="fas fa-times"></i>
                     </a>
@@ -56,12 +70,12 @@
                 <thead>
                     <tr>
                         <th style="width: 40px;">No</th>
-                        <th>Nama Pengirim</th>
-                        <th>Kontak</th>
+                        <th>Nama & Kontak</th>
+                        <th>Terkait Proyek</th>
                         <th>Berkas SPK</th>
                         <th>Status</th>
                         <th>Catatan Admin</th>
-                        <th>Tanggal Pengajuan</th>
+                        <th>Tanggal</th>
                         <th class="text-end" style="width: 140px;">Aksi</th>
                     </tr>
                 </thead>
@@ -71,36 +85,46 @@
                             <td class="text-muted">{{ $suratPerjanjians->firstItem() + $index }}</td>
                             <td>
                                 <div class="fw-semibold">{{ $spk->nama }}</div>
+                                <small class="text-muted d-block">
+                                    {{ $spk->telepon ?: '-' }} @if($spk->email) &bull; {{ $spk->email }} @endif
+                                </small>
                                 @if($spk->keterangan)
-                                    <small class="text-muted d-block text-truncate" style="max-width: 220px;" title="{{ $spk->keterangan }}">{{ $spk->keterangan }}</small>
+                                    <small class="text-secondary d-block text-truncate" style="max-width: 200px;" title="{{ $spk->keterangan }}">
+                                        <em>"{{ $spk->keterangan }}"</em>
+                                    </small>
                                 @endif
                             </td>
                             <td>
-                                <small class="d-block">{{ $spk->telepon ?? '-' }}</small>
-                                <small class="text-muted d-block">{{ $spk->email ?? '-' }}</small>
+                                @if($spk->project)
+                                    <a href="/admin/projects/{{ $spk->project->id }}/edit" class="badge bg-primary-subtle text-primary border border-primary-subtle text-decoration-none">
+                                        <i class="fas fa-building me-1"></i>{{ $spk->project->nama_proyek }}
+                                    </a>
+                                @else
+                                    <span class="badge bg-secondary-subtle text-muted border">Umum / Belum Ditautkan</span>
+                                @endif
                             </td>
                             <td>
                                 <a href="{{ asset('storage/' . $spk->file_surat) }}" target="_blank" class="btn btn-xs btn-outline-secondary py-1 px-2" title="Unduh Berkas SPK">
-                                    <i class="fas fa-file-pdf me-1 text-danger"></i> Unduh Dokumen
+                                    <i class="fas fa-file-pdf me-1 text-danger"></i> Unduh
                                 </a>
                             </td>
                             <td>
                                 @if($spk->status === 'diterima')
-                                    <span class="badge bg-success">Diterima</span>
+                                    <span class="badge bg-success">Diterima / Sah</span>
                                 @elseif($spk->status === 'ditolak')
-                                    <span class="badge bg-danger">Ditolak</span>
+                                    <span class="badge bg-danger">Ditolak / Revisi</span>
                                 @else
                                     <span class="badge bg-warning text-dark">Pending</span>
                                 @endif
                             </td>
                             <td>
-                                <small class="text-muted text-truncate d-inline-block" style="max-width: 180px;">{{ $spk->catatan_admin ?? '-' }}</small>
+                                <small class="text-muted text-truncate d-inline-block" style="max-width: 160px;">{{ $spk->catatan_admin ?? '-' }}</small>
                             </td>
                             <td>
                                 <small class="text-muted">{{ $spk->created_at->format('d/m/Y') }}</small>
                             </td>
                             <td class="text-end">
-                                <button type="button" class="btn btn-xs btn-outline-primary py-1 px-2" data-bs-toggle="modal" data-bs-target="#spkModal{{ $spk->id }}" title="Ubah Status Verifikasi">
+                                <button type="button" class="btn btn-xs btn-outline-primary py-1 px-2" data-bs-toggle="modal" data-bs-target="#spkModal{{ $spk->id }}" title="Ubah Status / Tautkan Proyek">
                                     <i class="fas fa-check-double me-1"></i> Verifikasi
                                 </button>
                                 <form action="/admin/surat-perjanjian/{{ $spk->id }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus surat perjanjian ini?')">
@@ -124,22 +148,35 @@
                                                 </div>
                                                 <div class="modal-body">
                                                     <div class="mb-3">
+                                                        <label class="form-label">Tautkan ke Proyek</label>
+                                                        <select name="project_id" class="form-select form-select-sm">
+                                                            <option value="">— Tidak Ditautkan (Umum) —</option>
+                                                            @foreach($projects as $p)
+                                                                <option value="{{ $p->id }}" {{ $spk->project_id == $p->id ? 'selected' : '' }}>
+                                                                    {{ $p->nama_proyek }} ({{ $p->user ? $p->user->name : 'Klien' }})
+                                                                </option>
+                                                            @endforeach
+                                                        </select>
+                                                        <small class="text-muted" style="font-size: 0.75rem;">Menghubungkan SPK ini ke portal proyek klien yang bersangkutan.</small>
+                                                    </div>
+
+                                                    <div class="mb-3">
                                                         <label class="form-label">Status Verifikasi <span class="text-danger">*</span></label>
                                                         <select name="status" class="form-select form-select-sm" required>
                                                             <option value="pending" {{ $spk->status === 'pending' ? 'selected' : '' }}>Pending (Menunggu Peninjauan)</option>
-                                                            <option value="diterima" {{ $spk->status === 'diterima' ? 'selected' : '' }}>Diterima (Disetujui)</option>
+                                                            <option value="diterima" {{ $spk->status === 'diterima' ? 'selected' : '' }}>Diterima (Sah / Disetujui)</option>
                                                             <option value="ditolak" {{ $spk->status === 'ditolak' ? 'selected' : '' }}>Ditolak (Perlu Revisi)</option>
                                                         </select>
                                                     </div>
                                                     <div class="mb-3">
-                                                        <label class="form-label">Catatan Admin / Tindak Lanjut</label>
-                                                        <textarea name="catatan_admin" class="form-control form-control-sm" rows="3" placeholder="Tambahkan catatan kepada klien mengenai alasan persetujuan/penolakan...">{{ $spk->catatan_admin }}</textarea>
+                                                        <label class="form-label">Catatan Admin / Catatan Revisi</label>
+                                                        <textarea name="catatan_admin" class="form-control form-control-sm" rows="3" placeholder="Tambahkan catatan kepada klien mengenai status SPK ini...">{{ $spk->catatan_admin }}</textarea>
                                                     </div>
                                                 </div>
                                                 <div class="modal-footer d-flex justify-content-between">
                                                     <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Tutup</button>
                                                     <button type="submit" class="btn btn-sm btn-primary">
-                                                        <i class="fas fa-save me-1"></i> Simpan Status
+                                                        <i class="fas fa-save me-1"></i> Simpan Verifikasi
                                                     </button>
                                                 </div>
                                             </form>
@@ -152,7 +189,7 @@
                         <tr>
                             <td colspan="8" class="text-center py-5 text-muted">
                                 <div class="mb-2"><i class="fas fa-file-contract fs-3 text-secondary"></i></div>
-                                <div>Belum ada berkas surat perjanjian kerja yang diajukan.</div>
+                                <div>Belum ada berkas surat perjanjian kerja yang terdata.</div>
                             </td>
                         </tr>
                     @endforelse
@@ -166,5 +203,94 @@
         </div>
     @endif
 </div>
+
+<!-- Modal Upload Dokumen SPK Baru (Admin) -->
+<div class="modal fade" id="modalUploadSpk" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form action="{{ route('admin.surat-perjanjian.store') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-header">
+                    <h6 class="modal-title fw-bold"><i class="fas fa-file-upload me-2 text-primary"></i>Unggah Dokumen SPK Resmi</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Pilih Proyek Terkait <span class="text-danger">*</span></label>
+                        <select name="project_id" id="spk_project_select" class="form-select form-select-sm" required onchange="fillSpkClientInfo(this)">
+                            <option value="">— Pilih Proyek —</option>
+                            @foreach($projects as $p)
+                                <option value="{{ $p->id }}" 
+                                    data-name="{{ $p->user ? $p->user->name : '' }}" 
+                                    data-email="{{ $p->user ? $p->user->email : '' }}" 
+                                    data-phone="{{ $p->user ? $p->user->phone : '' }}">
+                                    {{ $p->nama_proyek }} ({{ $p->user ? $p->user->name : 'Klien' }})
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Nama Klien / Pihak Kedua <span class="text-danger">*</span></label>
+                            <input type="text" name="nama" id="spk_client_name" class="form-control form-control-sm" required placeholder="Nama Klien">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">No. Telepon / WA</label>
+                            <input type="text" name="telepon" id="spk_client_phone" class="form-control form-control-sm" placeholder="08xxxxxxxxxx">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Email Klien</label>
+                        <input type="email" name="email" id="spk_client_email" class="form-control form-control-sm" placeholder="klien@email.com">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Status Dokumen <span class="text-danger">*</span></label>
+                        <select name="status" class="form-select form-select-sm" required>
+                            <option value="diterima">Diterima / Sah (Resmi)</option>
+                            <option value="pending">Pending (Draft / Menunggu TTD Klien)</option>
+                            <option value="ditolak">Ditolak</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Berkas SPK (PDF, DOC, DOCX) <span class="text-danger">*</span></label>
+                        <input type="file" name="file_surat" class="form-control form-control-sm" accept=".pdf,.doc,.docx" required>
+                        <small class="text-muted" style="font-size: 0.72rem;">Maksimal 5MB.</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Keterangan / Deskripsi SPK</label>
+                        <textarea name="keterangan" class="form-control form-control-sm" rows="2" placeholder="Contoh: SPK Tahap 1 Pembangunan Rumah Tinggal Jl. Merdeka..."></textarea>
+                    </div>
+
+                    <div class="mb-2">
+                        <label class="form-label">Catatan Tambahan untuk Klien</label>
+                        <textarea name="catatan_admin" class="form-control form-control-sm" rows="2" placeholder="Catatan opsional..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer d-flex justify-content-between">
+                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-sm btn-primary">
+                        <i class="fas fa-upload me-1"></i> Simpan & Tautkan SPK
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function fillSpkClientInfo(select) {
+    const selected = select.options[select.selectedIndex];
+    if (selected && selected.value) {
+        document.getElementById('spk_client_name').value = selected.getAttribute('data-name') || '';
+        document.getElementById('spk_client_phone').value = selected.getAttribute('data-phone') || '';
+        document.getElementById('spk_client_email').value = selected.getAttribute('data-email') || '';
+    }
+}
+</script>
 
 @endsection

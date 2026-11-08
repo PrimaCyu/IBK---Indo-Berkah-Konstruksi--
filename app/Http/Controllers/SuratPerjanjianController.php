@@ -15,20 +15,22 @@ class SuratPerjanjianController extends Controller
     public function store(Request $request)
     {
         $request->validate([
+            'project_id'  => 'nullable|exists:projects,id',
             'nama'        => 'required|string|max:255',
             'email'       => 'nullable|email|max:255',
             'telepon'     => 'nullable|string|max:20',
             'keterangan'  => 'nullable|string',
-            'file_surat'  => 'required|file|mimes:pdf,doc,docx|max:2048',
+            'file_surat'  => 'required|file|mimes:pdf,doc,docx|max:5120',
         ], [
             'file_surat.required' => 'File surat perjanjian wajib diunggah.',
             'file_surat.mimes'    => 'Format file harus PDF, DOC, atau DOCX.',
-            'file_surat.max'      => 'Ukuran file maksimal 2 MB.',
+            'file_surat.max'      => 'Ukuran file maksimal 5 MB.',
         ]);
 
         $path = $request->file('file_surat')->store('surat-perjanjian', 'public');
 
         SuratPerjanjian::create([
+            'project_id' => $request->project_id,
             'nama'       => $request->nama,
             'email'      => $request->email,
             'telepon'    => $request->telepon,

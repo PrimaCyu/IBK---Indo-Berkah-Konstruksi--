@@ -24,8 +24,8 @@
         .progress-bar-mini { height: 4px; border-radius: 0px; background: #F3F4F6; overflow: hidden; }
         .progress-fill-mini { height: 100%; background: #C5A880; border-radius: 0px; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
         
-        #create-project-modal { display: none; }
-        #create-project-modal.open { display: flex; }
+        #penawaran-project-modal { display: none; }
+        #penawaran-project-modal.open { display: flex; }
     </style>
 </head>
 <body class="bg-[#FAFAFA] text-gray-900 font-sans antialiased min-h-screen">
@@ -167,11 +167,21 @@
                     <span class="block text-[10px] tracking-[0.3em] uppercase text-[#C5A880] mb-1 font-medium">Daftar Proyek</span>
                     <h3 class="font-light text-gray-900 text-2xl">Proyek Konstruksi Anda</h3>
                 </div>
-                <button onclick="openCreateModal()" class="inline-flex items-center gap-3 bg-[#111111] hover:bg-[#C5A880] text-white px-6 py-4 text-[10px] tracking-widest uppercase font-bold transition-colors">
+                <button onclick="openPenawaranModal()" class="inline-flex items-center gap-3 bg-[#111111] hover:bg-[#C5A880] text-white px-6 py-4 text-[10px] tracking-widest uppercase font-bold transition-colors">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                    Tambah Proyek
+                    Minta Penawaran Proyek Baru
                 </button>
             </div>
+
+            @if(session('penawaran_success'))
+                <div class="mb-6 p-5 bg-green-50 border border-green-200 flex items-start gap-4">
+                    <svg class="w-5 h-5 text-green-600 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                    <div>
+                        <p class="text-green-900 text-sm font-bold tracking-wide">Permintaan Penawaran Proyek Berhasil Terkirim!</p>
+                        <p class="text-green-800 text-xs mt-1 font-light leading-relaxed">Tim Indo Berkah Konstruksi akan segera meninjau detail kebutuhan Anda, menyusun estimasi RAB, dan menghubungi Anda via WhatsApp untuk penerbitan SPK serta aktivasi proyek di dashboard ini.</p>
+                    </div>
+                </div>
+            @endif
 
             @if(session('project_success'))
                 <div class="mb-6 p-4 bg-green-50 border border-green-100 flex items-center gap-4">
@@ -257,64 +267,92 @@
     </main>
 </div>
 
-<!-- CREATE PROJECT MODAL -->
-<div id="create-project-modal" onclick="if(event.target===this)closeCreateModal()" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] items-center justify-center p-4">
-    <div class="bg-white w-full max-w-lg border border-gray-200 shadow-2xl max-h-[90vh] overflow-y-auto">
+<!-- MINTA PENAWARAN PROYEK BARU MODAL -->
+<div id="penawaran-project-modal" onclick="if(event.target===this)closePenawaranModal()" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] items-center justify-center p-4">
+    <div class="bg-white w-full max-w-xl border border-gray-200 shadow-2xl max-h-[90vh] overflow-y-auto">
         <div class="px-8 py-6 border-b border-gray-100 flex items-center justify-between">
             <div>
-                <span class="block text-[10px] tracking-[0.3em] uppercase text-[#C5A880] mb-1 font-medium">Proyek Baru</span>
-                <h3 class="font-light text-gray-900 text-xl">Tambah Proyek Konstruksi</h3>
+                <span class="block text-[10px] tracking-[0.3em] uppercase text-[#C5A880] mb-1 font-medium">Konsultasi Biaya</span>
+                <h3 class="font-light text-gray-900 text-xl">Minta Penawaran Proyek Baru</h3>
             </div>
-            <button onclick="closeCreateModal()" class="w-10 h-10 bg-[#FAFAFA] flex items-center justify-center text-gray-500 hover:bg-[#111111] hover:text-white transition-colors border border-gray-200">
+            <button onclick="closePenawaranModal()" class="w-10 h-10 bg-[#FAFAFA] flex items-center justify-center text-gray-500 hover:bg-[#111111] hover:text-white transition-colors border border-gray-200">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
         </div>
         
-        <form action="{{ route('projects.store') }}" method="POST" class="p-8 space-y-6">
+        <form action="{{ route('penawaran.store') }}" method="POST" enctype="multipart/form-data" class="p-8 space-y-6">
             @csrf
-            <div>
-                <label class="block text-[10px] font-bold tracking-[0.2em] uppercase text-gray-500 mb-3">Nama Proyek *</label>
-                <input type="text" name="nama_proyek" placeholder="Contoh: Pembangunan Rumah Tinggal Jl. Merdeka" required
-                    class="w-full bg-[#FAFAFA] border-b-2 border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-[#C5A880] transition-colors">
+            
+            <input type="hidden" name="nama" value="{{ auth()->user()->name }}">
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-[10px] font-bold tracking-[0.2em] uppercase text-gray-500 mb-2">Nama Akun Klien</label>
+                    <input type="text" value="{{ auth()->user()->name }}" readonly disabled
+                        class="w-full bg-gray-50 border-b-2 border-gray-200 px-4 py-2.5 text-sm text-gray-600 cursor-not-allowed">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold tracking-[0.2em] uppercase text-gray-500 mb-2">No. WhatsApp *</label>
+                    <input type="tel" name="telepon" value="{{ auth()->user()->phone ?? '' }}" placeholder="Contoh: 081234567890" required
+                        class="w-full bg-[#FAFAFA] border-b-2 border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:border-[#C5A880] transition-colors">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-[10px] font-bold tracking-[0.2em] uppercase text-gray-500 mb-2">Email</label>
+                    <input type="email" name="email" value="{{ auth()->user()->email }}" readonly
+                        class="w-full bg-gray-50 border-b-2 border-gray-200 px-4 py-2.5 text-sm text-gray-600">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold tracking-[0.2em] uppercase text-gray-500 mb-2">Perkiraan Anggaran / Budget *</label>
+                    <select name="budget" required
+                        class="w-full bg-[#FAFAFA] border-b-2 border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:border-[#C5A880] transition-colors">
+                        <option value="">— Pilih Estimasi Budget —</option>
+                        <option value="Dibawah Rp 100 Juta">Dibawah Rp 100 Juta</option>
+                        <option value="Rp 100 - 300 Juta">Rp 100 - 300 Juta</option>
+                        <option value="Rp 300 - 500 Juta">Rp 300 - 500 Juta</option>
+                        <option value="Rp 500 Juta - 1 Miliar">Rp 500 Juta - 1 Miliar</option>
+                        <option value="Diatas Rp 1 Miliar">Diatas Rp 1 Miliar</option>
+                    </select>
+                </div>
             </div>
 
             <div>
-                <label class="block text-[10px] font-bold tracking-[0.2em] uppercase text-gray-500 mb-3">Alamat Proyek</label>
-                <input type="text" name="alamat_proyek" placeholder="Contoh: Jl. Merdeka No. 10, Jakarta Selatan"
-                    class="w-full bg-[#FAFAFA] border-b-2 border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-[#C5A880] transition-colors">
+                <label class="block text-[10px] font-bold tracking-[0.2em] uppercase text-gray-500 mb-2">Lokasi / Alamat Proyek *</label>
+                <input type="text" name="alamat" placeholder="Contoh: Jl. Diponegoro No. 25, Surabaya" required
+                    class="w-full bg-[#FAFAFA] border-b-2 border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:border-[#C5A880] transition-colors">
             </div>
 
             <div>
-                <label class="block text-[10px] font-bold tracking-[0.2em] uppercase text-gray-500 mb-3">Kategori</label>
-                <select name="kategori" class="w-full bg-[#FAFAFA] border-b-2 border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-[#C5A880] transition-colors">
-                    <option value="">— Pilih Kategori —</option>
-                    <option value="Pembangunan Rumah">Pembangunan Rumah</option>
-                    <option value="Gedung Komersial">Gedung Komersial</option>
-                    <option value="Renovasi Bangunan">Renovasi Bangunan</option>
-                    <option value="Konsultasi Konstruksi">Konsultasi Konstruksi</option>
-                </select>
+                <label class="block text-[10px] font-bold tracking-[0.2em] uppercase text-gray-500 mb-2">Deskripsi Rencana & Kebutuhan Proyek *</label>
+                <textarea name="deskripsi" rows="3" placeholder="Contoh: Rencana bangun rumah 2 lantai luas tanah 120m2, konsep minimalis modern..." required
+                    class="w-full bg-[#FAFAFA] border-b-2 border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:border-[#C5A880] transition-colors resize-none"></textarea>
             </div>
 
             <div>
-                <label class="block text-[10px] font-bold tracking-[0.2em] uppercase text-gray-500 mb-3">Deskripsi Singkat</label>
-                <textarea name="deskripsi" rows="3" placeholder="Jelaskan secara singkat proyek ini..."
-                    class="w-full bg-[#FAFAFA] border-b-2 border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-[#C5A880] transition-colors resize-none"></textarea>
+                <label class="block text-[10px] font-bold tracking-[0.2em] uppercase text-gray-500 mb-2">Foto Lokasi / Lahan / Denah Awal (Opsional)</label>
+                <input type="file" name="foto" accept="image/*"
+                    class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:border-0 file:text-xs file:font-bold file:uppercase file:tracking-widest file:bg-[#111111] file:text-white hover:file:bg-[#C5A880] file:transition-colors file:cursor-pointer bg-[#FAFAFA] border-b-2 border-gray-200">
             </div>
 
-            <button type="submit"
-                class="w-full inline-flex items-center justify-center gap-3 text-[11px] font-bold tracking-[0.2em] uppercase bg-[#111111] text-white px-8 py-4 hover:bg-[#C5A880] transition-colors">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                Buat Proyek Baru
-            </button>
+            <div class="pt-2">
+                <button type="submit"
+                    class="w-full inline-flex items-center justify-center gap-3 text-[11px] font-bold tracking-[0.2em] uppercase bg-[#111111] text-white px-8 py-4 hover:bg-[#C5A880] transition-colors shadow-lg">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                    Kirim Permintaan Penawaran
+                </button>
+                <p class="text-[11px] text-gray-400 text-center mt-3 font-light">Setelah disetujui, proyek baru akan otomatis aktif di dashboard Anda.</p>
+            </div>
         </form>
     </div>
 </div>
 
 <!-- FLOAT BUTTON -->
-<a href="/penawaran" class="fixed bottom-8 right-8 z-40 bg-[#111111] text-white px-6 py-4 flex items-center gap-3 shadow-2xl hover:bg-[#C5A880] hover:-translate-y-1 transition-all group">
+<button onclick="openPenawaranModal()" class="fixed bottom-8 right-8 z-40 bg-[#111111] text-white px-6 py-4 flex items-center gap-3 shadow-2xl hover:bg-[#C5A880] hover:-translate-y-1 transition-all group">
     <svg class="w-5 h-5 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-    <span class="tracking-widest font-bold uppercase text-[10px]">Penawaran Baru</span>
-</a>
+    <span class="tracking-widest font-bold uppercase text-[10px]">Minta Penawaran Baru</span>
+</button>
 
 <script>
     function toggleSidebar() {
@@ -327,16 +365,22 @@
             document.getElementById('sidebar-overlay').classList.remove('open');
         }
     }
-    function openCreateModal() {
-        document.getElementById('create-project-modal').classList.add('open');
-        document.body.style.overflow = 'hidden';
+    function openPenawaranModal() {
+        const modal = document.getElementById('penawaran-project-modal');
+        if (modal) {
+            modal.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
     }
-    function closeCreateModal() {
-        document.getElementById('create-project-modal').classList.remove('open');
-        document.body.style.overflow = '';
+    function closePenawaranModal() {
+        const modal = document.getElementById('penawaran-project-modal');
+        if (modal) {
+            modal.classList.remove('open');
+            document.body.style.overflow = '';
+        }
     }
     document.addEventListener('keydown', e => {
-        if (e.key === 'Escape') closeCreateModal();
+        if (e.key === 'Escape') closePenawaranModal();
     });
 </script>
 

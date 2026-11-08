@@ -121,6 +121,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // Surat Perjanjian (SPK)
     Route::get('/surat-perjanjian', [AdminSuratPerjanjianController::class, 'index'])->name('surat-perjanjian.index');
+    Route::post('/surat-perjanjian', [AdminSuratPerjanjianController::class, 'store'])->name('surat-perjanjian.store');
     Route::patch('/surat-perjanjian/{suratPerjanjian}/status', [AdminSuratPerjanjianController::class, 'updateStatus'])->name('surat-perjanjian.status');
     Route::delete('/surat-perjanjian/{suratPerjanjian}', [AdminSuratPerjanjianController::class, 'destroy'])->name('surat-perjanjian.destroy');
 

@@ -99,9 +99,17 @@ class AdminPenawaranController extends Controller
             }
 
             if (!$project) {
+                $projectName = 'Proyek ' . $penawaran->nama;
+                if (preg_match('/(?:Pengajuan Proyek Baru:|Rencana Proyek:)\s*([^\.]+)/i', $penawaran->deskripsi, $matches)) {
+                    $extracted = trim($matches[1]);
+                    if (!empty($extracted)) {
+                        $projectName = $extracted;
+                    }
+                }
+
                 $project = Project::create([
                     'user_id'             => $user->id,
-                    'nama_proyek'         => 'Proyek ' . $penawaran->nama,
+                    'nama_proyek'         => $projectName,
                     'alamat_proyek'       => $penawaran->alamat,
                     'deskripsi'           => $penawaran->deskripsi,
                     'kategori'            => 'Pembangunan Rumah',
