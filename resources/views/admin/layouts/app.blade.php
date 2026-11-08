@@ -613,7 +613,7 @@
                 <!-- Right Nav: Notifikasi & Profile Pill Dropdown -->
                 <div class="d-flex align-items-center gap-2">
                     @php
-                        $unreadQuotes = \App\Models\Penawaran::count();
+                        $unreadQuotes = \App\Models\Penawaran::where('status', 'pending')->count();
                         $unreadSurat = \App\Models\SuratPerjanjian::where('status', 'pending')->count();
                     @endphp
 
@@ -890,14 +890,15 @@
              ============================================== -->
         <main class="app-main">
             <!-- Content Header -->
-            <div class="content-header">
+            <div class="content-header py-3">
                 <div class="container-fluid px-3">
-                    <div class="row align-items-center">
-                        <div class="col-sm-6">
-                            <h1>@yield('page-title', 'Dashboard')</h1>
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <div>
+                            <h1 class="m-0 text-dark fw-bold" style="font-size: 1.35rem;">@yield('page-title', 'Dashboard')</h1>
                         </div>
-                        <div class="col-sm-6">
-                            <div class="float-sm-end">
+                        <div class="d-flex align-items-center gap-2">
+                            @yield('page-actions')
+                            @hasSection('breadcrumb')
                                 <ol class="breadcrumb mb-0 align-items-center bg-white px-3 py-1 rounded-pill border" style="font-size: 0.8rem; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
                                     <li class="breadcrumb-item">
                                         <a href="/admin" class="text-decoration-none text-muted">
@@ -906,7 +907,7 @@
                                     </li>
                                     @yield('breadcrumb')
                                 </ol>
-                            </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -975,6 +976,19 @@
                         document.body.classList.remove("sidebar-open");
                     }
                 }
+            });
+
+            // Auto-dismiss any alert notification after 5 seconds
+            const alerts = document.querySelectorAll(".alert");
+            alerts.forEach(function (alert) {
+                setTimeout(function () {
+                    if (alert && alert.parentNode) {
+                        alert.classList.remove("show");
+                        setTimeout(function () {
+                            if (alert.parentNode) alert.remove();
+                        }, 500);
+                    }
+                }, 5000);
             });
         });
     </script>

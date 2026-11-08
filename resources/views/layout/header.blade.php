@@ -25,7 +25,7 @@
         <li><a href="{{ url('our-team') }}" class="hover:text-[#C5A880] transition-colors duration-300">Our Team</a></li>
         <li><a href="{{ url('/') }}#program" class="hover:text-[#C5A880] transition-colors duration-300">Layanan</a></li>
         <li><a href="{{ route('portofolio') }}" class="hover:text-[#C5A880] transition-colors duration-300">Portofolio</a></li>
-        <li><a href="/penawaran" class="hover:text-[#C5A880] transition-colors duration-300">Ajukan Kolaborasi</a></li>
+        <li><a href="/penawaran" class="hover:text-[#C5A880] transition-colors duration-300">Minta Penawaran</a></li>
         <li><a href="{{ route('partner-client') }}" class="hover:text-[#C5A880] transition-colors duration-300">Partner</a></li>
         <li><a href="{{ route('berita.index') }}" class="hover:text-[#C5A880] transition-colors duration-300">News & Event</a></li>
     </ul>
@@ -44,8 +44,7 @@
                     <button type="submit" class="text-xs font-medium tracking-[0.12em] xl:tracking-[0.15em] uppercase text-gray-400 hover:text-red-400 transition-colors duration-300">Keluar</button>
                 </form>
             @else
-                <a href="/login" class="text-xs font-medium tracking-[0.12em] xl:tracking-[0.15em] uppercase text-gray-400 hover:text-[#C5A880] transition-colors duration-300">Masuk</a>
-                <a href="/register" class="text-xs font-medium tracking-[0.12em] xl:tracking-[0.15em] uppercase border border-[#C5A880]/50 text-[#C5A880] px-4 xl:px-6 py-2 xl:py-2.5 hover:bg-[#C5A880] hover:text-white transition-all duration-500">Daftar</a>
+                <a href="/login" class="text-xs font-medium tracking-[0.12em] xl:tracking-[0.15em] uppercase border border-[#C5A880]/50 text-[#C5A880] px-4 xl:px-5 py-2 hover:bg-[#C5A880] hover:text-[#111111] transition-all duration-300">Login Klien</a>
             @endauth
         </div>
 
@@ -82,7 +81,7 @@
             <li><a href="{{ url('our-team') }}" class="block hover:text-[#C5A880] transition-colors">Our Team</a></li>
             <li><a href="{{ url('/') }}#program" class="block hover:text-[#C5A880] transition-colors">Layanan</a></li>
             <li><a href="{{ route('portofolio') }}" class="block hover:text-[#C5A880] transition-colors">Portofolio</a></li>
-            <li><a href="/penawaran" class="block hover:text-[#C5A880] transition-colors">Ajukan Kolaborasi</a></li>
+            <li><a href="/penawaran" class="block hover:text-[#C5A880] transition-colors">Minta Penawaran</a></li>
             <li><a href="{{ route('partner-client') }}" class="block hover:text-[#C5A880] transition-colors">Partner</a></li>
             <li><a href="{{ route('berita.index') }}" class="block hover:text-[#C5A880] transition-colors">News & Event</a></li>
 
@@ -98,8 +97,7 @@
                         <button type="submit" class="w-full text-center py-3.5 border border-red-500/40 text-red-400 hover:bg-red-500/10 transition-colors tracking-widest uppercase text-xs">Keluar / Logout</button>
                     </form>
                 @else
-                    <a href="/login" class="text-center py-3.5 border border-gray-700 hover:border-[#C5A880] hover:text-[#C5A880] transition-colors tracking-widest">Masuk</a>
-                    <a href="/register" class="text-center py-3.5 bg-[#C5A880] text-[#111] font-medium hover:bg-[#A68A60] transition-colors tracking-widest">Daftar</a>
+                    <a href="/login" class="text-center py-3.5 bg-[#C5A880] text-[#111111] font-medium hover:bg-[#A68A60] transition-colors tracking-widest uppercase text-xs">Login Klien</a>
                 @endauth
             </li>
         </ul>

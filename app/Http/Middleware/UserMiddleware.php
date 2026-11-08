@@ -16,7 +16,7 @@ class UserMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::check() && in_array(Auth::user()->role, ['owner', 'admin'])) {
+        if (Auth::check() && in_array(Auth::user()->role, ['owner', 'admin', 'user', 'client'])) {
             return $next($request);
         }
         abort(403, 'Akses ditolak.');
