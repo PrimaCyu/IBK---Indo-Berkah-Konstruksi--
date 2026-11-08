@@ -104,6 +104,9 @@
                                 <a href="/berita/{{ $item->slug }}" target="_blank" class="btn btn-xs btn-outline-secondary py-1 px-2" title="Lihat di Website">
                                     <i class="fas fa-external-link-alt"></i>
                                 </a>
+                                <button type="button" class="btn btn-xs btn-outline-primary py-1 px-2" data-bs-toggle="modal" data-bs-target="#editNewsModal{{ $item->id }}" title="Edit Artikel">
+                                    <i class="fas fa-edit"></i>
+                                </button>
                                 <form action="/admin/berita/{{ $item->id }}/publish" method="POST" class="d-inline">
                                     @csrf
                                     @method('PATCH')
@@ -126,6 +129,78 @@
                                 </form>
                             </td>
                         </tr>
+
+                        <!-- Modal Edit Berita {{ $item->id }} -->
+                        <div class="modal fade text-start" id="editNewsModal{{ $item->id }}" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-lg modal-dialog-centered">
+                                <div class="modal-content">
+                                    <form action="{{ route('admin.berita.update', $item->id) }}" method="POST" enctype="multipart/form-data">
+                                        @csrf
+                                        @method('PUT')
+                                        <div class="modal-header">
+                                            <h6 class="modal-title fw-bold">
+                                                <i class="fas fa-edit me-2 text-primary"></i>Edit Artikel Berita
+                                            </h6>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="row g-3">
+                                                <div class="col-md-8">
+                                                    <label class="form-label">Judul Artikel <span class="text-danger">*</span></label>
+                                                    <input type="text" name="title" value="{{ $item->title }}" class="form-control form-control-sm" required>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label class="form-label">Kategori Berita <span class="text-danger">*</span></label>
+                                                    <select name="kategori_berita_id" class="form-select form-select-sm" required>
+                                                        @foreach($categories as $cat)
+                                                            <option value="{{ $cat->id }}" {{ $item->kategori_berita_id == $cat->id ? 'selected' : '' }}>
+                                                                {{ $cat->nama }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label">Ganti Gambar Sampul (Opsional)</label>
+                                                    <input type="file" name="image" class="form-control form-control-sm" accept="image/*">
+                                                    <small class="text-muted d-block">Biarkan kosong jika tidak ingin mengubah gambar.</small>
+                                                    @if($item->image)
+                                                        <div class="mt-2 d-flex align-items-center gap-2">
+                                                            <img src="{{ asset('storage/' . $item->image) }}" class="rounded border object-fit-cover" style="width: 48px; height: 36px;">
+                                                            <span class="text-muted small">Gambar aktif</span>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <label class="form-label">Jumlah Views</label>
+                                                    <div class="input-group input-group-sm">
+                                                        <span class="input-group-text"><i class="far fa-eye"></i></span>
+                                                        <input type="number" min="0" name="views" value="{{ $item->views ?? 0 }}" class="form-control form-control-sm">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3 d-flex align-items-center pt-3">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" name="is_published" value="1" id="isPublished{{ $item->id }}" {{ $item->is_published ? 'checked' : '' }}>
+                                                        <label class="form-check-label small" for="isPublished{{ $item->id }}">
+                                                            Tayang di Website
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12">
+                                                    <label class="form-label">Konten / Isi Artikel <span class="text-danger">*</span></label>
+                                                    <textarea name="content" class="form-control form-control-sm" rows="8" required>{{ $item->content }}</textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer d-flex justify-content-between">
+                                            <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Batal</button>
+                                            <button type="submit" class="btn btn-sm btn-primary">
+                                                <i class="fas fa-save me-1"></i> Simpan Perubahan
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
                     @empty
                         <tr>
                             <td colspan="8" class="text-center py-5 text-muted">

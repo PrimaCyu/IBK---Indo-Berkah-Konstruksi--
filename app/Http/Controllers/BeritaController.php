@@ -48,12 +48,8 @@ class BeritaController extends Controller
     {
         $berita = Berita::with('kategori')->where('slug', $slug)->where('is_published', true)->firstOrFail();
 
-        // Increment views with session check to avoid refresh spam
-        $viewedKey = 'viewed_berita_' . $berita->id;
-        if (!session()->has($viewedKey)) {
-            $berita->increment('views');
-            session()->put($viewedKey, true);
-        }
+        // Naikkan jumlah pembaca / views setiap artikel dibuka
+        $berita->increment('views');
 
         // Dapatkan berita terkait
         $relatedBeritas = Berita::with('kategori')

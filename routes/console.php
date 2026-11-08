@@ -28,3 +28,15 @@ Artisan::command('make:admin {email=admin@admin.com} {password=admin123} {name=A
     $this->line("Role  : {$user->role}");
 })->purpose('Buat atau perbarui akun admin');
 
+Artisan::command('user:check', function () {
+    $users = \App\Models\User::all(['id', 'name', 'email', 'role']);
+    $this->table(['ID', 'Nama', 'Email', 'Role'], $users->toArray());
+})->purpose('Cek daftar akun user');
+
+Artisan::command('berita:dummy', function () {
+    $this->call(\Database\Seeders\BeritaDummySeeder::class);
+    $this->info("10 berita dummy berhasil ditambahkan!");
+})->purpose('Generate 10 berita dummy beserta kategori dan views');
+
+
+
