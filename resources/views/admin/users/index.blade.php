@@ -10,6 +10,16 @@
 
 @section('content')
 
+@if($errors->any())
+    <div class="alert alert-danger small" role="alert">
+        <ul class="mb-0">
+            @foreach($errors->all() as $message)
+                <li>{{ $message }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
 <!-- Filter Bar -->
 <div class="card mb-3">
     <div class="card-body p-3">
@@ -24,7 +34,8 @@
                 <select name="role" class="form-select form-select-sm">
                     <option value="">Semua Hak Akses</option>
                     <option value="admin" {{ request('role') === 'admin' ? 'selected' : '' }}>Administrator</option>
-                    <option value="user" {{ request('role') === 'user' ? 'selected' : '' }}>Klien / User Biasa</option>
+                    <option value="owner" {{ request('role') === 'owner' ? 'selected' : '' }}>Klien</option>
+                    <option value="accounting" {{ request('role') === 'accounting' ? 'selected' : '' }}>Accounting</option>
                 </select>
             </div>
             <div class="col-md-2 d-flex gap-1">
@@ -92,6 +103,8 @@
                             <td>
                                 @if($u->role === 'admin')
                                     <span class="badge bg-dark font-monospace">ADMINISTRATOR</span>
+                                @elseif($u->role === 'accounting')
+                                    <span class="badge bg-primary-subtle text-primary border">Accounting</span>
                                 @else
                                     <span class="badge bg-secondary font-monospace">KLIEN</span>
                                 @endif
@@ -161,8 +174,9 @@
                     <div class="mb-3">
                         <label class="form-label">Hak Akses (Role) <span class="text-danger">*</span></label>
                         <select name="role" class="form-select form-select-sm" required>
-                            <option value="user" selected>Klien / User Biasa</option>
+                            <option value="owner" selected>Klien</option>
                             <option value="admin">Administrator (Akses Penuh Backend)</option>
+                            <option value="accounting">Accounting (Buku Kas Proyek)</option>
                         </select>
                     </div>
                     <div class="mb-3">

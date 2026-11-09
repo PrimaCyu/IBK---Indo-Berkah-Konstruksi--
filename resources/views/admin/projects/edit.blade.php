@@ -16,9 +16,14 @@
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span class="fw-bold"><i class="fas fa-edit me-2 text-primary"></i>Ubah Data Proyek: {{ $project->nama_proyek }}</span>
-                <a href="/admin/projects" class="btn btn-sm btn-outline-secondary">
-                    <i class="fas fa-arrow-left me-1"></i> Kembali
-                </a>
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{{ route('admin.cashbook.show', $project) }}" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-book me-1" aria-hidden="true"></i>Buku Kas
+                    </a>
+                    <a href="/admin/projects" class="btn btn-sm btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-1"></i> Kembali
+                    </a>
+                </div>
             </div>
             <form action="{{ route('admin.projects.update', $project) }}" method="POST" enctype="multipart/form-data">
                 @csrf

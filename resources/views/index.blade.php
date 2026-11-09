@@ -421,9 +421,9 @@
                             class="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-[11px] font-bold tracking-[0.2em] uppercase border border-[#C5A880] bg-[#C5A880] text-[#111] px-8 py-4 hover:bg-transparent hover:text-[#C5A880] transition-all duration-300">
                             Masuk / Login
                         </a>
-                        <a href="{{ route('register') }}"
+                        <a href="{{ route('penawaran.index') }}"
                             class="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-[11px] font-bold tracking-[0.2em] uppercase border border-white/20 text-white px-8 py-4 hover:border-[#C5A880] hover:text-[#C5A880] transition-all duration-300">
-                            Daftar Akun Baru
+                            Minta Penawaran
                         </a>
                     </div>
                 </div>

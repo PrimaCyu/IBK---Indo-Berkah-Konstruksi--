@@ -589,6 +589,11 @@
     @stack('styles')
 </head>
 <body>
+    @php
+        $isAdmin = auth()->user()->role === 'admin';
+        $panelHome = $isAdmin ? route('admin.dashboard') : route('admin.cashbook.index');
+        $panelRole = $isAdmin ? 'Super Admin' : 'Accounting';
+    @endphp
     <div class="app-wrapper">
 
         <!-- ==============================================
@@ -612,6 +617,7 @@
 
                 <!-- Right Nav: Notifikasi & Profile Pill Dropdown -->
                 <div class="d-flex align-items-center gap-2">
+                    @if($isAdmin)
                     @php
                         $unreadQuotes = \App\Models\Penawaran::where('status', 'pending')->count();
                         $unreadSurat = \App\Models\SuratPerjanjian::where('status', 'pending')->count();
@@ -657,6 +663,8 @@
                     <!-- Subtle Divider -->
                     <div class="vr my-auto mx-1 text-muted opacity-25" style="height: 24px;"></div>
 
+                    @endif
+
                     <!-- User Profile Pill Dropdown -->
                     <div class="dropdown">
                         <button class="nav-user-pill" data-bs-toggle="dropdown" aria-expanded="false">
@@ -665,7 +673,7 @@
                             </div>
                             <div class="user-meta d-none d-md-flex flex-column text-start">
                                 <span class="user-meta-name">{{ auth()->user()->name ?? 'Administrator' }}</span>
-                                <span class="user-meta-role">Super Admin</span>
+                                <span class="user-meta-role">{{ $panelRole }}</span>
                             </div>
                             <i class="fas fa-chevron-down user-meta-caret"></i>
                         </button>
@@ -678,15 +686,17 @@
                                     <div class="min-w-0">
                                         <div class="fw-bold text-dark text-truncate small">{{ auth()->user()->name ?? 'Admin' }}</div>
                                         <div class="text-muted text-truncate" style="font-size: 0.72rem;">{{ auth()->user()->email ?? '-' }}</div>
-                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle mt-1 font-monospace" style="font-size: 0.65rem;">ADMINISTRATOR</span>
+                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle mt-1 font-monospace" style="font-size: 0.65rem;">{{ $isAdmin ? 'ADMINISTRATOR' : 'ACCOUNTING' }}</span>
                                     </div>
                                 </div>
                             </div>
                             <div class="p-1">
+                                @if($isAdmin)
                                 <a href="/admin/settings" class="custom-dropdown-item">
                                     <i class="fas fa-sliders-h text-muted" style="width: 16px;"></i>
                                     <span>Pengaturan Website</span>
                                 </a>
+                                @endif
                                 <a href="/" target="_blank" class="custom-dropdown-item">
                                     <i class="fas fa-globe text-muted" style="width: 16px;"></i>
                                     <span>Halaman Utama Website</span>
@@ -713,7 +723,7 @@
         <aside class="app-sidebar" id="appSidebar">
             <!-- Brand Logo -->
             <div class="sidebar-brand">
-                <a href="/admin" aria-label="Indo Berkah Konstruksi - Dashboard">
+                <a href="{{ $panelHome }}" aria-label="Indo Berkah Konstruksi - Beranda panel">
                     <img src="{{ asset('image/Logo/logo-admin.svg') }}" alt="Logo Indo Berkah Konstruksi">
                 </a>
             </div>
@@ -731,7 +741,7 @@
             <!-- Sidebar Navigation -->
             <div class="sidebar-wrapper">
                 <ul class="nav nav-sidebar flex-column">
-                    
+                    @if($isAdmin)
                     <li class="nav-item">
                         <a href="/admin" class="nav-link {{ request()->is('admin') ? 'active' : '' }}">
                             <div class="nav-left">
@@ -745,7 +755,7 @@
                     <li class="nav-header">Operasional Proyek</li>
                     
                     <li class="nav-item">
-                        <a href="/admin/projects" class="nav-link {{ request()->is('admin/projects*') ? 'active' : '' }}">
+                        <a href="/admin/projects" class="nav-link {{ request()->is('admin/projects*') && !request()->routeIs('admin.cashbook.*') ? 'active' : '' }}">
                             <div class="nav-left">
                                 <i class="fas fa-building"></i>
                                 <span>Daftar Proyek</span>
@@ -757,6 +767,16 @@
                         </a>
                     </li>
 
+                    @endif
+                    <li class="nav-item">
+                        <a href="{{ route('admin.cashbook.index') }}" class="nav-link {{ request()->routeIs('admin.cashbook.*') ? 'active' : '' }}">
+                            <div class="nav-left">
+                                <i class="fas fa-book" aria-hidden="true"></i>
+                                <span>Keuangan Proyek</span>
+                            </div>
+                        </a>
+                    </li>
+                    @if($isAdmin)
                     <li class="nav-item">
                         <a href="/admin/user-files" class="nav-link {{ request()->is('admin/user-files*') ? 'active' : '' }}">
                             <div class="nav-left">
@@ -869,7 +889,7 @@
                             </div>
                         </a>
                     </li>
-
+                    @endif
                 </ul>
             </div>
 
@@ -901,7 +921,7 @@
                             @hasSection('breadcrumb')
                                 <ol class="breadcrumb mb-0 align-items-center bg-white px-3 py-1 rounded-pill border" style="font-size: 0.8rem; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
                                     <li class="breadcrumb-item">
-                                        <a href="/admin" class="text-decoration-none text-muted">
+                                        <a href="{{ $panelHome }}" class="text-decoration-none text-muted">
                                             <i class="fas fa-house me-1" style="font-size: 0.75rem;"></i> Home
                                         </a>
                                     </li>
@@ -928,6 +948,10 @@
                             <i class="fas fa-exclamation-circle me-1"></i> {{ session('error') }}
                             <button type="button" class="btn-close py-2" data-bs-dismiss="alert"></button>
                         </div>
+                    @endif
+
+                    @if(session('info'))
+                        <div class="alert alert-info py-2 px-3 small mb-3" role="status">{{ session('info') }}</div>
                     @endif
 
                     @yield('content')

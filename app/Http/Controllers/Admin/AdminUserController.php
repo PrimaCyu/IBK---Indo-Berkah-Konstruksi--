@@ -36,7 +36,7 @@ class AdminUserController extends Controller
             'name'     => 'required|string|max:255',
             'email'    => 'required|email|unique:users,email',
             'phone'    => 'nullable|string|max:30',
-            'role'     => 'required|in:admin,user',
+            'role'     => 'required|in:admin,owner,accounting',
             'password' => 'required|string|min:6',
         ]);
 
@@ -55,6 +55,10 @@ class AdminUserController extends Controller
     {
         if ($user->id === auth()->id()) {
             return back()->with('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
+        }
+
+        if ($user->projects()->whereHas('cashflows', fn ($query) => $query->withTrashed())->exists()) {
+            return back()->with('error', 'Akun memiliki proyek dengan riwayat buku kas dan tidak dapat dihapus.');
         }
 
         $user->delete();

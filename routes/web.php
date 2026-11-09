@@ -29,6 +29,7 @@ use App\Http\Controllers\Admin\AdminBeritaController;
 use App\Http\Controllers\Admin\AdminTeamController;
 use App\Http\Controllers\Admin\AdminSettingController;
 use App\Http\Controllers\Admin\AdminUserFileController;
+use App\Http\Controllers\Admin\ProjectCashflowController;
 
 Route::get('/layanan/{slug}', [LayananController::class, 'show'])->name('layanan.show');
 
@@ -36,7 +37,7 @@ Route::get('/berita', [BeritaController::class, 'index'])->name('berita.index');
 Route::get('/berita/{slug}', [BeritaController::class, 'show'])->name('berita.show');
 
 // Rute yang membutuhkan user login
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'user'])->group(function () {
     Route::post('/user-files', [UserFileController::class, 'store'])->name('user-files.store');
     Route::delete('/user-files/{userFile}', [UserFileController::class, 'destroy'])->name('user-files.destroy');
     Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
@@ -100,6 +101,17 @@ Route::view('/login', 'auth.login')->name('login');
 Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:6,1');
 
 Route::post('/logout', [AuthController::class, 'logout']);
+
+// Buku kas internal: accounting tidak mendapat akses ke pengelolaan admin lainnya.
+Route::middleware(['auth', 'accounting'])->prefix('admin')->name('admin.cashbook.')->scopeBindings()->group(function () {
+    Route::get('/keuangan-proyek', [ProjectCashflowController::class, 'index'])->name('index');
+    Route::get('/projects/{project}/buku-kas/export', [ProjectCashflowController::class, 'export'])->name('export');
+    Route::get('/projects/{project}/buku-kas', [ProjectCashflowController::class, 'show'])->name('show');
+    Route::post('/projects/{project}/buku-kas/options', [ProjectCashflowController::class, 'storeOption'])->name('options.store');
+    Route::post('/projects/{project}/buku-kas', [ProjectCashflowController::class, 'store'])->name('store');
+    Route::put('/projects/{project}/buku-kas/{cashflow}', [ProjectCashflowController::class, 'update'])->name('update');
+    Route::delete('/projects/{project}/buku-kas/{cashflow}', [ProjectCashflowController::class, 'destroy'])->name('destroy');
+});
 
 // AdminLTE Backend Panel Routes
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {

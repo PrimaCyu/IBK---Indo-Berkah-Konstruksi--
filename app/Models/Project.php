@@ -39,6 +39,11 @@ class Project extends Model
         return $this->hasMany(UserFile::class);
     }
 
+    public function cashflows()
+    {
+        return $this->hasMany(ProjectCashflow::class);
+    }
+
     public function feedbacks()
     {
         return $this->hasMany(UserFeedback::class);

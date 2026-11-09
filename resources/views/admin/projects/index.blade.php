@@ -75,7 +75,7 @@
                         <th>Progres</th>
                         <th>Status</th>
                         <th>Portofolio</th>
-                        <th class="text-end" style="width: 120px;">Aksi</th>
+                        <th class="text-end" style="min-width: 210px;">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -133,6 +133,9 @@
                                 @endif
                             </td>
                             <td class="text-end">
+                                <a href="{{ route('admin.cashbook.show', $project) }}" class="btn btn-xs btn-outline-secondary py-1 px-2">
+                                    <i class="fas fa-book me-1" aria-hidden="true"></i>Buku Kas
+                                </a>
                                 <a href="/admin/projects/{{ $project->id }}/edit" class="btn btn-xs btn-outline-primary py-1 px-2" title="Edit Proyek">
                                     <i class="fas fa-edit"></i>
                                 </a>

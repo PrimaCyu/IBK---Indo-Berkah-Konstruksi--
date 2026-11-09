@@ -10,23 +10,43 @@
 
 @section('content')
 
-<!-- Notifikasi Berhasil (Auto Hilang dalam 5 Detik) -->
-@if(session('approved_success'))
-    @php $approved = session('approved_success'); @endphp
-    <div class="alert alert-success alert-dismissible fade show p-3 shadow-sm mb-3 auto-dismiss-alert" role="alert">
+@php $approved = session()->pull('approved_success'); @endphp
+@if($approved)
+    <div class="border border-success bg-success-subtle rounded p-3 shadow-sm mb-3" role="status">
         <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
             <div>
                 <strong><i class="fas fa-check-circle me-1"></i> Penawaran Berhasil Disetujui!</strong>
-                Akun Klien <strong>{{ $approved['user_name'] }}</strong> (Password: <code class="bg-white px-2 py-0.5 rounded border text-dark">{{ $approved['plain_password'] }}</code>) & <strong>{{ $approved['project_name'] }}</strong> telah aktif.
+                <strong>{{ $approved['project_name'] }}</strong> telah aktif untuk {{ $approved['user_name'] }}.
+                <div class="small mt-2">Email akun: <strong>{{ $approved['user_email'] }}</strong></div>
+                @if($approved['account_created'] && $approved['plain_password'])
+                    <div class="mt-2">Password akun baru: <code class="bg-white px-2 py-1 rounded border text-dark">{{ $approved['plain_password'] }}</code></div>
+                    <p class="small mb-0 mt-2">Password hanya ditampilkan sekali. Simpan dan sampaikan secara terpisah setelah memverifikasi identitas klien. Password tidak disertakan dalam tautan WhatsApp.</p>
+                @else
+                    <p class="small mb-0 mt-2">Akun klien lama digunakan. Password dan kontak akun tidak diubah.</p>
+                @endif
             </div>
             <div class="d-flex gap-2">
-                <a href="{{ $approved['wa_link'] }}" target="_blank" class="btn btn-sm btn-success py-1 px-2 fw-semibold">
-                    <i class="fab fa-whatsapp me-1"></i> Kirim Akses via WA
-                </a>
+                @if($approved['wa_link'])
+                    <a href="{{ $approved['wa_link'] }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-success py-1 px-2 fw-semibold">
+                        <i class="fab fa-whatsapp me-1"></i> Kirim Konfirmasi via WA
+                    </a>
+                @endif
                 <a href="/admin/projects" class="btn btn-sm btn-outline-dark py-1 px-2">Lihat Proyek</a>
             </div>
         </div>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+@endif
+
+@if(session('info'))
+    <div class="alert alert-info" role="status">{{ session('info') }}</div>
+@endif
+@if($errors->any())
+    <div class="alert alert-danger" role="alert">
+        <ul class="mb-0">
+            @foreach($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
     </div>
 @endif
 
@@ -96,12 +116,8 @@
                 <tbody>
                     @forelse($penawarans as $index => $item)
                         @php
-                            $phone = preg_replace('/[^0-9]/', '', $item->telepon);
-                            if (str_starts_with($phone, '0')) {
-                                $phone = '62' . substr($phone, 1);
-                            }
+                            $phone = $item->wa_phone;
                             $waText = urlencode("Halo Bapak/Ibu {$item->nama}, kami dari PT Indo Berkah Konstruksi ingin menindaklanjuti permohonan penawaran yang Anda ajukan melalui website kami.");
-                            $autoPassword = 'IBK' . ($item->created_at ? $item->created_at->format('dmy') : now()->format('dmy'));
                         @endphp
                         <tr>
                             <td class="text-muted small">{{ $penawarans->firstItem() + $index }}</td>
@@ -149,12 +165,12 @@
                             </td>
                             <td class="text-end">
                                 <div class="d-inline-flex gap-1 align-items-center">
-                                    @if($item->status !== 'approved')
+                                    @if($item->status === 'pending' && !$item->project_id)
                                         <!-- Tombol Approve Cepat -->
                                         <button type="button" class="btn btn-sm btn-success py-1 px-2 fw-semibold" data-bs-toggle="modal" data-bs-target="#approveModal{{ $item->id }}" title="Approve & Buat Proyek">
                                             <i class="fas fa-check me-1"></i> Approve
                                         </button>
-                                    @else
+                                    @elseif($item->project_id)
                                         <!-- Link ke Proyek -->
                                         <a href="/admin/projects" class="btn btn-sm btn-outline-primary py-1 px-2" title="Lihat di Menu Proyek">
                                             <i class="fas fa-folder me-1"></i> Proyek
@@ -162,9 +178,11 @@
                                     @endif
 
                                     <!-- Tombol WhatsApp -->
-                                    <a href="https://wa.me/{{ $phone }}?text={{ $waText }}" target="_blank" class="btn btn-sm btn-outline-success py-1 px-2" title="Hubungi via WhatsApp">
-                                        <i class="fab fa-whatsapp"></i>
-                                    </a>
+                                    @if($phone)
+                                        <a href="https://wa.me/{{ $phone }}?text={{ $waText }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-success py-1 px-2" title="Hubungi via WhatsApp">
+                                            <i class="fab fa-whatsapp"></i>
+                                        </a>
+                                    @endif
 
                                     <!-- Tombol Detail Modal -->
                                     <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2" data-bs-toggle="modal" data-bs-target="#detailModal{{ $item->id }}" title="Lihat Rincian">
@@ -182,6 +200,7 @@
                                 </div>
 
                                 <!-- Modal Approve & Buat Proyek -->
+                                @if($item->status === 'pending' && !$item->project_id)
                                 <div class="modal fade" id="approveModal{{ $item->id }}" tabindex="-1" aria-hidden="true">
                                     <div class="modal-dialog modal-dialog-centered text-start">
                                         <div class="modal-content border-0 shadow">
@@ -193,9 +212,10 @@
                                             </div>
                                             <form action="/admin/penawaran/{{ $item->id }}/approve" method="POST">
                                                 @csrf
+                                                <input type="hidden" name="approval_quote_id" value="{{ $item->id }}">
                                                 <div class="modal-body p-3">
                                                     <div class="alert alert-info py-2 px-3 small mb-3">
-                                                        <i class="fas fa-info-circle me-1"></i> Sistem otomatis membuatkan <strong>Akun Klien</strong> dan mengonversi penawaran ini menjadi <strong>Proyek Aktif</strong>.
+                                                        <i class="fas fa-info-circle me-1"></i> Sistem membuat <strong>Proyek Aktif</strong> dan akun klien baru bila belum ada. Akun lama hanya digunakan setelah identitas diverifikasi. Persetujuan tidak mencatat pemasukan atau transaksi keuangan.
                                                     </div>
 
                                                     <table class="table table-sm table-borderless small mb-0">
@@ -209,13 +229,12 @@
                                                         </tr>
                                                         <tr>
                                                             <td class="text-muted">Email Akun:</td>
-                                                            <td class="text-primary">{{ $item->email ?: ($phone . '@klien.indoberkah.com') }}</td>
+                                                            <td class="text-primary">{{ $item->email ?: 'Dibuat otomatis jika diperlukan' }}</td>
                                                         </tr>
                                                         <tr>
                                                             <td class="text-muted">Password Klien:</td>
                                                             <td>
-                                                                <span class="badge bg-dark font-monospace">{{ $autoPassword }}</span>
-                                                                <small class="text-muted ms-1">(Format: IBK + tgl_penawaran)</small>
+                                                                <small class="text-muted">Password acak akun baru hanya ditampilkan sekali setelah persetujuan. Password akun lama tidak diubah.</small>
                                                             </td>
                                                         </tr>
                                                         <tr>
@@ -223,6 +242,15 @@
                                                             <td class="fw-bold text-success">Proyek {{ $item->nama }}</td>
                                                         </tr>
                                                     </table>
+                                                    <div class="form-check mt-3 small">
+                                                        <input type="checkbox" class="form-check-input" id="confirmExisting{{ $item->id }}" name="confirm_existing_account" value="1">
+                                                        <label class="form-check-label" for="confirmExisting{{ $item->id }}">Jika akun klien sudah ada, saya telah memverifikasi identitas pemohon dan mengonfirmasi proyek ini milik akun tersebut.</label>
+                                                    </div>
+                                                    @if((string) old('approval_quote_id') === (string) $item->id)
+                                                        @error('confirm_existing_account')
+                                                            <div class="text-danger small mt-2" role="alert">{{ $message }}</div>
+                                                        @enderror
+                                                    @endif
                                                 </div>
                                                 <div class="modal-footer bg-light py-2 px-3">
                                                     <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Batal</button>
@@ -234,6 +262,8 @@
                                         </div>
                                     </div>
                                 </div>
+
+                                @endif
 
                                 <!-- Modal Detail Lengkap -->
                                 <div class="modal fade" id="detailModal{{ $item->id }}" tabindex="-1" aria-hidden="true">
@@ -303,7 +333,7 @@
                                             </div>
                                             <div class="modal-footer py-2 px-3 d-flex justify-content-between">
                                                 <div>
-                                                    @if($item->status === 'pending')
+                                                    @if($item->status === 'pending' && !$item->project_id)
                                                         <form action="/admin/penawaran/{{ $item->id }}/reject" method="POST" class="d-inline" onsubmit="return confirm('Tolak penawaran ini?')">
                                                             @csrf
                                                             <button type="submit" class="btn btn-sm btn-outline-danger">
@@ -314,9 +344,11 @@
                                                 </div>
                                                 <div class="d-flex gap-2">
                                                     <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Tutup</button>
-                                                    <a href="https://wa.me/{{ $phone }}?text={{ $waText }}" target="_blank" class="btn btn-sm btn-success">
-                                                        <i class="fab fa-whatsapp me-1"></i> Chat WA
-                                                    </a>
+                                                    @if($phone)
+                                                        <a href="https://wa.me/{{ $phone }}?text={{ $waText }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-success">
+                                                            <i class="fab fa-whatsapp me-1"></i> Chat WA
+                                                        </a>
+                                                    @endif
                                                 </div>
                                             </div>
                                         </div>
@@ -344,3 +376,14 @@
 </div>
 
 @endsection
+
+@if($errors->has('confirm_existing_account') && old('approval_quote_id'))
+    @push('scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const modal = document.getElementById('approveModal' + @json((string) old('approval_quote_id')));
+                if (modal) bootstrap.Modal.getOrCreateInstance(modal).show();
+            });
+        </script>
+    @endpush
+@endif

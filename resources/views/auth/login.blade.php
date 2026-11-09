@@ -31,6 +31,16 @@
                 </div>
             @endif
 
+            @if($errors->any())
+                <div class="mb-8 border border-red-200 bg-red-50 px-6 py-4 text-sm text-red-700" role="alert">
+                    <ul class="list-disc pl-4">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             <!-- Header -->
             <div class="mb-10 pb-4 border-b border-gray-100 text-center">
                 <span class="block text-[10px] tracking-[0.3em] uppercase text-[#C5A880] mb-2 font-medium">
@@ -47,7 +57,7 @@
             <!-- Identitas Login (Email / No. WA / Nama) -->
             <div class="mb-8">
                 <label class="block text-xs font-bold tracking-[0.1em] uppercase text-gray-500 mb-3">Email / No. WhatsApp / Nama *</label>
-                <input type="text" name="login" value="{{ old('login', old('email')) }}" placeholder="Masukkan email, no. WA, atau nama" required autofocus
+                <input type="text" name="login" value="{{ is_string(old('login', old('email'))) ? old('login', old('email')) : '' }}" placeholder="Masukkan email, no. WA, atau nama" maxlength="255" autocomplete="username" required autofocus
                     class="w-full bg-[#FAFAFA] border-b-2 border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-[#C5A880] transition-colors">
             </div>
 
@@ -57,7 +67,7 @@
                 <input type="password" name="password" placeholder="Masukkan password Anda" required
                     class="w-full bg-[#FAFAFA] border-b-2 border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-[#C5A880] transition-colors">
                 <p class="text-[11px] text-gray-400 mt-2 font-light leading-relaxed">
-                    Klien baru? Password otomatis dibuat dengan format: <strong class="text-gray-700 font-mono">IBK + tgl_penawaran</strong> (contoh: <span class="text-[#C5A880] font-mono font-semibold">IBK120826</span>).
+                    Gunakan akses yang disampaikan admin setelah penawaran disetujui. Jika belum menerima akses, hubungi admin untuk verifikasi.
                 </p>
             </div>
 

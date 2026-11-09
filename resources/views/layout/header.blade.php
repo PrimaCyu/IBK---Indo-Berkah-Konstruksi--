@@ -36,6 +36,8 @@
             @auth
                 @if(Auth::user()->role === 'admin')
                     <a href="/admin" class="text-xs font-medium tracking-[0.12em] xl:tracking-[0.15em] uppercase border border-[#C5A880]/50 text-[#C5A880] px-3.5 xl:px-4 py-2 hover:bg-[#C5A880] hover:text-white transition-all duration-300">Admin Panel</a>
+                @elseif(Auth::user()->role === 'accounting')
+                    <a href="{{ route('admin.cashbook.index') }}" class="text-xs font-medium tracking-[0.12em] xl:tracking-[0.15em] uppercase border border-[#C5A880]/50 text-[#C5A880] px-3.5 xl:px-4 py-2 hover:bg-[#C5A880] hover:text-white transition-all duration-300">Buku Kas Proyek</a>
                 @else
                     <a href="/dashbord" class="text-xs font-medium tracking-[0.12em] xl:tracking-[0.15em] uppercase border border-[#C5A880]/50 text-[#C5A880] px-3.5 xl:px-4 py-2 hover:bg-[#C5A880] hover:text-white transition-all duration-300">Dashboard</a>
                 @endif
@@ -89,6 +91,8 @@
                 @auth
                     @if(Auth::user()->role === 'admin')
                         <a href="/admin" class="text-center py-3.5 bg-[#C5A880] text-[#111] font-medium hover:bg-[#A68A60] transition-colors tracking-widest">Admin Panel</a>
+                    @elseif(Auth::user()->role === 'accounting')
+                        <a href="{{ route('admin.cashbook.index') }}" class="text-center py-3.5 bg-[#C5A880] text-[#111] font-medium hover:bg-[#A68A60] transition-colors tracking-widest">Buku Kas Proyek</a>
                     @else
                         <a href="/dashbord" class="text-center py-3.5 bg-[#C5A880] text-[#111] font-medium hover:bg-[#A68A60] transition-colors tracking-widest">Dashboard Saya</a>
                     @endif

@@ -7,6 +7,7 @@ use App\Models\Project;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class AdminProjectController extends Controller
 {
@@ -41,7 +42,7 @@ class AdminProjectController extends Controller
 
     public function create()
     {
-        $users = User::orderBy('name')->get();
+        $users = User::where('role', '!=', 'accounting')->orderBy('name')->get();
         return view('admin.projects.create', compact('users'));
     }
 
@@ -49,7 +50,7 @@ class AdminProjectController extends Controller
     {
         $request->validate([
             'nama_proyek'         => 'required|string|max:255',
-            'user_id'             => 'required|exists:users,id',
+            'user_id'             => ['required', Rule::exists('users', 'id')->where(fn ($query) => $query->where('role', '!=', 'accounting'))],
             'kategori'            => 'required|string',
             'alamat_proyek'       => 'nullable|string|max:500',
             'deskripsi'           => 'nullable|string',
@@ -82,7 +83,7 @@ class AdminProjectController extends Controller
 
     public function edit(Project $project)
     {
-        $users = User::orderBy('name')->get();
+        $users = User::where('role', '!=', 'accounting')->orderBy('name')->get();
         return view('admin.projects.edit', compact('project', 'users'));
     }
 
@@ -90,7 +91,7 @@ class AdminProjectController extends Controller
     {
         $request->validate([
             'nama_proyek'         => 'required|string|max:255',
-            'user_id'             => 'required|exists:users,id',
+            'user_id'             => ['required', Rule::exists('users', 'id')->where(fn ($query) => $query->where('role', '!=', 'accounting'))],
             'alamat_proyek'       => 'nullable|string|max:500',
             'kategori'            => 'required|string',
             'progress_percentage' => 'required|integer|min:0|max:100',
@@ -126,6 +127,10 @@ class AdminProjectController extends Controller
 
     public function destroy(Project $project)
     {
+        if ($project->cashflows()->withTrashed()->exists()) {
+            return back()->with('error', 'Proyek memiliki riwayat buku kas dan tidak dapat dihapus. Ubah status proyek bila sudah tidak berjalan.');
+        }
+
         if ($project->main_image && Storage::disk('public')->exists($project->main_image)) {
             Storage::disk('public')->delete($project->main_image);
         }
