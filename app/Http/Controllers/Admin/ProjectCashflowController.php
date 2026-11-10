@@ -29,14 +29,69 @@ class ProjectCashflowController extends Controller
         Gate::authorize('viewAny', ProjectCashflow::class);
 
         $filters = $request->validate([
+            'period_mode' => ['nullable', 'string', 'in:lengkap,bulan,tahun,range,month,year'],
+            'preset' => ['nullable', 'string', 'in:today,this_month,this_year,all,custom_date,custom_month'],
             'month' => ['nullable', 'integer', 'between:1,12'],
             'year' => ['nullable', 'integer', 'between:2000,2099'],
+            'start_date' => ['nullable', 'date'],
+            'end_date' => ['nullable', 'date'],
+            'start_month' => ['nullable', 'integer', 'between:1,12'],
+            'end_month' => ['nullable', 'integer', 'between:1,12'],
             'search' => ['nullable', 'string', 'max:100'],
         ]);
 
-        $selectedMonth = ! empty($filters['month']) ? (int) $filters['month'] : null;
-        $selectedYear = ! empty($filters['year']) ? (int) $filters['year'] : (int) now()->year;
+        $periodMode = $request->query('period_mode');
+        $preset = $request->query('preset');
         $search = is_string($request->query('search')) ? trim($request->query('search')) : '';
+        $selectedYear = ! empty($filters['year']) ? (int) $filters['year'] : (int) now()->year;
+        $selectedMonth = ! empty($filters['month']) ? (int) $filters['month'] : null;
+
+        $startDate = null;
+        $endDate = null;
+        $monthNames = [1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'];
+
+        // Evaluasi 3 Bagian Periode: Lengkap, Bulan, Tahun
+        if ($periodMode === 'lengkap' || $periodMode === 'range' || $request->filled('start_date') || $request->filled('end_date')) {
+            $activeMode = 'lengkap';
+            $startDate = $request->filled('start_date') ? Carbon::parse($request->start_date)->startOfDay() : null;
+            $endDate = $request->filled('end_date') ? Carbon::parse($request->end_date)->endOfDay() : null;
+            $startStr = $startDate ? $startDate->format('d/m/Y') : 'Awal';
+            $endStr = $endDate ? $endDate->format('d/m/Y') : 'Sekarang';
+            $periodTitle = "Rentang: {$startStr} s/d {$endStr}";
+        } elseif ($periodMode === 'tahun' || $periodMode === 'year' || ($request->filled('year') && empty($request->query('month')) && empty($periodMode) && empty($preset))) {
+            $activeMode = 'tahun';
+            $selectedMonth = null;
+            $startDate = Carbon::create($selectedYear, 1, 1)->startOfYear();
+            $endDate = Carbon::create($selectedYear, 12, 31)->endOfYear();
+            $periodTitle = 'Tahun ' . $selectedYear . ' (Semua Bulan)';
+        } elseif ($preset === 'today') {
+            $activeMode = 'lengkap';
+            $startDate = now()->startOfDay();
+            $endDate = now()->endOfDay();
+            $periodTitle = 'Hari Ini (' . now()->translatedFormat('d M Y') . ')';
+        } elseif ($preset === 'all') {
+            $activeMode = 'tahun';
+            $startDate = null;
+            $endDate = null;
+            $selectedMonth = null;
+            $periodTitle = 'Semua Periode';
+        } else {
+            // Mode 'bulan' (Default: Bulan Ini atau Bulan + Tahun yang dipilih)
+            $activeMode = 'bulan';
+            if ($selectedMonth === null && ! $request->has('month')) {
+                $selectedMonth = (int) now()->month;
+            }
+
+            if ($selectedMonth) {
+                $startDate = Carbon::create($selectedYear, $selectedMonth, 1)->startOfMonth();
+                $endDate = Carbon::create($selectedYear, $selectedMonth, 1)->endOfMonth();
+                $periodTitle = ($monthNames[$selectedMonth] ?? 'Bulan ' . $selectedMonth) . ' ' . $selectedYear;
+            } else {
+                $startDate = Carbon::create($selectedYear, 1, 1)->startOfYear();
+                $endDate = Carbon::create($selectedYear, 12, 31)->endOfYear();
+                $periodTitle = 'Tahun ' . $selectedYear . ' (Semua Bulan)';
+            }
+        }
 
         // Extract transaction years from cashflow dates
         $years = ProjectCashflow::pluck('transaction_date')
@@ -60,7 +115,7 @@ class ProjectCashflowController extends Controller
 
         $allProjects = $query->orderBy('nama_proyek')->orderBy('id')->get();
         $projectIds = $allProjects->pluck('id');
-        $allCashflows = ProjectCashflow::whereIn('project_id', $projectIds)->get();
+        $allCashflows = ProjectCashflow::with('category')->whereIn('project_id', $projectIds)->get();
         $cashflowsByProject = $allCashflows->groupBy('project_id');
 
         $projectsData = [];
@@ -71,6 +126,9 @@ class ProjectCashflowController extends Controller
         $monthlyMatrix = [];
         $matrixMonthTotals = array_fill(1, 12, BigDecimal::of('0.00'));
         $matrixGrandIncome = BigDecimal::of('0.00');
+
+        $categoryIncomeTotals = [];
+        $categoryExpenseTotals = [];
 
         foreach ($allProjects as $project) {
             $cfs = $cashflowsByProject->get($project->id, collect());
@@ -83,10 +141,19 @@ class ProjectCashflowController extends Controller
             $projectYearIncome = BigDecimal::of('0.00');
 
             foreach ($cfs as $cf) {
+                if ($cf->status === 'ditolak') {
+                    continue;
+                }
+                $isLunas = in_array($cf->status, ['lunas', null], true);
+                if (! $isLunas) {
+                    continue; // Pending transactions don't affect settled balance yet
+                }
+
                 $cfTotal = BigDecimal::of($cf->total);
                 $date = $cf->transaction_date;
-                $m = (int) $date->month;
-                $y = (int) $date->year;
+                $cfDate = $date instanceof CarbonInterface ? $date : Carbon::parse($date);
+                $m = (int) $cfDate->month;
+                $y = (int) $cfDate->year;
 
                 // Lifetime balance
                 if ($cf->type === 'penerimaan') {
@@ -103,15 +170,18 @@ class ProjectCashflowController extends Controller
                     $matrixGrandIncome = $matrixGrandIncome->plus($cfTotal);
                 }
 
-                // Filter for selected period
-                $matchMonth = $selectedMonth === null || $m === $selectedMonth;
-                $matchYear = $y === $selectedYear;
+                // Filter for selected period using unified startDate and endDate
+                $matchPeriod = ($startDate === null || $cfDate->gte($startDate->startOfDay()))
+                    && ($endDate === null || $cfDate->lte($endDate->endOfDay()));
 
-                if ($matchYear && $matchMonth) {
+                if ($matchPeriod) {
+                    $catName = $cf->category?->name ?? ($cf->type === 'penerimaan' ? 'Pembayaran Klien' : 'Operasional');
                     if ($cf->type === 'penerimaan') {
                         $pIncome = $pIncome->plus($cfTotal);
+                        $categoryIncomeTotals[$catName] = ($categoryIncomeTotals[$catName] ?? BigDecimal::of('0.00'))->plus($cfTotal);
                     } else {
                         $pExpense = $pExpense->plus($cfTotal);
+                        $categoryExpenseTotals[$catName] = ($categoryExpenseTotals[$catName] ?? BigDecimal::of('0.00'))->plus($cfTotal);
                     }
                 }
             }
@@ -127,6 +197,7 @@ class ProjectCashflowController extends Controller
                 'period_expense' => (string) $pExpense,
                 'period_balance' => (string) $pBalance,
                 'lifetime_balance' => (string) $pLifetimeBalance,
+                'pending_count' => $cfs->where('status', 'pending')->count(),
                 'has_transactions' => $cfs->isNotEmpty(),
             ];
 
@@ -138,6 +209,35 @@ class ProjectCashflowController extends Controller
         }
 
         $grandPeriodBalance = $grandPeriodIncome->minus($grandPeriodExpense);
+
+        // Calculate breakdown percentages
+        $incomeBreakdown = [];
+        $incomeTotalFloat = $grandPeriodIncome->toFloat();
+        foreach ($categoryIncomeTotals as $cat => $amountBd) {
+            $amtFloat = $amountBd->toFloat();
+            $percent = $incomeTotalFloat > 0 ? round(($amtFloat / $incomeTotalFloat) * 100, 1) : 0;
+            $incomeBreakdown[] = [
+                'name' => $cat,
+                'amount' => (string) $amountBd,
+                'percent' => $percent,
+            ];
+        }
+        usort($incomeBreakdown, fn ($a, $b) => $b['percent'] <=> $a['percent']);
+
+        $expenseBreakdown = [];
+        $expenseTotalFloat = $grandPeriodExpense->toFloat();
+        foreach ($categoryExpenseTotals as $cat => $amountBd) {
+            $amtFloat = $amountBd->toFloat();
+            $percent = $expenseTotalFloat > 0 ? round(($amtFloat / $expenseTotalFloat) * 100, 1) : 0;
+            $expenseBreakdown[] = [
+                'name' => $cat,
+                'amount' => (string) $amountBd,
+                'percent' => $percent,
+            ];
+        }
+        usort($expenseBreakdown, fn ($a, $b) => $b['percent'] <=> $a['percent']);
+
+        $expenseRatio = $incomeTotalFloat > 0 ? min(round(($expenseTotalFloat / $incomeTotalFloat) * 100, 1), 100) : 0;
 
         $projects = (clone $query)->paginate(15)->withQueryString();
 
@@ -151,6 +251,18 @@ class ProjectCashflowController extends Controller
             'grandPeriodExpense' => (string) $grandPeriodExpense,
             'grandPeriodBalance' => (string) $grandPeriodBalance,
             'grandLifetimeBalance' => (string) $grandLifetimeBalance,
+            'incomeBreakdown' => $incomeBreakdown,
+            'expenseBreakdown' => $expenseBreakdown,
+            'expenseRatio' => $expenseRatio,
+            'totalPendingCount' => ProjectCashflow::where('status', 'pending')->count(),
+            'periodTitle' => $periodTitle,
+            'activeMode' => $activeMode,
+            'filterMode' => $activeMode,
+            'preset' => $preset,
+            'startDate' => $request->query('start_date'),
+            'endDate' => $request->query('end_date'),
+            'startMonth' => $request->query('start_month'),
+            'endMonth' => $request->query('end_month'),
             'selectedMonth' => $selectedMonth,
             'selectedYear' => $selectedYear,
             'years' => $years,
@@ -162,26 +274,79 @@ class ProjectCashflowController extends Controller
     {
         Gate::authorize('viewAny', ProjectCashflow::class);
         $filters = $request->validate([
+            'period_mode' => ['nullable', 'string', 'in:lengkap,bulan,tahun,range,month,year'],
+            'preset' => ['nullable', 'string', 'in:today,this_month,this_year,all,custom_date,custom_month'],
             'month' => ['nullable', 'integer', 'between:1,12'],
             'year' => ['nullable', 'integer', 'between:1000,9999'],
-            'start_date' => ['nullable', 'date_format:Y-m-d'],
-            'end_date' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:start_date'],
+            'start_date' => ['nullable', 'date'],
+            'end_date' => ['nullable', 'date'],
+            'start_month' => ['nullable', 'integer', 'between:1,12'],
+            'end_month' => ['nullable', 'integer', 'between:1,12'],
+            'status' => ['nullable', 'string', 'in:all,lunas,pending,ditolak'],
         ]);
+
+        $periodMode = $request->query('period_mode');
+        $preset = $request->query('preset');
+        $selectedYear = ! empty($filters['year']) ? (int) $filters['year'] : (int) now()->year;
+        $selectedMonth = ! empty($filters['month']) ? (int) $filters['month'] : null;
+        $startDate = null;
+        $endDate = null;
+        $monthNames = [1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'];
+
+        // Evaluasi 3 Bagian Periode: Lengkap, Bulan, Tahun
+        if ($periodMode === 'lengkap' || $periodMode === 'range' || $request->filled('start_date') || $request->filled('end_date')) {
+            $activeMode = 'lengkap';
+            $startDate = $request->filled('start_date') ? Carbon::parse($request->start_date)->startOfDay() : null;
+            $endDate = $request->filled('end_date') ? Carbon::parse($request->end_date)->endOfDay() : null;
+            $startStr = $startDate ? $startDate->format('d/m/Y') : 'Awal';
+            $endStr = $endDate ? $endDate->format('d/m/Y') : 'Sekarang';
+            $periodTitle = "Rentang: {$startStr} s/d {$endStr}";
+        } elseif ($periodMode === 'tahun' || $periodMode === 'year' || ($request->filled('year') && empty($request->query('month')) && empty($periodMode) && empty($preset))) {
+            $activeMode = 'tahun';
+            $selectedMonth = null;
+            $startDate = Carbon::create($selectedYear, 1, 1)->startOfYear();
+            $endDate = Carbon::create($selectedYear, 12, 31)->endOfYear();
+            $periodTitle = 'Tahun ' . $selectedYear . ' (Semua Bulan)';
+        } elseif ($preset === 'today') {
+            $activeMode = 'lengkap';
+            $startDate = now()->startOfDay();
+            $endDate = now()->endOfDay();
+            $periodTitle = 'Hari Ini (' . now()->translatedFormat('d M Y') . ')';
+        } elseif ($preset === 'all') {
+            $activeMode = 'tahun';
+            $startDate = null;
+            $endDate = null;
+            $selectedMonth = null;
+            $periodTitle = 'Semua Periode';
+        } elseif ($request->has('month') && $selectedMonth) {
+            $activeMode = 'bulan';
+            $startDate = Carbon::create($selectedYear, $selectedMonth, 1)->startOfMonth();
+            $endDate = Carbon::create($selectedYear, $selectedMonth, 1)->endOfMonth();
+            $periodTitle = ($monthNames[$selectedMonth] ?? 'Bulan ' . $selectedMonth) . ' ' . $selectedYear;
+        } else {
+            // Unfiltered initial state: tampilkan seluruh data buku kas
+            $activeMode = 'bulan';
+            $selectedMonth = (int) now()->month;
+            $startDate = null;
+            $endDate = null;
+            $periodTitle = 'Semua Transaksi';
+        }
+
         $ledger = ProjectCashflow::ledger($project);
         $years = $ledger['transactions']->map(fn ($transaction) => $transaction->transaction_date->year)->unique()->sortDesc()->values();
-        $ledger['transactions'] = $ledger['transactions']->filter(function ($transaction) use ($filters) {
-            $tDate = $transaction->transaction_date->format('Y-m-d');
-            
-            if (!empty($filters['start_date']) && $tDate < $filters['start_date']) {
-                return false;
-            }
-            if (!empty($filters['end_date']) && $tDate > $filters['end_date']) {
-                return false;
-            }
 
-            return (empty($filters['month']) || $transaction->transaction_date->month === (int) $filters['month'])
-                && (empty($filters['year']) || $transaction->transaction_date->year === (int) $filters['year']);
+        $statusFilter = $request->query('status');
+        $ledger['transactions'] = $ledger['transactions']->filter(function ($transaction) use ($startDate, $endDate, $statusFilter) {
+            $cfDate = $transaction->transaction_date instanceof CarbonInterface ? $transaction->transaction_date : Carbon::parse($transaction->transaction_date);
+            $matchDate = ($startDate === null || $cfDate->gte($startDate->startOfDay()))
+                && ($endDate === null || $cfDate->lte($endDate->endOfDay()));
+            $matchStatus = $statusFilter === null || $statusFilter === 'all'
+                || ($statusFilter === 'lunas' && in_array($transaction->status, ['lunas', null], true))
+                || ($transaction->status === $statusFilter);
+
+            return $matchDate && $matchStatus;
         });
+
         $income = $expense = BigDecimal::of('0.00');
         foreach ($ledger['transactions'] as $transaction) {
             if ($transaction->type === 'penerimaan') {
@@ -200,6 +365,17 @@ class ProjectCashflowController extends Controller
             'unitOptions' => CashflowOption::optionsFor('unit'),
             'years' => $years,
             'filters' => $filters,
+            'preset' => $preset,
+            'activeMode' => $activeMode,
+            'periodTitle' => $periodTitle,
+            'selectedMonth' => $selectedMonth,
+            'selectedYear' => $selectedYear,
+            'filterMode' => $activeMode,
+            'startDate' => $request->query('start_date'),
+            'endDate' => $request->query('end_date'),
+            'startMonth' => $request->query('start_month'),
+            'endMonth' => $request->query('end_month'),
+            'statusFilter' => $statusFilter,
         ] + $ledger);
     }
 
@@ -233,6 +409,11 @@ class ProjectCashflowController extends Controller
         unset($validated['attachment'], $validated['remove_attachment']);
 
         $validated['created_by'] = auth()->id();
+        $validated['status'] = $validated['status'] ?? (auth()->user()?->role === 'accounting' ? 'pending' : 'lunas');
+        if ($validated['status'] === 'lunas' && auth()->user()?->role === 'admin') {
+            $validated['approved_by'] = auth()->id();
+            $validated['approved_at'] = now();
+        }
         $cashflow = $project->cashflows()->create($validated);
 
         if ($attachment && $attachment->isValid()) {
@@ -262,6 +443,11 @@ class ProjectCashflowController extends Controller
 
         $validated['updated_by'] = auth()->id();
         $validated['last_edited_at'] = now();
+
+        if (isset($validated['status']) && $validated['status'] === 'lunas' && $cashflow->status !== 'lunas') {
+            $validated['approved_by'] = auth()->id();
+            $validated['approved_at'] = now();
+        }
 
         $cashflow->fill($validated);
         $cashflow->updated_at = now();
@@ -302,6 +488,34 @@ class ProjectCashflowController extends Controller
         ]);
     }
 
+    public function approve(Project $project, ProjectCashflow $cashflow): RedirectResponse
+    {
+        abort_unless(auth()->user()?->role === 'admin', 403, 'Hanya Super Admin / Manager yang dapat menyetujui transaksi.');
+        abort_unless((string) $cashflow->project_id === (string) $project->getKey(), 404);
+
+        $cashflow->update([
+            'status' => 'lunas',
+            'approved_by' => auth()->id(),
+            'approved_at' => now(),
+        ]);
+
+        return back()->with('success', "Transaksi #{$cashflow->id} ({$cashflow->description}) telah disetujui (Lunas).");
+    }
+
+    public function reject(Project $project, ProjectCashflow $cashflow): RedirectResponse
+    {
+        abort_unless(auth()->user()?->role === 'admin', 403, 'Hanya Super Admin / Manager yang dapat menolak transaksi.');
+        abort_unless((string) $cashflow->project_id === (string) $project->getKey(), 404);
+
+        $cashflow->update([
+            'status' => 'ditolak',
+            'approved_by' => auth()->id(),
+            'approved_at' => now(),
+        ]);
+
+        return back()->with('info', "Transaksi #{$cashflow->id} ({$cashflow->description}) telah ditolak.");
+    }
+
     public function destroy(Project $project, ProjectCashflow $cashflow): RedirectResponse
     {
         Gate::authorize('delete', $cashflow);
@@ -338,6 +552,7 @@ class ProjectCashflowController extends Controller
             'quantity' => ['bail', 'required', 'string', 'max:32', 'regex:/\A[0-9]+(?:\.[0-9]{1,3})?\z/', $positiveDecimal(ProjectCashflow::MAX_QUANTITY)],
             'unit_price' => ['bail', 'required', 'string', 'max:32', 'regex:/\A[0-9]+(?:\.[0-9]{1,2})?\z/', $positiveDecimal(ProjectCashflow::MAX_UNIT_PRICE)],
             'notes' => ['nullable', 'string', 'max:2000'],
+            'status' => ['nullable', 'in:pending,lunas,ditolak'],
             'attachment' => ['nullable', 'file', 'image', 'max:10240'],
             'remove_attachment' => ['nullable', 'boolean'],
         ]);

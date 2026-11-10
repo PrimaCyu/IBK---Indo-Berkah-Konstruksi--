@@ -142,29 +142,6 @@
             </table>
         </div>
     </div>
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-xs btn-outline-danger py-1 px-2" title="Hapus">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </form>
-                                @else
-                                    <span class="text-muted small">-</span>
-                                @endif
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="7" class="text-center py-5 text-muted">
-                                <div class="mb-2"><i class="fas fa-users fs-3 text-secondary"></i></div>
-                                <div>Belum ada data pengguna yang terdaftar.</div>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-    </div>
     @if($users->hasPages())
         <div class="card-footer py-2">
             {{ $users->links('pagination::bootstrap-5') }}

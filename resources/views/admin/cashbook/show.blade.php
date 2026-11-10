@@ -107,7 +107,7 @@
                 <div class="small text-muted text-break">
                     Klien: <span class="fw-semibold text-dark">{{ $project->user->name ?? 'Klien tidak tersedia' }}</span>
                     @if($project->user?->email) ({{ $project->user->email }}) @endif
-                    @if($project->alamat_proyek) &bull; {{ $project->alamat_proyek }} @endif
+                    @if($project->alamat_proyek) &bull; {{ strip_tags((string) $project->alamat_proyek) }} @endif
                 </div>
             </div>
             <div class="d-flex flex-wrap gap-2">
@@ -121,99 +121,106 @@
         </div>
     </div>
 
-    <!-- Filter Card (Reference-Style Minimalist Controls) -->
+    <!-- Filter Card: 2 Baris Teratur (Baris 1: Periode, Baris 2: Pencarian & Kategori) -->
     <div class="card mb-3">
-        <div class="card-body p-4">
+        <div class="card-body p-3">
             <form id="cashbook-filter-form" method="GET" action="{{ route('admin.cashbook.show', $project) }}">
-                <div class="row g-3 align-items-end">
-                    <!-- PERIODE -->
-                    <div class="col-auto">
-                        <label class="form-label">PERIODE</label>
-                        <div class="filter-pill-group" role="tablist">
-                            <button type="button" class="filter-pill-item {{ (empty($selectedMonth) && empty($filters['start_date'])) ? 'active' : '' }}" data-period-btn="semua">Semua</button>
-                            <button type="button" class="filter-pill-item {{ !empty($selectedMonth) ? 'active' : '' }}" data-period-btn="bulanan">Bulanan</button>
-                            <button type="button" class="filter-pill-item" data-period-btn="tahunan">Tahunan</button>
-                            <button type="button" class="filter-pill-item {{ !empty($filters['start_date']) ? 'active' : '' }}" data-period-btn="custom">Custom</button>
+                <input type="hidden" name="period_mode" id="input-period-mode-show" value="{{ $activeMode ?? 'bulan' }}">
+
+                <!-- Baris 1: Filter Waktu (Fokus & Lega) -->
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 pb-2.5 mb-2.5 border-bottom">
+                    <div class="d-flex align-items-center flex-wrap gap-2">
+                        <span class="small fw-bold text-muted text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">Periode:</span>
+                        <div class="btn-group btn-group-sm period-segmented-control" role="group" aria-label="Pilihan Periode Waktu">
+                            <button type="button" class="btn btn-sm {{ ($activeMode ?? 'bulan') === 'lengkap' ? 'btn-primary active text-white' : 'btn-outline-secondary bg-white text-dark' }}" id="btn-period-lengkap-show" onclick="setShowPeriodMode('lengkap')">
+                                <i class="fas fa-calendar-week me-1"></i> Lengkap
+                            </button>
+                            <button type="button" class="btn btn-sm {{ ($activeMode ?? 'bulan') === 'bulan' ? 'btn-primary active text-white' : 'btn-outline-secondary bg-white text-dark' }}" id="btn-period-bulan-show" onclick="setShowPeriodMode('bulan')">
+                                <i class="fas fa-calendar-day me-1"></i> Bulan
+                            </button>
+                            <button type="button" class="btn btn-sm {{ ($activeMode ?? 'bulan') === 'tahun' ? 'btn-primary active text-white' : 'btn-outline-secondary bg-white text-dark' }}" id="btn-period-tahun-show" onclick="setShowPeriodMode('tahun')">
+                                <i class="fas fa-calendar-alt me-1"></i> Tahun
+                            </button>
+                        </div>
+
+                        {{-- Mode Bulan & Tahun --}}
+                        <div class="d-inline-flex align-items-center gap-1.5 ms-1" id="filter-col-month">
+                            <select id="filter-month" name="month" class="form-select form-select-sm" style="min-width: 135px;">
+                                @foreach($months as $num => $name)
+                                    <option value="{{ $num }}" @selected((int)($selectedMonth ?? 0) === (int)$num)>{{ $name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="d-inline-flex align-items-center gap-1.5" id="filter-col-year">
+                            <select id="filter-year" name="year" class="form-select form-select-sm" style="min-width: 95px;">
+                                @foreach($yearOptions as $yr)
+                                    <option value="{{ $yr }}" @selected((int)($selectedYear ?? 0) === (int)$yr)>{{ $yr }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        {{-- Mode Rentang Tanggal (Lengkap) --}}
+                        <div class="d-inline-flex align-items-center gap-1.5 ms-1 d-none" id="filter-col-start-date">
+                            <span class="small text-muted">Dari:</span>
+                            <input type="date" id="filter-show-start-date" name="start_date" value="{{ $startDate ? (is_string($startDate) ? $startDate : $startDate->format('Y-m-d')) : '' }}" class="form-control form-control-sm" style="width: 140px;" disabled>
+                        </div>
+                        <div class="d-inline-flex align-items-center gap-1.5 d-none" id="filter-col-end-date">
+                            <span class="small text-muted">s/d</span>
+                            <input type="date" id="filter-show-end-date" name="end_date" value="{{ $endDate ? (is_string($endDate) ? $endDate : $endDate->format('Y-m-d')) : '' }}" class="form-control form-control-sm" style="width: 140px;" disabled>
                         </div>
                     </div>
 
-                    <!-- CONTAINER BULAN & TAHUN -->
-                    <div class="col-sm-6 col-md-2" id="filter-month-container">
-                        <label for="filter-month" class="form-label">BULAN</label>
-                        <select id="filter-month" name="month" class="form-select">
-                            <option value="">Semua Bulan</option>
-                            @foreach($months as $num => $name)
-                                <option value="{{ $num }}" @selected($selectedMonth === (string) $num)>{{ $name }}</option>
-                            @endforeach
-                        </select>
+                    {{-- Tombol Aksi Terapkan & Reset Periode --}}
+                    <div class="d-flex align-items-center gap-2">
+                        <button type="submit" class="btn btn-sm btn-primary px-3 d-flex align-items-center gap-1.5" style="height: 31px;">
+                            <i class="fas fa-filter"></i> Terapkan
+                        </button>
+                        @if(request()->hasAny(['month', 'year', 'status', 'start_date', 'end_date', 'period_mode']))
+                            <a href="{{ route('admin.cashbook.show', $project) }}" class="btn btn-sm btn-outline-secondary d-flex align-items-center justify-content-center" title="Reset filter" style="height: 31px; width: 31px; padding: 0;">
+                                <i class="fas fa-rotate-left"></i>
+                            </a>
+                        @endif
+                    </div>
+                </div>
+
+                <!-- Baris 2: Pencarian Cepat & Kategori Transaksi (Proporsional & Seimbang) -->
+                <div class="row g-2 align-items-center">
+                    {{-- Cari Transaksi --}}
+                    <div class="col-md-4">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-light border-end-0 text-muted"><i class="fas fa-search"></i></span>
+                            <input type="text" id="filter-search-input" class="form-control form-control-sm border-start-0" placeholder="Cari uraian, kode, catatan...">
+                        </div>
                     </div>
 
-                    <div class="col-sm-6 col-md-2" id="filter-year-container">
-                        <label for="filter-year" class="form-label">TAHUN</label>
-                        <select id="filter-year" name="year" class="form-select">
-                            <option value="">Semua Tahun</option>
-                            @foreach($yearOptions as $yr)
-                                <option value="{{ $yr }}" @selected($selectedYear === (string) $yr)>{{ $yr }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <!-- CONTAINER CUSTOM DATE (DARI TANGGAL - SAMPAI TANGGAL) -->
-                    <div class="col-sm-6 col-md-2 d-none" id="filter-start-date-container">
-                        <label for="filter-start-date" class="form-label">DARI TANGGAL</label>
-                        <input type="date" id="filter-start-date" name="start_date" class="form-control" value="{{ $filters['start_date'] ?? '' }}">
-                    </div>
-
-                    <div class="col-sm-6 col-md-2 d-none" id="filter-end-date-container">
-                        <label for="filter-end-date" class="form-label">SAMPAI TANGGAL</label>
-                        <input type="date" id="filter-end-date" name="end_date" class="form-control" value="{{ $filters['end_date'] ?? '' }}">
-                    </div>
-
-                    <!-- TIPE -->
-                    <div class="col-sm-6 col-md-2">
-                        <label for="filter-type" class="form-label">TIPE</label>
-                        <select id="filter-type" class="form-select">
+                    {{-- Tipe --}}
+                    <div class="col-6 col-md-2">
+                        <select id="filter-type" class="form-select form-select-sm">
+>>>>>>> origin/main
                             <option value="">Semua Tipe</option>
                             <option value="penerimaan">Penerimaan (Masuk)</option>
                             <option value="pengeluaran">Pengeluaran (Keluar)</option>
                         </select>
                     </div>
 
-                    <!-- STATUS -->
-                    <div class="col-sm-6 col-md-2">
-                        <label for="filter-status" class="form-label">STATUS</label>
-                        <select id="filter-status" class="form-select">
+                    {{-- Status --}}
+                    <div class="col-6 col-md-2">
+                        <select id="filter-status" name="status" class="form-select form-select-sm" onchange="document.getElementById('cashbook-filter-form').submit()">
                             <option value="">Semua Status</option>
-                            <option value="lunas" selected>Lunas</option>
+                            <option value="lunas" @selected(($statusFilter ?? '') === 'lunas')>Lunas</option>
+                            <option value="pending" @selected(($statusFilter ?? '') === 'pending')>Pending</option>
+                            <option value="ditolak" @selected(($statusFilter ?? '') === 'ditolak')>Ditolak</option>
                         </select>
                     </div>
 
-                    <!-- PROGRAM / KODE -->
-                    <div class="col-sm-6 col-md-2">
-                        <label for="filter-code-select" class="form-label">PROGRAM / KODE</label>
-                        <select id="filter-code-select" class="form-select">
-                            <option value="">Semua Program</option>
+                    {{-- Program / Kode --}}
+                    <div class="col-12 col-md-4">
+                        <select id="filter-code-select" class="form-select form-select-sm">
+                            <option value="">Semua Program / Kategori</option>
                             @foreach($codeOptions as $cOpt)
                                 <option value="{{ $cOpt }}">{{ $cOpt }}</option>
                             @endforeach
                         </select>
-                    </div>
-
-                    <!-- CARI -->
-                    <div class="col-md-3 col-sm-12">
-                        <label for="filter-search-input" class="form-label">CARI</label>
-                        <input type="text" id="filter-search-input" class="form-control" placeholder="Judul, kode, uraian...">
-                    </div>
-
-                    <!-- ACTIONS: TERAPKAN & RESET -->
-                    <div class="col-auto d-flex align-items-center gap-2">
-                        <button type="submit" class="btn btn-primary" style="height: 38px;">
-                            <i class="fas fa-filter me-1"></i> Terapkan
-                        </button>
-                        <a href="{{ route('admin.cashbook.show', $project) }}" class="btn-filter-reset" id="filter-reset-link" title="Reset filter">
-                            <i class="fas fa-rotate-left"></i>
-                            <span>Reset</span>
-                        </a>
                     </div>
                 </div>
             </form>
@@ -287,6 +294,24 @@
         </div>
     </div>
 
+    @php
+        $pendingTxCount = $transactions->where('status', 'pending')->count();
+    @endphp
+    @if($pendingTxCount > 0)
+        <div class="alert alert-warning border-0 shadow-xs py-2.5 px-3 mb-3 d-flex align-items-center justify-content-between flex-wrap gap-2" style="border-radius: 12px; background-color: #fefce8; border-left: 4px solid #eab308 !important;">
+            <div class="d-flex align-items-center gap-2">
+                <i class="fas fa-hourglass-half text-warning fs-5"></i>
+                <div>
+                    <span class="fw-bold text-dark small">Perhatian: Terdapat {{ $pendingTxCount }} transaksi kas berstatus Menunggu Persetujuan (Pending).</span>
+                    <div class="text-muted" style="font-size: 0.75rem;">Transaksi pending belum memotong/menambah saldo kas riil sampai disetujui oleh Manager/Super Admin.</div>
+                </div>
+            </div>
+            <button type="button" class="btn btn-xs btn-outline-warning text-dark fw-bold" onclick="document.getElementById('filter-status').value='pending'; if(typeof applyTableFilters === 'function') applyTableFilters();" style="border-radius: 6px;">
+                <i class="fas fa-filter me-1"></i> Tampilkan Transaksi Pending
+            </button>
+        </div>
+    @endif
+
     <!-- Data Table Card (Matching Reference Screenshot) -->
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
@@ -345,6 +370,12 @@
                                     'total_display' => $formattedTotal,
                                     'running_balance_display' => $formattedRunningBalance,
                                     'notes' => $transaction->notes,
+                                    'status' => $transaction->status ?? 'lunas',
+                                    'status_label' => match($transaction->status ?? 'lunas') {
+                                        'pending' => 'Menunggu Persetujuan',
+                                        'ditolak' => 'Ditolak',
+                                        default => 'Lunas (Diverifikasi)',
+                                    },
                                     'attachment' => $attachment ? [
                                         'id' => $attachment->id,
                                         'url' => $attachment->url,
@@ -356,7 +387,7 @@
                                 // Standardized code display matching TRX-YYYYMM-XXXX style or custom code
                                 $displayCode = $transaction->code ?: ('TRX-' . $transaction->transaction_date->format('Ym') . '-' . str_pad($transaction->id, 4, '0', STR_PAD_LEFT));
                             @endphp
-                            <tr class="cashbook-row" data-type="{{ $transaction->type }}" data-code="{{ strtolower($transaction->code ?? '') }}" data-text="{{ strtolower($transaction->description . ' ' . $transaction->code . ' ' . $transaction->notes . ' ' . $displayCode) }}">
+                            <tr class="cashbook-row" data-type="{{ $transaction->type }}" data-status="{{ $transaction->status ?? 'lunas' }}" data-code="{{ strtolower($transaction->code ?? '') }}" data-text="{{ strtolower($transaction->description . ' ' . $transaction->code . ' ' . $transaction->notes . ' ' . $displayCode) }}">
                                 <!-- KODE (Crimson Bold Monospace matching reference) -->
                                 <td class="text-nowrap">
                                     <span style="color: #b91c1c; font-weight: 700; font-family: ui-monospace, monospace; font-size: 0.8rem; letter-spacing: -0.2px;">
@@ -433,9 +464,19 @@
 
                                 <!-- STATUS -->
                                 <td class="text-nowrap">
-                                    <span class="badge-soft-success">
-                                        <i class="fas fa-check" style="font-size: 0.65rem;"></i> Lunas
-                                    </span>
+                                    @if(($transaction->status ?? 'lunas') === 'pending')
+                                        <span class="badge-soft-warning" title="Menunggu verifikasi Manager / Super Admin">
+                                            <i class="fas fa-clock" style="font-size: 0.65rem;"></i> Menunggu
+                                        </span>
+                                    @elseif(($transaction->status ?? 'lunas') === 'ditolak')
+                                        <span class="badge-soft-danger" title="Transaksi ditolak / dibatalkan">
+                                            <i class="fas fa-times-circle" style="font-size: 0.65rem;"></i> Ditolak
+                                        </span>
+                                    @else
+                                        <span class="badge-soft-success" title="Transaksi telah diverifikasi (Lunas)">
+                                            <i class="fas fa-check" style="font-size: 0.65rem;"></i> Lunas
+                                        </span>
+                                    @endif
                                 </td>
 
                                 <!-- AKSI (Square Icon Buttons matching reference) -->
@@ -519,6 +560,9 @@
 
                         <dt class="col-5 text-secondary">Saldo berjalan</dt>
                         <dd class="col-7 fw-bold text-primary cashbook-number mb-1" id="detail-balance">-</dd>
+
+                        <dt class="col-5 text-secondary">Status verifikasi</dt>
+                        <dd class="col-7 mb-1" id="detail-status">-</dd>
 
                         <dt class="col-5 text-secondary">Catatan</dt>
                         <dd class="col-7 text-dark mb-1 text-break" id="detail-notes">-</dd>
@@ -672,9 +716,21 @@
                             <input type="text" id="cashbook-total" class="form-control bg-light fw-semibold" value="—" readonly aria-describedby="cashbook-total-help">
                             <div class="form-text" id="cashbook-total-help">Kuantitas × harga satuan, dibulatkan ke 2 angka desimal. Total akhir dan saldo dihitung ulang oleh server saat disimpan.</div>
                         </div>
-                        <div class="col-12">
+                        <div class="col-md-6">
+                            <label for="cashbook-status" class="form-label">Status Verifikasi <span aria-hidden="true">*</span></label>
+                            <select id="cashbook-status" name="status" class="form-select @error('status') is-invalid @enderror">
+                                <option value="lunas">Lunas (Diverifikasi)</option>
+                                <option value="pending" {{ auth()->user()?->role === 'accounting' ? 'selected' : '' }}>Pending (Menunggu Persetujuan Manager)</option>
+                                @if(auth()->user()?->role === 'admin')
+                                    <option value="ditolak">Ditolak (Dibatalkan)</option>
+                                @endif
+                            </select>
+                            <div class="form-text">Status 'Pending' tidak mengurangi/menambah saldo kas sebelum disetujui Manager.</div>
+                            <div class="invalid-feedback">@error('status'){{ $message }}@enderror</div>
+                        </div>
+                        <div class="col-md-6">
                             <label for="cashbook-notes" class="form-label">Catatan</label>
-                            <textarea id="cashbook-notes" name="notes" class="form-control @error('notes') is-invalid @enderror" rows="3" placeholder="Tulis catatan transaksi bila ada..." aria-describedby="cashbook-notes-error" @error('notes') aria-invalid="true" @enderror>{{ old('notes') }}</textarea>
+                            <textarea id="cashbook-notes" name="notes" class="form-control @error('notes') is-invalid @enderror" rows="2" placeholder="Tulis catatan transaksi bila ada..." aria-describedby="cashbook-notes-error" @error('notes') aria-invalid="true" @enderror>{{ old('notes') }}</textarea>
                             <div class="invalid-feedback" id="cashbook-notes-error">@error('notes'){{ $message }}@enderror</div>
                         </div>
 
@@ -869,6 +925,7 @@
                 unit: '',
                 quantity: '1',
                 unit_price: '',
+                status: '{{ auth()->user()?->role === 'accounting' ? 'pending' : 'lunas' }}',
                 notes: '',
             };
             const fields = Object.fromEntries(Object.keys(defaults).map(name => [name, form.elements.namedItem(name)]));
@@ -1223,6 +1280,14 @@
                     document.getElementById('detail-unit-price').textContent = tx.unit_price_display || '-';
                     document.getElementById('detail-total').textContent = tx.total_display || '-';
                     document.getElementById('detail-balance').textContent = tx.running_balance_display || '-';
+                    const statusEl = document.getElementById('detail-status');
+                    if (statusEl) {
+                        statusEl.innerHTML = tx.status === 'pending'
+                            ? '<span class="badge-soft-warning"><i class="fas fa-clock me-1"></i>Menunggu Persetujuan Manager</span>'
+                            : (tx.status === 'ditolak'
+                                ? '<span class="badge-soft-danger"><i class="fas fa-times-circle me-1"></i>Ditolak</span>'
+                                : '<span class="badge-soft-success"><i class="fas fa-check me-1"></i>Lunas (Diverifikasi)</span>');
+                    }
                     document.getElementById('detail-notes').textContent = tx.notes || '-';
                     document.getElementById('detail-last-edited').textContent = tx.last_edited_at_display || 'Belum pernah diedit';
 
@@ -1264,6 +1329,7 @@
 
             // Instant client-side filtering matching reference filter controls
             const filterType = document.getElementById('filter-type');
+            const filterStatus = document.getElementById('filter-status');
             const filterCode = document.getElementById('filter-code-select');
             const filterSearch = document.getElementById('filter-search-input');
             const transRows = document.querySelectorAll('.cashbook-row');
@@ -1271,20 +1337,23 @@
 
             function applyTableFilters() {
                 const selectedType = filterType ? filterType.value.toLowerCase() : '';
+                const selectedStatus = filterStatus ? filterStatus.value.toLowerCase() : '';
                 const selectedCode = filterCode ? filterCode.value.toLowerCase() : '';
                 const query = filterSearch ? filterSearch.value.trim().toLowerCase() : '';
 
                 let visibleCount = 0;
                 transRows.forEach(row => {
                     const rowType = (row.dataset.type || '').toLowerCase();
+                    const rowStatus = (row.dataset.status || 'lunas').toLowerCase();
                     const rowCode = (row.dataset.code || '').toLowerCase();
                     const rowText = (row.dataset.text || '').toLowerCase();
 
                     const matchType = !selectedType || rowType === selectedType;
+                    const matchStatus = !selectedStatus || rowStatus === selectedStatus;
                     const matchCode = !selectedCode || rowCode === selectedCode || rowCode.includes(selectedCode);
                     const matchQuery = !query || rowText.includes(query);
 
-                    if (matchType && matchCode && matchQuery) {
+                    if (matchType && matchStatus && matchCode && matchQuery) {
                         row.style.display = '';
                         visibleCount++;
                     } else {
@@ -1298,55 +1367,83 @@
             }
 
             if (filterType) filterType.addEventListener('change', applyTableFilters);
+            if (filterStatus) filterStatus.addEventListener('change', applyTableFilters);
             if (filterCode) filterCode.addEventListener('change', applyTableFilters);
             if (filterSearch) filterSearch.addEventListener('input', applyTableFilters);
-
-            // Periode pill buttons handler & toggle custom date
-            const monthContainer = document.getElementById('filter-month-container');
-            const yearContainer = document.getElementById('filter-year-container');
-            const startDateContainer = document.getElementById('filter-start-date-container');
-            const endDateContainer = document.getElementById('filter-end-date-container');
-            const monthSelect = document.getElementById('filter-month');
-            const startDateInput = document.getElementById('filter-start-date');
-            const endDateInput = document.getElementById('filter-end-date');
-
-            function syncPeriodView(period) {
-                if (period === 'custom') {
-                    if (monthContainer) monthContainer.classList.add('d-none');
-                    if (yearContainer) yearContainer.classList.add('d-none');
-                    if (startDateContainer) startDateContainer.classList.remove('d-none');
-                    if (endDateContainer) endDateContainer.classList.remove('d-none');
-                    if (monthSelect) monthSelect.value = '';
-                } else {
-                    if (monthContainer) monthContainer.classList.remove('d-none');
-                    if (yearContainer) yearContainer.classList.remove('d-none');
-                    if (startDateContainer) startDateContainer.classList.add('d-none');
-                    if (endDateContainer) endDateContainer.classList.add('d-none');
-                    if (startDateInput) startDateInput.value = '';
-                    if (endDateInput) endDateInput.value = '';
-                }
-            }
-
-            // Init state
-            const initialActivePeriod = document.querySelector('[data-period-btn].active')?.dataset.periodBtn || 'semua';
-            syncPeriodView(initialActivePeriod);
-
-            document.querySelectorAll('[data-period-btn]').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    document.querySelectorAll('[data-period-btn]').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    const period = btn.dataset.periodBtn;
-                    syncPeriodView(period);
-
-                    if (period === 'semua' && monthSelect && monthSelect.value !== '') {
-                        monthSelect.value = '';
-                        document.getElementById('cashbook-filter-form')?.submit();
-                    }
-                });
-            });
 
             updatePreview();
             if (form.dataset.reopen === '1') bootstrap.Modal.getOrCreateInstance(modal).show();
         })();
+    </script>
+    <script>
+        function setShowPeriodMode(mode) {
+            const inputMode = document.getElementById('input-period-mode-show');
+            if (inputMode) inputMode.value = mode;
+
+            const btnLengkap = document.getElementById('btn-period-lengkap-show');
+            const btnBulan = document.getElementById('btn-period-bulan-show');
+            const btnTahun = document.getElementById('btn-period-tahun-show');
+
+            [btnLengkap, btnBulan, btnTahun].forEach(b => {
+                if (!b) return;
+                b.classList.remove('btn-primary', 'active', 'text-white');
+                b.classList.add('btn-outline-secondary', 'bg-white', 'text-dark');
+            });
+
+            const activeBtn = mode === 'lengkap' ? btnLengkap : (mode === 'tahun' ? btnTahun : btnBulan);
+            if (activeBtn) {
+                activeBtn.classList.remove('btn-outline-secondary', 'bg-white', 'text-dark');
+                activeBtn.classList.add('btn-primary', 'active', 'text-white');
+            }
+
+            const colMonth = document.getElementById('filter-col-month');
+            const colYear = document.getElementById('filter-col-year');
+            const colStartDate = document.getElementById('filter-col-start-date');
+            const colEndDate = document.getElementById('filter-col-end-date');
+
+            const inputMonth = document.getElementById('filter-month');
+            const inputYear = document.getElementById('filter-year');
+            const inputStartDate = document.getElementById('filter-show-start-date');
+            const inputEndDate = document.getElementById('filter-show-end-date');
+
+            if (mode === 'lengkap') {
+                if (colMonth) colMonth.classList.add('d-none');
+                if (colYear) colYear.classList.add('d-none');
+                if (inputMonth) inputMonth.disabled = true;
+                if (inputYear) inputYear.disabled = true;
+
+                if (colStartDate) colStartDate.classList.remove('d-none');
+                if (colEndDate) colEndDate.classList.remove('d-none');
+                if (inputStartDate) inputStartDate.disabled = false;
+                if (inputEndDate) inputEndDate.disabled = false;
+            } else if (mode === 'tahun') {
+                if (colMonth) colMonth.classList.add('d-none');
+                if (inputMonth) inputMonth.disabled = true;
+
+                if (colYear) colYear.classList.remove('d-none');
+                if (inputYear) inputYear.disabled = false;
+
+                if (colStartDate) colStartDate.classList.add('d-none');
+                if (colEndDate) colEndDate.classList.add('d-none');
+                if (inputStartDate) inputStartDate.disabled = true;
+                if (inputEndDate) inputEndDate.disabled = true;
+            } else {
+                // Mode 'bulan' (Bulan + Tahun)
+                if (colMonth) colMonth.classList.remove('d-none');
+                if (colYear) colYear.classList.remove('d-none');
+                if (inputMonth) inputMonth.disabled = false;
+                if (inputYear) inputYear.disabled = false;
+
+                if (colStartDate) colStartDate.classList.add('d-none');
+                if (colEndDate) colEndDate.classList.add('d-none');
+                if (inputStartDate) inputStartDate.disabled = true;
+                if (inputEndDate) inputEndDate.disabled = true;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const initialMode = document.getElementById('input-period-mode-show')?.value || 'bulan';
+            setShowPeriodMode(initialMode);
+        });
     </script>
 @endpush

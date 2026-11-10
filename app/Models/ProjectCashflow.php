@@ -28,6 +28,7 @@ class ProjectCashflow extends Model
         'quantity_millis', 'unit_price_cents', 'notes',
         'created_by', 'updated_by', 'last_edited_at',
         'payment_method', 'category_id', 'transaction_number', 'receipt_number',
+        'status', 'approved_by', 'approved_at',
     ];
 
     protected function casts(): array
@@ -37,6 +38,7 @@ class ProjectCashflow extends Model
             'quantity_millis' => 'integer',
             'unit_price_cents' => 'integer',
             'last_edited_at' => 'datetime',
+            'approved_at' => 'datetime',
         ];
     }
 
@@ -65,6 +67,16 @@ class ProjectCashflow extends Model
         return $this->belongsTo(User::class, 'updated_by');
     }
 
+    public function approver(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(TransactionCategory::class, 'category_id');
+    }
+
     protected function quantity(): Attribute
     {
         return Attribute::get(fn (): string => (string) BigDecimal::ofUnscaledValue($this->quantity_millis, 3));
@@ -87,17 +99,30 @@ class ProjectCashflow extends Model
 
     public static function ledger(Project $project): array
     {
-        $transactions = $project->cashflows()->with(['creator', 'editor', 'attachments'])->orderBy('transaction_date')->orderBy('id')->get();
+        $transactions = $project->cashflows()->with(['creator', 'editor', 'approver', 'attachments'])->orderBy('transaction_date')->orderBy('id')->get();
         $income = $expense = $balance = BigDecimal::of('0.00');
+        $pendingIncome = $pendingExpense = BigDecimal::of('0.00');
+        $pendingCount = 0;
 
         foreach ($transactions as $transaction) {
             $total = BigDecimal::of($transaction->total);
-            if ($transaction->type === 'penerimaan') {
-                $income = $income->plus($total);
-                $balance = $balance->plus($total);
-            } else {
-                $expense = $expense->plus($total);
-                $balance = $balance->minus($total);
+            $status = $transaction->status ?? 'lunas';
+
+            if ($status === 'lunas') {
+                if ($transaction->type === 'penerimaan') {
+                    $income = $income->plus($total);
+                    $balance = $balance->plus($total);
+                } else {
+                    $expense = $expense->plus($total);
+                    $balance = $balance->minus($total);
+                }
+            } elseif ($status === 'pending') {
+                $pendingCount++;
+                if ($transaction->type === 'penerimaan') {
+                    $pendingIncome = $pendingIncome->plus($total);
+                } else {
+                    $pendingExpense = $pendingExpense->plus($total);
+                }
             }
             $transaction->running_balance = (string) $balance;
         }
@@ -107,6 +132,9 @@ class ProjectCashflow extends Model
             'income' => (string) $income,
             'expense' => (string) $expense,
             'balance' => (string) $balance,
+            'pending_income' => (string) $pendingIncome,
+            'pending_expense' => (string) $pendingExpense,
+            'pending_count' => $pendingCount,
         ];
     }
 }
