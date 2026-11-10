@@ -130,14 +130,15 @@
                     <div class="col-auto">
                         <label class="form-label">PERIODE</label>
                         <div class="filter-pill-group" role="tablist">
-                            <button type="button" class="filter-pill-item {{ empty($selectedMonth) ? 'active' : '' }}" data-period-btn="semua">Semua</button>
+                            <button type="button" class="filter-pill-item {{ (empty($selectedMonth) && empty($filters['start_date'])) ? 'active' : '' }}" data-period-btn="semua">Semua</button>
                             <button type="button" class="filter-pill-item {{ !empty($selectedMonth) ? 'active' : '' }}" data-period-btn="bulanan">Bulanan</button>
                             <button type="button" class="filter-pill-item" data-period-btn="tahunan">Tahunan</button>
+                            <button type="button" class="filter-pill-item {{ !empty($filters['start_date']) ? 'active' : '' }}" data-period-btn="custom">Custom</button>
                         </div>
                     </div>
 
-                    <!-- BULAN -->
-                    <div class="col-sm-6 col-md-2">
+                    <!-- CONTAINER BULAN & TAHUN -->
+                    <div class="col-sm-6 col-md-2" id="filter-month-container">
                         <label for="filter-month" class="form-label">BULAN</label>
                         <select id="filter-month" name="month" class="form-select">
                             <option value="">Semua Bulan</option>
@@ -147,8 +148,7 @@
                         </select>
                     </div>
 
-                    <!-- TAHUN -->
-                    <div class="col-sm-6 col-md-2">
+                    <div class="col-sm-6 col-md-2" id="filter-year-container">
                         <label for="filter-year" class="form-label">TAHUN</label>
                         <select id="filter-year" name="year" class="form-select">
                             <option value="">Semua Tahun</option>
@@ -156,6 +156,17 @@
                                 <option value="{{ $yr }}" @selected($selectedYear === (string) $yr)>{{ $yr }}</option>
                             @endforeach
                         </select>
+                    </div>
+
+                    <!-- CONTAINER CUSTOM DATE (DARI TANGGAL - SAMPAI TANGGAL) -->
+                    <div class="col-sm-6 col-md-2 d-none" id="filter-start-date-container">
+                        <label for="filter-start-date" class="form-label">DARI TANGGAL</label>
+                        <input type="date" id="filter-start-date" name="start_date" class="form-control" value="{{ $filters['start_date'] ?? '' }}">
+                    </div>
+
+                    <div class="col-sm-6 col-md-2 d-none" id="filter-end-date-container">
+                        <label for="filter-end-date" class="form-label">SAMPAI TANGGAL</label>
+                        <input type="date" id="filter-end-date" name="end_date" class="form-control" value="{{ $filters['end_date'] ?? '' }}">
                     </div>
 
                     <!-- TIPE -->
@@ -218,7 +229,7 @@
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <div class="d-flex align-items-center gap-2">
                             <i class="fas fa-chart-column text-success" style="font-size: 0.95rem;"></i>
-                            <span class="fw-bold text-dark small">Pemasukan per Program Layanan (Lunas)</span>
+                            <span class="fw-bold text-dark small">Pemasukan</span>
                         </div>
                         <span class="badge-soft-success cashbook-number">+ {{ $formatRupiah($income) }}</span>
                     </div>
@@ -250,7 +261,7 @@
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <div class="d-flex align-items-center gap-2">
                             <i class="fas fa-pie-chart text-warning" style="font-size: 0.95rem;"></i>
-                            <span class="fw-bold text-dark small">Pengeluaran per Kategori (Lunas)</span>
+                            <span class="fw-bold text-dark small">Pengeluaran</span>
                         </div>
                         <span class="badge-soft-danger cashbook-number">− {{ $formatRupiah($expense) }}</span>
                     </div>
@@ -430,10 +441,10 @@
                                 <!-- AKSI (Square Icon Buttons matching reference) -->
                                 <td class="text-end text-nowrap">
                                     <div class="d-inline-flex gap-1 align-items-center">
-                                        <!-- Print Icon -->
-                                        <button type="button" class="btn-action-icon" onclick="window.print()" title="Cetak transaksi">
+                                        <!-- Print / Invoice Icon -->
+                                        <a href="{{ route('admin.cashbook.invoice', [$project, $transaction]) }}" target="_blank" class="btn-action-icon text-decoration-none" title="Cetak / Download Invoice">
                                             <i class="fas fa-print"></i>
-                                        </button>
+                                        </a>
                                         <!-- Detail Icon -->
                                         <button type="button" class="btn-action-icon" data-bs-toggle="modal" data-bs-target="#cashbook-detail-modal" data-cashflow="{{ json_encode($transactionData, JSON_THROW_ON_ERROR) }}" title="Lihat detail transaksi">
                                             <i class="fas fa-eye"></i>
@@ -1290,13 +1301,43 @@
             if (filterCode) filterCode.addEventListener('change', applyTableFilters);
             if (filterSearch) filterSearch.addEventListener('input', applyTableFilters);
 
-            // Periode pill buttons handler
+            // Periode pill buttons handler & toggle custom date
+            const monthContainer = document.getElementById('filter-month-container');
+            const yearContainer = document.getElementById('filter-year-container');
+            const startDateContainer = document.getElementById('filter-start-date-container');
+            const endDateContainer = document.getElementById('filter-end-date-container');
+            const monthSelect = document.getElementById('filter-month');
+            const startDateInput = document.getElementById('filter-start-date');
+            const endDateInput = document.getElementById('filter-end-date');
+
+            function syncPeriodView(period) {
+                if (period === 'custom') {
+                    if (monthContainer) monthContainer.classList.add('d-none');
+                    if (yearContainer) yearContainer.classList.add('d-none');
+                    if (startDateContainer) startDateContainer.classList.remove('d-none');
+                    if (endDateContainer) endDateContainer.classList.remove('d-none');
+                    if (monthSelect) monthSelect.value = '';
+                } else {
+                    if (monthContainer) monthContainer.classList.remove('d-none');
+                    if (yearContainer) yearContainer.classList.remove('d-none');
+                    if (startDateContainer) startDateContainer.classList.add('d-none');
+                    if (endDateContainer) endDateContainer.classList.add('d-none');
+                    if (startDateInput) startDateInput.value = '';
+                    if (endDateInput) endDateInput.value = '';
+                }
+            }
+
+            // Init state
+            const initialActivePeriod = document.querySelector('[data-period-btn].active')?.dataset.periodBtn || 'semua';
+            syncPeriodView(initialActivePeriod);
+
             document.querySelectorAll('[data-period-btn]').forEach(btn => {
                 btn.addEventListener('click', () => {
                     document.querySelectorAll('[data-period-btn]').forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
                     const period = btn.dataset.periodBtn;
-                    const monthSelect = document.getElementById('filter-month');
+                    syncPeriodView(period);
+
                     if (period === 'semua' && monthSelect && monthSelect.value !== '') {
                         monthSelect.value = '';
                         document.getElementById('cashbook-filter-form')?.submit();

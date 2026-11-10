@@ -17,7 +17,13 @@ class SatryaProjectCashflowSeeder extends Seeder
         if (! $project) {
             $owner = User::where('name', 'like', '%Satrya%')->first()
                 ?? User::where('role', 'owner')->first()
-                ?? User::factory()->create(['name' => 'Satrya', 'email' => 'satrya@example.com', 'role' => 'owner']);
+                ?? User::create([
+                    'name' => 'Satrya',
+                    'email' => 'satrya@example.com',
+                    'role' => 'owner',
+                    'password' => 'password',
+                    'phone' => '081299998888',
+                ]);
 
             $project = Project::create([
                 'user_id' => $owner->id,

@@ -110,6 +110,7 @@ Route::middleware(['auth', 'accounting'])->prefix('admin')->name('admin.cashbook
     Route::post('/projects/{project}/buku-kas/options', [ProjectCashflowController::class, 'storeOption'])->name('options.store');
     Route::post('/projects/{project}/buku-kas', [ProjectCashflowController::class, 'store'])->name('store');
     Route::put('/projects/{project}/buku-kas/{cashflow}', [ProjectCashflowController::class, 'update'])->name('update');
+    Route::get('/projects/{project}/buku-kas/{cashflow}/invoice', [ProjectCashflowController::class, 'invoice'])->name('invoice');
     Route::delete('/projects/{project}/buku-kas/{cashflow}', [ProjectCashflowController::class, 'destroy'])->name('destroy');
 });
 

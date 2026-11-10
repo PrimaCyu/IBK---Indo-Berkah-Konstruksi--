@@ -164,10 +164,21 @@ class ProjectCashflowController extends Controller
         $filters = $request->validate([
             'month' => ['nullable', 'integer', 'between:1,12'],
             'year' => ['nullable', 'integer', 'between:1000,9999'],
+            'start_date' => ['nullable', 'date_format:Y-m-d'],
+            'end_date' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:start_date'],
         ]);
         $ledger = ProjectCashflow::ledger($project);
         $years = $ledger['transactions']->map(fn ($transaction) => $transaction->transaction_date->year)->unique()->sortDesc()->values();
         $ledger['transactions'] = $ledger['transactions']->filter(function ($transaction) use ($filters) {
+            $tDate = $transaction->transaction_date->format('Y-m-d');
+            
+            if (!empty($filters['start_date']) && $tDate < $filters['start_date']) {
+                return false;
+            }
+            if (!empty($filters['end_date']) && $tDate > $filters['end_date']) {
+                return false;
+            }
+
             return (empty($filters['month']) || $transaction->transaction_date->month === (int) $filters['month'])
                 && (empty($filters['year']) || $transaction->transaction_date->year === (int) $filters['year']);
         });
@@ -276,6 +287,19 @@ class ProjectCashflowController extends Controller
         }
 
         return to_route('admin.cashbook.show', $project)->with('success', 'Transaksi berhasil diperbarui.');
+    }
+
+    public function invoice(Project $project, ProjectCashflow $cashflow): View
+    {
+        Gate::authorize('view', $cashflow);
+        abort_unless((string) $cashflow->project_id === (string) $project->getKey(), 404);
+
+        $cashflow->loadMissing(['creator', 'project.user']);
+
+        return view('admin.cashbook.invoice', [
+            'project' => $project,
+            'cashflow' => $cashflow,
+        ]);
     }
 
     public function destroy(Project $project, ProjectCashflow $cashflow): RedirectResponse
