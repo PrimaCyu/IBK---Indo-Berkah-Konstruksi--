@@ -111,6 +111,8 @@ Route::middleware(['auth', 'accounting'])->prefix('admin')->name('admin.cashbook
     Route::post('/projects/{project}/buku-kas', [ProjectCashflowController::class, 'store'])->name('store');
     Route::put('/projects/{project}/buku-kas/{cashflow}', [ProjectCashflowController::class, 'update'])->name('update');
     Route::delete('/projects/{project}/buku-kas/{cashflow}', [ProjectCashflowController::class, 'destroy'])->name('destroy');
+    Route::patch('/projects/{project}/buku-kas/{cashflow}/approve', [ProjectCashflowController::class, 'approve'])->name('approve');
+    Route::patch('/projects/{project}/buku-kas/{cashflow}/reject', [ProjectCashflowController::class, 'reject'])->name('reject');
 });
 
 // AdminLTE Backend Panel Routes

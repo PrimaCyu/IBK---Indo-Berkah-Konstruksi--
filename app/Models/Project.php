@@ -29,6 +29,17 @@ class Project extends Model
         'completed_at' => 'datetime',
     ];
 
+    /**
+     * Pastikan alamat proyek selalu bersih dari tag HTML seperti <p>
+     */
+    protected function alamatProyek(): \Illuminate\Database\Eloquent\Casts\Attribute
+    {
+        return \Illuminate\Database\Eloquent\Casts\Attribute::make(
+            get: fn ($value) => trim(strip_tags((string) $value)),
+            set: fn ($value) => trim(strip_tags((string) $value)),
+        );
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);

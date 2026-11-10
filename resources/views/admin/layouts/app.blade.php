@@ -603,6 +603,8 @@
             display: inline-flex;
             align-items: center;
             gap: 4px;
+            white-space: nowrap !important;
+            line-height: 1.2 !important;
         }
         .badge-soft-danger {
             background-color: #fff1f2 !important;
@@ -615,6 +617,8 @@
             display: inline-flex;
             align-items: center;
             gap: 4px;
+            white-space: nowrap !important;
+            line-height: 1.2 !important;
         }
         .badge-soft-warning {
             background-color: #fffbeb !important;
@@ -627,6 +631,8 @@
             display: inline-flex;
             align-items: center;
             gap: 4px;
+            white-space: nowrap !important;
+            line-height: 1.2 !important;
         }
         .badge-soft-primary {
             background-color: #eff6ff !important;
@@ -639,6 +645,8 @@
             display: inline-flex;
             align-items: center;
             gap: 4px;
+            white-space: nowrap !important;
+            line-height: 1.2 !important;
         }
         .badge-soft-neutral {
             background-color: #f8fafc !important;
@@ -651,6 +659,8 @@
             display: inline-flex;
             align-items: center;
             gap: 4px;
+            white-space: nowrap !important;
+            line-height: 1.2 !important;
         }
 
         /* Square Action Icon Buttons matching reference: 🖨 👁 ✎ 🗑 */
@@ -866,6 +876,7 @@
                 </div>
                 <div class="sidebar-user-info">
                     <div class="sidebar-user-name">{{ auth()->user()->name ?? 'Administrator' }}</div>
+                    <small class="text-muted d-block" style="font-size: 0.72rem;">{{ $panelRole }}</small>
                 </div>
             </div>
 
