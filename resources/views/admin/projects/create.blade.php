@@ -13,21 +13,21 @@
 
 <div class="row justify-content-center">
     <div class="col-lg-9">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <span class="fw-bold"><i class="fas fa-plus-circle me-2 text-primary"></i>Formulir Data Proyek Baru</span>
+        <div class="card mb-4">
+            <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+                <span class="fw-bold text-dark fs-6"><i class="fas fa-plus-circle me-2 text-primary"></i>Formulir Data Proyek Baru</span>
                 <a href="/admin/projects" class="btn btn-sm btn-outline-secondary">
                     <i class="fas fa-arrow-left me-1"></i> Kembali
                 </a>
             </div>
             <form action="{{ route('admin.projects.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
-                <div class="card-body">
+                <div class="card-body p-4">
                     <div class="row g-3">
                         <!-- Nama Proyek -->
                         <div class="col-md-8">
-                            <label class="form-label">Nama Proyek <span class="text-danger">*</span></label>
-                            <input type="text" name="nama_proyek" class="form-control form-control-sm @error('nama_proyek') is-invalid @enderror" value="{{ old('nama_proyek') }}" placeholder="Contoh: Pembangunan Villa Modern Canggu" required>
+                            <label class="form-label text-muted small fw-bold">NAMA PROYEK <span class="text-danger">*</span></label>
+                            <input type="text" name="nama_proyek" class="form-control @error('nama_proyek') is-invalid @enderror" value="{{ old('nama_proyek') }}" placeholder="Contoh: Pembangunan Villa Modern Canggu" required>
                             @error('nama_proyek')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -35,8 +35,8 @@
 
                         <!-- Klien / Pemilik -->
                         <div class="col-md-4">
-                            <label class="form-label">Klien / Pemilik <span class="text-danger">*</span></label>
-                            <select name="user_id" class="form-select form-select-sm @error('user_id') is-invalid @enderror" required>
+                            <label class="form-label text-muted small fw-bold">KLIEN / PEMILIK <span class="text-danger">*</span></label>
+                            <select name="user_id" class="form-select @error('user_id') is-invalid @enderror" required>
                                 <option value="">-- Pilih Klien --</option>
                                 @foreach($users as $user)
                                     <option value="{{ $user->id }}" {{ old('user_id') == $user->id ? 'selected' : '' }}>
@@ -51,8 +51,8 @@
 
                         <!-- Kategori Proyek -->
                         <div class="col-md-6">
-                            <label class="form-label">Kategori Proyek <span class="text-danger">*</span></label>
-                            <select name="kategori" class="form-select form-select-sm @error('kategori') is-invalid @enderror" required>
+                            <label class="form-label text-muted small fw-bold">KATEGORI PROYEK <span class="text-danger">*</span></label>
+                            <select name="kategori" class="form-select @error('kategori') is-invalid @enderror" required>
                                 <option value="Pembangunan Rumah" {{ old('kategori') === 'Pembangunan Rumah' ? 'selected' : '' }}>Pembangunan Rumah</option>
                                 <option value="Gedung Komersial" {{ old('kategori') === 'Gedung Komersial' ? 'selected' : '' }}>Gedung Komersial</option>
                                 <option value="Renovasi Bangunan" {{ old('kategori') === 'Renovasi Bangunan' ? 'selected' : '' }}>Renovasi Bangunan</option>
@@ -65,8 +65,8 @@
 
                         <!-- Status Pengerjaan -->
                         <div class="col-md-3">
-                            <label class="form-label">Status Proyek <span class="text-danger">*</span></label>
-                            <select name="status" class="form-select form-select-sm @error('status') is-invalid @enderror" required>
+                            <label class="form-label text-muted small fw-bold">STATUS PROYEK <span class="text-danger">*</span></label>
+                            <select name="status" class="form-select @error('status') is-invalid @enderror" required>
                                 <option value="aktif" {{ old('status', 'aktif') === 'aktif' ? 'selected' : '' }}>Aktif (Berjalan)</option>
                                 <option value="selesai" {{ old('status') === 'selesai' ? 'selected' : '' }}>Selesai</option>
                                 <option value="dibatalkan" {{ old('status') === 'dibatalkan' ? 'selected' : '' }}>Dibatalkan</option>
@@ -78,10 +78,10 @@
 
                         <!-- Persentase Progres -->
                         <div class="col-md-3">
-                            <label class="form-label">Progres (%) <span class="text-danger">*</span></label>
-                            <div class="input-group input-group-sm">
+                            <label class="form-label text-muted small fw-bold">PROGRES (%) <span class="text-danger">*</span></label>
+                            <div class="input-group">
                                 <input type="number" name="progress_percentage" min="0" max="100" class="form-control @error('progress_percentage') is-invalid @enderror" value="{{ old('progress_percentage', 0) }}" required>
-                                <span class="input-group-text">%</span>
+                                <span class="input-group-text bg-light text-muted fw-bold">%</span>
                             </div>
                             @error('progress_percentage')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -90,8 +90,8 @@
 
                         <!-- Alamat Proyek -->
                         <div class="col-12">
-                            <label class="form-label">Lokasi / Alamat Proyek</label>
-                            <input type="text" name="alamat_proyek" class="form-control form-control-sm @error('alamat_proyek') is-invalid @enderror" value="{{ old('alamat_proyek') }}" placeholder="Contoh: Jl. Sunset Road No. 88, Kuta, Bali">
+                            <label class="form-label text-muted small fw-bold">LOKASI / ALAMAT PROYEK</label>
+                            <input type="text" name="alamat_proyek" class="form-control @error('alamat_proyek') is-invalid @enderror" value="{{ old('alamat_proyek') }}" placeholder="Contoh: Jl. Sunset Road No. 88, Kuta, Bali">
                             @error('alamat_proyek')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -99,8 +99,8 @@
 
                         <!-- Foto Utama Proyek -->
                         <div class="col-md-6">
-                            <label class="form-label">Foto Utama Proyek</label>
-                            <input type="file" name="main_image" class="form-control form-control-sm @error('main_image') is-invalid @enderror" accept="image/*">
+                            <label class="form-label text-muted small fw-bold">FOTO UTAMA PROYEK</label>
+                            <input type="file" name="main_image" class="form-control @error('main_image') is-invalid @enderror" accept="image/*">
                             <small class="text-muted">Format: JPG, PNG, WebP (Maks. 3 MB)</small>
                             @error('main_image')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -109,9 +109,9 @@
 
                         <!-- Opsi Portofolio -->
                         <div class="col-md-6 d-flex align-items-center pt-3">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="portfolio_approved" value="1" id="portfolioApproved" {{ old('portfolio_approved') ? 'checked' : '' }}>
-                                <label class="form-check-label small" for="portfolioApproved">
+                            <div class="form-check p-2 border rounded-3 bg-light w-100">
+                                <input class="form-check-input ms-1" type="checkbox" name="portfolio_approved" value="1" id="portfolioApproved" {{ old('portfolio_approved') ? 'checked' : '' }}>
+                                <label class="form-check-label small fw-semibold ms-2 text-dark" for="portfolioApproved">
                                     Tampilkan di Portofolio Publik Website
                                 </label>
                             </div>
@@ -119,19 +119,19 @@
 
                         <!-- Deskripsi Proyek -->
                         <div class="col-12">
-                            <label class="form-label">Deskripsi & Ruang Lingkup Pengerjaan</label>
-                            <textarea name="deskripsi" class="form-control form-control-sm @error('deskripsi') is-invalid @enderror" rows="4" placeholder="Jelaskan spesifikasi bangunan, material utama, atau catatan penting proyek...">{{ old('deskripsi') }}</textarea>
+                            <label class="form-label text-muted small fw-bold">DESKRIPSI & RUANG LINGKUP PENGERJAAN</label>
+                            <textarea name="deskripsi" class="form-control @error('deskripsi') is-invalid @enderror" rows="4" placeholder="Jelaskan spesifikasi bangunan, material utama, atau catatan penting proyek...">{{ old('deskripsi') }}</textarea>
                             @error('deskripsi')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
                     </div>
                 </div>
-                <div class="card-footer d-flex justify-content-between align-items-center">
-                    <a href="/admin/projects" class="btn btn-sm btn-secondary">
+                <div class="card-footer bg-white border-top py-3 d-flex justify-content-between align-items-center">
+                    <a href="/admin/projects" class="btn btn-outline-secondary">
                         <i class="fas fa-times me-1"></i> Batal
                     </a>
-                    <button type="submit" class="btn btn-sm btn-primary">
+                    <button type="submit" class="btn btn-primary px-4">
                         <i class="fas fa-save me-1"></i> Simpan Proyek
                     </button>
                 </div>

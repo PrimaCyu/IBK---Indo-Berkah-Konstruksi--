@@ -4,10 +4,10 @@
 @section('page-title', 'Dashboard')
 
 @section('page-actions')
-    <a href="/admin/projects/create" class="btn btn-sm btn-primary fw-semibold px-3 shadow-xs">
+    <a href="/admin/projects/create" class="btn btn-sm btn-primary">
         <i class="fas fa-plus me-1"></i> Tambah Proyek
     </a>
-    <a href="/admin/penawaran" class="btn btn-sm btn-outline-secondary px-3">
+    <a href="/admin/penawaran" class="btn btn-sm btn-outline-secondary">
         <i class="fas fa-file-invoice-dollar me-1"></i> Tinjau Penawaran
     </a>
 @endsection
@@ -15,77 +15,35 @@
 @section('content')
 
 <style>
-    /* Clean Minimalist Stat Card */
+    /* Clean Minimalist Stat Card matching 16px reference standard */
     .stat-card-clean {
         background: #ffffff;
-        border: 1px solid #e2e8f0;
-        border-radius: 10px;
-        padding: 1rem 1.25rem;
+        border: 1px solid #eef2f6;
+        border-radius: 16px;
+        padding: 1.25rem 1.4rem;
         display: flex;
         align-items: center;
-        gap: 1rem;
+        gap: 1.15rem;
         transition: all 0.2s ease;
         text-decoration: none;
         color: inherit;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
     }
     .stat-card-clean:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 16px -4px rgba(0,0,0,0.06);
+        box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.06);
         border-color: #cbd5e1;
         color: inherit;
     }
     .stat-icon-clean {
-        width: 44px;
-        height: 44px;
-        border-radius: 10px;
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.2rem;
+        font-size: 1.25rem;
         flex-shrink: 0;
-    }
-
-    /* Clean Table Card */
-    .clean-table-card {
-        background: #ffffff;
-        border: 1px solid #e2e8f0;
-        border-radius: 10px;
-        overflow: hidden;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.02);
-    }
-    .clean-table-card .card-header {
-        background: #ffffff;
-        border-bottom: 1px solid #f1f5f9;
-        padding: 0.85rem 1.15rem;
-    }
-    .clean-table thead th {
-        background: #f8fafc;
-        color: #475569;
-        font-size: 0.725rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        border-bottom: 1px solid #e2e8f0;
-        padding: 0.75rem 1rem;
-        white-space: nowrap;
-    }
-    .clean-table tbody td {
-        padding: 0.85rem 1rem;
-        border-bottom: 1px solid #f1f5f9;
-        vertical-align: middle;
-        font-size: 0.85rem;
-    }
-    .clean-table tbody tr:hover {
-        background-color: #fafbfd;
-    }
-
-    /* Progress Bar */
-    .progress-slim {
-        height: 5px;
-        border-radius: 10px;
-        background-color: #f1f5f9;
-        overflow: hidden;
     }
 </style>
 
@@ -94,12 +52,12 @@
     <!-- Proyek Berjalan -->
     <div class="col-6 col-lg-3">
         <a href="/admin/projects" class="stat-card-clean">
-            <div class="stat-icon-clean" style="background: rgba(13, 110, 253, 0.1); color: #0d6efd;">
+            <div class="stat-icon-clean" style="background: #eff6ff; color: #2563eb;">
                 <i class="fas fa-building"></i>
             </div>
             <div class="min-w-0">
-                <div class="text-muted small fw-semibold text-uppercase" style="font-size: 0.7rem;">Proyek Berjalan</div>
-                <div class="fs-4 fw-bold text-dark lh-1 mt-1">{{ $activeProjects }}</div>
+                <div class="form-label mb-1" style="font-size: 0.68rem;">Proyek Berjalan</div>
+                <div class="fs-4 fw-bold text-dark lh-1">{{ $activeProjects }}</div>
                 <small class="text-muted" style="font-size: 0.725rem;">dari {{ $totalProjects }} Total Proyek</small>
             </div>
         </a>
@@ -108,12 +66,12 @@
     <!-- Penawaran Masuk (RFQ) -->
     <div class="col-6 col-lg-3">
         <a href="/admin/penawaran" class="stat-card-clean">
-            <div class="stat-icon-clean" style="background: rgba(197, 168, 128, 0.15); color: #926938;">
+            <div class="stat-icon-clean" style="background: #fefce8; color: #ca8a04;">
                 <i class="fas fa-file-invoice-dollar"></i>
             </div>
             <div class="min-w-0">
-                <div class="text-muted small fw-semibold text-uppercase" style="font-size: 0.7rem;">Penawaran (RFQ)</div>
-                <div class="fs-4 fw-bold text-dark lh-1 mt-1">{{ $totalPenawaran }}</div>
+                <div class="form-label mb-1" style="font-size: 0.68rem;">Penawaran (RFQ)</div>
+                <div class="fs-4 fw-bold text-dark lh-1">{{ $totalPenawaran }}</div>
                 <small class="text-muted" style="font-size: 0.725rem;">Permintaan Biaya</small>
             </div>
         </a>
@@ -122,12 +80,12 @@
     <!-- Surat Perjanjian (SPK) -->
     <div class="col-6 col-lg-3">
         <a href="/admin/surat-perjanjian" class="stat-card-clean">
-            <div class="stat-icon-clean" style="background: rgba(245, 158, 11, 0.1); color: #d97706;">
+            <div class="stat-icon-clean" style="background: #fff7ed; color: #ea580c;">
                 <i class="fas fa-file-contract"></i>
             </div>
             <div class="min-w-0">
-                <div class="text-muted small fw-semibold text-uppercase" style="font-size: 0.7rem;">Surat Kontrak (SPK)</div>
-                <div class="fs-4 fw-bold text-dark lh-1 mt-1">{{ $totalSurat }}</div>
+                <div class="form-label mb-1" style="font-size: 0.68rem;">Kontrak (SPK)</div>
+                <div class="fs-4 fw-bold text-dark lh-1">{{ $totalSurat }}</div>
                 <small class="text-muted" style="font-size: 0.725rem;">
                     @if($pendingSurat > 0)
                         <span class="text-danger fw-bold">{{ $pendingSurat }} Menunggu</span>
@@ -142,12 +100,12 @@
     <!-- Masukan Lapangan -->
     <div class="col-6 col-lg-3">
         <a href="/admin/feedbacks" class="stat-card-clean">
-            <div class="stat-icon-clean" style="background: rgba(16, 185, 129, 0.1); color: #059669;">
+            <div class="stat-icon-clean" style="background: #ecfdf5; color: #059669;">
                 <i class="fas fa-comment-dots"></i>
             </div>
             <div class="min-w-0">
-                <div class="text-muted small fw-semibold text-uppercase" style="font-size: 0.7rem;">Masukan Lapangan</div>
-                <div class="fs-4 fw-bold text-dark lh-1 mt-1">{{ $totalFeedbacks }}</div>
+                <div class="form-label mb-1" style="font-size: 0.68rem;">Masukan Lapangan</div>
+                <div class="fs-4 fw-bold text-dark lh-1">{{ $totalFeedbacks }}</div>
                 <small class="text-muted" style="font-size: 0.725rem;">
                     @if($pendingFeedbacks > 0)
                         <span class="text-warning fw-bold">{{ $pendingFeedbacks }} Belum Direspon</span>
@@ -164,9 +122,9 @@
 <div class="row g-3">
     <!-- Penawaran Masuk Terbaru (7 Kolom) -->
     <div class="col-lg-7">
-        <div class="clean-table-card h-100">
+        <div class="card h-100 mb-0">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <span class="fw-bold small text-dark">
+                <span class="fw-bold text-dark small">
                     <i class="fas fa-inbox me-1.5 text-primary"></i> Penawaran Masuk Terbaru
                 </span>
                 <a href="/admin/penawaran" class="small text-muted text-decoration-none hover-primary">
@@ -175,14 +133,14 @@
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table clean-table mb-0 align-middle">
+                    <table class="table table-hover align-middle mb-0">
                         <thead>
                             <tr>
-                                <th>Calon Klien</th>
-                                <th>Estimasi Budget</th>
-                                <th>Status</th>
-                                <th>Tanggal</th>
-                                <th class="text-end">Aksi</th>
+                                <th>CALON KLIEN</th>
+                                <th>ESTIMASI BUDGET</th>
+                                <th>STATUS</th>
+                                <th>TANGGAL</th>
+                                <th class="text-end">AKSI</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -200,15 +158,15 @@
                                         <small class="text-muted">{{ $item->telepon }}</small>
                                     </td>
                                     <td>
-                                        <span class="badge bg-light text-dark border">{{ $item->budget }}</span>
+                                        <span class="badge-soft-neutral">{{ $item->budget }}</span>
                                     </td>
                                     <td>
                                         @if($item->status === 'approved')
-                                            <span class="badge bg-success-subtle text-success border border-success-subtle">Disetujui</span>
+                                            <span class="badge-soft-success">Disetujui</span>
                                         @elseif($item->status === 'rejected')
-                                            <span class="badge bg-secondary-subtle text-secondary border">Ditolak</span>
+                                            <span class="badge-soft-danger">Ditolak</span>
                                         @else
-                                            <span class="badge bg-warning-subtle text-warning border border-warning-subtle">Menunggu</span>
+                                            <span class="badge-soft-warning">Menunggu</span>
                                         @endif
                                     </td>
                                     <td>
@@ -216,10 +174,10 @@
                                     </td>
                                     <td class="text-end">
                                         <div class="d-inline-flex gap-1">
-                                            <a href="/admin/penawaran" class="btn btn-sm btn-outline-primary py-0 px-2" title="Proses / Tinjau">
+                                            <a href="/admin/penawaran" class="btn-action-icon" title="Proses / Tinjau">
                                                 <i class="fas fa-eye"></i>
                                             </a>
-                                            <a href="https://wa.me/{{ $phone }}?text={{ $waMsg }}" target="_blank" class="btn btn-sm btn-outline-success py-0 px-2" title="Chat WhatsApp">
+                                            <a href="https://wa.me/{{ $phone }}?text={{ $waMsg }}" target="_blank" class="btn-action-icon" style="color: #25D366; border-color: #bbf7d0;" title="Chat WhatsApp">
                                                 <i class="fab fa-whatsapp"></i>
                                             </a>
                                         </div>
@@ -241,9 +199,9 @@
 
     <!-- Proyek Berjalan (5 Kolom) -->
     <div class="col-lg-5">
-        <div class="clean-table-card h-100">
+        <div class="card h-100 mb-0">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <span class="fw-bold small text-dark">
+                <span class="fw-bold text-dark small">
                     <i class="fas fa-hard-hat me-1.5 text-warning"></i> Proyek Sedang Berjalan
                 </span>
                 <a href="/admin/projects" class="small text-muted text-decoration-none hover-primary">
@@ -252,19 +210,19 @@
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table clean-table mb-0 align-middle">
+                    <table class="table table-hover align-middle mb-0">
                         <thead>
                             <tr>
-                                <th>Proyek</th>
-                                <th>Progres</th>
-                                <th class="text-end">Status</th>
+                                <th>PROYEK</th>
+                                <th>PROGRES</th>
+                                <th class="text-end">STATUS</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse($recentProjects as $project)
                                 @php
                                     $pct = $project->progress_percentage ?? 0;
-                                    $barColor = $pct >= 100 ? 'bg-success' : ($pct >= 50 ? 'bg-primary' : 'bg-warning');
+                                    $barClass = $pct >= 100 ? 'emerald' : ($pct >= 50 ? 'blue' : 'amber');
                                 @endphp
                                 <tr>
                                     <td>
@@ -277,19 +235,19 @@
                                     </td>
                                     <td style="min-width: 110px;">
                                         <div class="d-flex align-items-center gap-2">
-                                            <div class="progress progress-slim flex-grow-1">
-                                                <div class="progress-bar {{ $barColor }}" style="width: {{ $pct }}%"></div>
+                                            <div class="progress-clean flex-grow-1">
+                                                <div class="progress-clean-bar {{ $barClass }}" style="width: {{ $pct }}%"></div>
                                             </div>
-                                            <small class="fw-semibold text-muted" style="font-size: 0.75rem;">{{ $pct }}%</small>
+                                            <small class="fw-bold text-dark" style="font-size: 0.75rem;">{{ $pct }}%</small>
                                         </div>
                                     </td>
                                     <td class="text-end">
                                         @if($project->status === 'selesai')
-                                            <span class="badge bg-success-subtle text-success border border-success-subtle">Selesai</span>
+                                            <span class="badge-soft-success">Selesai</span>
                                         @elseif($project->status === 'aktif')
-                                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle">Aktif</span>
+                                            <span class="badge-soft-primary">Aktif</span>
                                         @else
-                                            <span class="badge bg-secondary-subtle text-secondary border">{{ ucfirst($project->status) }}</span>
+                                            <span class="badge-soft-neutral">{{ ucfirst($project->status) }}</span>
                                         @endif
                                     </td>
                                 </tr>

@@ -10,18 +10,20 @@
 
 @section('content')
 
-<!-- Filter Bar -->
+<!-- Filter Bar (Reference Minimalist Standard) -->
 <div class="card mb-3">
-    <div class="card-body p-3">
-        <form method="GET" action="/admin/portfolios" class="row g-2 align-items-center">
-            <div class="col-md-5">
-                <div class="input-group input-group-sm">
-                    <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
-                    <input type="text" name="search" value="{{ request('search') }}" class="form-control" placeholder="Cari nama bangunan, deskripsi, atau kategori...">
+    <div class="card-body p-4">
+        <form method="GET" action="/admin/portfolios" class="row g-3 align-items-end">
+            <div class="col-md-6">
+                <label for="filter-search" class="form-label">CARI PORTOFOLIO</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+                    <input type="text" id="filter-search" name="search" value="{{ request('search') }}" class="form-control border-start-0 ps-0" placeholder="Cari nama bangunan, deskripsi, atau kategori...">
                 </div>
             </div>
-            <div class="col-md-3">
-                <select name="kategori" class="form-select form-select-sm">
+            <div class="col-sm-6 col-md-4">
+                <label for="filter-kategori" class="form-label">KATEGORI</label>
+                <select id="filter-kategori" name="kategori" class="form-select">
                     <option value="">Semua Kategori</option>
                     <option value="Rumah Tinggal" {{ request('kategori') === 'Rumah Tinggal' ? 'selected' : '' }}>Rumah Tinggal</option>
                     <option value="Villa & Resort" {{ request('kategori') === 'Villa & Resort' ? 'selected' : '' }}>Villa & Resort</option>
@@ -29,13 +31,13 @@
                     <option value="Interior & Renovasi" {{ request('kategori') === 'Interior & Renovasi' ? 'selected' : '' }}>Interior & Renovasi</option>
                 </select>
             </div>
-            <div class="col-md-2 d-flex gap-1">
-                <button type="submit" class="btn btn-sm btn-primary w-100">
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-primary w-100" style="height: 38px;">
                     <i class="fas fa-filter me-1"></i> Filter
                 </button>
                 @if(request()->hasAny(['search', 'kategori']))
-                    <a href="/admin/portfolios" class="btn btn-sm btn-outline-secondary" title="Reset">
-                        <i class="fas fa-times"></i>
+                    <a href="/admin/portfolios" class="btn-filter-reset" title="Reset">
+                        <i class="fas fa-rotate-left"></i>
                     </a>
                 @endif
             </div>
@@ -45,10 +47,10 @@
 
 <!-- Table Card -->
 <div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
         <div class="d-flex align-items-center gap-2">
-            <span class="fw-bold"><i class="fas fa-images me-2 text-primary"></i>Galeri Portofolio Hasil Karya</span>
-            <span class="badge bg-secondary-subtle text-secondary border font-monospace">{{ $portfolios->total() }} Data</span>
+            <span class="fw-bold text-dark"><i class="fas fa-images me-1.5 text-primary"></i> Galeri Portofolio Hasil Karya</span>
+            <span class="badge-soft-neutral font-monospace">{{ $portfolios->total() }} Data</span>
         </div>
         <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addPortfolioModal">
             <i class="fas fa-plus me-1"></i> Tambah Portofolio
@@ -56,16 +58,16 @@
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-hover table-striped mb-0">
+            <table class="table table-hover align-middle mb-0">
                 <thead>
                     <tr>
-                        <th style="width: 40px;">No</th>
-                        <th>Foto</th>
-                        <th>Nama Bangunan / Program</th>
-                        <th>Kategori</th>
-                        <th>Deskripsi Ringkas</th>
-                        <th>Waktu Pengerjaan</th>
-                        <th class="text-end" style="width: 100px;">Aksi</th>
+                        <th style="width: 45px;">NO</th>
+                        <th style="width: 75px;">FOTO</th>
+                        <th>NAMA BANGUNAN / PROGRAM</th>
+                        <th>KATEGORI</th>
+                        <th>DESKRIPSI RINGKAS</th>
+                        <th>WAKTU PENGERJAAN</th>
+                        <th class="text-end" style="width: 100px;">AKSI</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -75,17 +77,17 @@
                             $imgUrl = !empty($img) ? (str_starts_with($img, 'image/') ? asset($img) : asset('storage/' . $img)) : asset('image/ElementProgram/rumah2.jpg');
                         @endphp
                         <tr>
-                            <td class="text-muted">{{ $portfolios->firstItem() + $index }}</td>
+                            <td class="text-muted small">{{ $portfolios->firstItem() + $index }}</td>
                             <td style="width: 70px;">
                                 <a href="{{ $imgUrl }}" target="_blank">
-                                    <img src="{{ $imgUrl }}" alt="Foto" class="rounded border object-fit-cover" style="width: 60px; height: 42px;">
+                                    <img src="{{ $imgUrl }}" alt="Foto" class="rounded border object-fit-cover shadow-2xs" style="width: 54px; height: 38px;">
                                 </a>
                             </td>
                             <td>
-                                <div class="fw-semibold">{{ $item->program }}</div>
+                                <div class="fw-bold text-dark">{{ $item->program }}</div>
                             </td>
                             <td>
-                                <span class="badge bg-light text-dark border">{{ $item->kategori }}</span>
+                                <span class="badge-soft-neutral">{{ $item->kategori }}</span>
                             </td>
                             <td>
                                 <small class="text-muted text-truncate d-inline-block" style="max-width: 280px;" title="{{ $item->deskripsi }}">
@@ -96,11 +98,11 @@
                                 <small class="text-muted">{{ $item->waktu_pengerjaan ? $item->waktu_pengerjaan->format('m/Y') : '-' }}</small>
                             </td>
                             <td class="text-end">
-                                <form action="/admin/portfolios/{{ $item->id }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus portofolio ini?')">
+                                <form action="/admin/portfolios/{{ $item->id }}" method="POST" class="d-inline m-0" onsubmit="return confirm('Hapus portofolio ini?')">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-xs btn-outline-danger py-1 px-2" title="Hapus">
-                                        <i class="fas fa-trash"></i>
+                                    <button type="submit" class="btn-action-icon danger" title="Hapus Portofolio">
+                                        <i class="fas fa-trash-alt"></i>
                                     </button>
                                 </form>
                             </td>

@@ -72,106 +72,235 @@
             : $oldUnitPriceRaw;
     @endphp
 
-    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-3">
-        <div>
-            <a href="{{ route('admin.cashbook.index') }}" class="btn btn-sm btn-outline-secondary mb-3">
-                <i class="fas fa-arrow-left me-1" aria-hidden="true"></i> Kembali ke keuangan proyek
-            </a>
-            <h2 class="h5 fw-bold text-break mb-1">{{ $project->nama_proyek }}</h2>
-            <p class="small text-secondary mb-1 text-break">Klien: <span class="fw-semibold text-dark">{{ $project->user->name ?? 'Klien tidak tersedia' }}</span>@if($project->user?->email) ({{ $project->user->email }})@endif</p>
-            @if($project->alamat_proyek)
-                <p class="small text-secondary mb-1 text-break">{{ $project->alamat_proyek }}</p>
-            @endif
-            <p class="small text-secondary mb-0">Pencatatan internal proyek, tidak ditampilkan di portal klien.</p>
-        </div>
-        <div class="d-flex flex-wrap gap-2">
-            <button type="button" id="cashbook-add" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#cashbook-modal">
-                <i class="fas fa-plus me-1" aria-hidden="true"></i> Tambah transaksi kas
-            </button>
-            <a href="{{ route('admin.cashbook.export', $project) }}" class="btn btn-outline-secondary">
-                <i class="fas fa-file-excel me-1" aria-hidden="true"></i> Unduh semua transaksi (.xlsx)
-            </a>
+    @php
+        // Calculate progress analytics for reference-style summary cards
+        $incomeByCode = [];
+        $expenseByCode = [];
+        foreach ($transactions as $t) {
+            $codeName = $t->code ?: 'Operasional / Umum';
+            $tVal = (float) $t->total;
+            if ($t->type === 'penerimaan') {
+                $incomeByCode[$codeName] = ($incomeByCode[$codeName] ?? 0) + $tVal;
+            } else {
+                $expenseByCode[$codeName] = ($expenseByCode[$codeName] ?? 0) + $tVal;
+            }
+        }
+        arsort($incomeByCode);
+        arsort($expenseByCode);
+        $maxIncomeVal = !empty($incomeByCode) ? max($incomeByCode) : 1;
+        $maxExpenseVal = !empty($expenseByCode) ? max($expenseByCode) : 1;
+
+        $months = [1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'];
+        $selectedMonth = (string) ($filters['month'] ?? '');
+        $selectedYear = (string) ($filters['year'] ?? '');
+        $yearOptions = collect($years ?? [])->push(now()->year)->when($selectedYear !== '', fn ($c) => $c->push((int) $selectedYear))->unique()->sortDesc()->values();
+    @endphp
+
+    <!-- Top Project Header Card -->
+    <div class="card mb-3">
+        <div class="card-body p-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <a href="{{ route('admin.cashbook.index') }}" class="btn btn-sm btn-outline-secondary mb-2">
+                    <i class="fas fa-arrow-left me-1" aria-hidden="true"></i> Kembali ke Keuangan Proyek
+                </a>
+                <h2 class="h5 fw-bold text-dark text-break mb-1">{{ $project->nama_proyek }}</h2>
+                <div class="small text-muted text-break">
+                    Klien: <span class="fw-semibold text-dark">{{ $project->user->name ?? 'Klien tidak tersedia' }}</span>
+                    @if($project->user?->email) ({{ $project->user->email }}) @endif
+                    @if($project->alamat_proyek) &bull; {{ $project->alamat_proyek }} @endif
+                </div>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+                <button type="button" id="cashbook-add" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#cashbook-modal">
+                    <i class="fas fa-plus me-1" aria-hidden="true"></i> Tambah Transaksi Kas
+                </button>
+                <a href="{{ route('admin.cashbook.export', $project) }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-file-excel me-1" aria-hidden="true"></i> Unduh (.xlsx)
+                </a>
+            </div>
         </div>
     </div>
 
-    <dl class="row g-3 mb-3" aria-label="Ringkasan buku kas proyek">
-        <div class="col-md-4">
-            <div class="card h-100 mb-0 border-start border-3 border-success">
-                <div class="card-body p-3">
-                    <dt class="small fw-semibold text-dark mb-2"><i class="fas fa-arrow-down me-2" aria-hidden="true"></i>Total penerimaan periode</dt>
-                    <dd class="h5 fw-bold text-dark text-break mb-0">+ {{ $formatRupiah($income) }}</dd>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card h-100 mb-0 border-start border-3 border-danger">
-                <div class="card-body p-3">
-                    <dt class="small fw-semibold text-dark mb-2"><i class="fas fa-arrow-up me-2" aria-hidden="true"></i>Total pengeluaran periode</dt>
-                    <dd class="h5 fw-bold text-dark text-break mb-0">− {{ $formatRupiah($expense) }}</dd>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card h-100 mb-0 border-start border-3 border-primary">
-                <div class="card-body p-3">
-                    <dt class="small fw-semibold text-dark mb-2"><i class="fas fa-wallet me-2" aria-hidden="true"></i>Selisih periode</dt>
-                    <dd class="h5 fw-bold text-dark text-break mb-0">{{ $formatRupiah($balance) }}</dd>
-                </div>
-            </div>
-        </div>
-    </dl>
+    <!-- Filter Card (Reference-Style Minimalist Controls) -->
+    <div class="card mb-3">
+        <div class="card-body p-4">
+            <form id="cashbook-filter-form" method="GET" action="{{ route('admin.cashbook.show', $project) }}">
+                <div class="row g-3 align-items-end">
+                    <!-- PERIODE -->
+                    <div class="col-auto">
+                        <label class="form-label">PERIODE</label>
+                        <div class="filter-pill-group" role="tablist">
+                            <button type="button" class="filter-pill-item {{ empty($selectedMonth) ? 'active' : '' }}" data-period-btn="semua">Semua</button>
+                            <button type="button" class="filter-pill-item {{ !empty($selectedMonth) ? 'active' : '' }}" data-period-btn="bulanan">Bulanan</button>
+                            <button type="button" class="filter-pill-item" data-period-btn="tahunan">Tahunan</button>
+                        </div>
+                    </div>
 
-    <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
-            <div class="d-flex align-items-center flex-wrap gap-2">
-                <h2 class="h6 fw-bold mb-0">Transaksi kas</h2>
-                <span class="badge bg-light text-dark border">{{ $transactions->count() }} transaksi</span>
-            </div>
-            <form method="GET" action="{{ route('admin.cashbook.show', $project) }}" class="d-flex align-items-center flex-wrap gap-2" aria-label="Filter periode transaksi">
-                @php
-                    $months = [1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'];
-                    $selectedMonth = (string) ($filters['month'] ?? '');
-                    $selectedYear = (string) ($filters['year'] ?? '');
-                    $yearOptions = collect($years ?? [])->push(now()->year)->when($selectedYear !== '', fn ($c) => $c->push((int) $selectedYear))->unique()->sortDesc()->values();
-                @endphp
-                <label for="filter-month" class="visually-hidden">Bulan transaksi</label>
-                <select id="filter-month" name="month" class="form-select form-select-sm w-auto">
-                    <option value="">Semua bulan</option>
-                    @foreach($months as $num => $name)
-                        <option value="{{ $num }}" @selected($selectedMonth === (string) $num)>{{ $name }}</option>
-                    @endforeach
-                </select>
-                <label for="filter-year" class="visually-hidden">Tahun transaksi</label>
-                <select id="filter-year" name="year" class="form-select form-select-sm w-auto">
-                    <option value="">Semua tahun</option>
-                    @foreach($yearOptions as $yr)
-                        <option value="{{ $yr }}" @selected($selectedYear === (string) $yr)>{{ $yr }}</option>
-                    @endforeach
-                </select>
-                <button type="submit" class="btn btn-sm btn-outline-primary">Filter</button>
-                @if($selectedMonth !== '' || $selectedYear !== '')
-                    <a href="{{ route('admin.cashbook.show', $project) }}" class="btn btn-sm btn-outline-secondary">Reset</a>
-                @endif
+                    <!-- BULAN -->
+                    <div class="col-sm-6 col-md-2">
+                        <label for="filter-month" class="form-label">BULAN</label>
+                        <select id="filter-month" name="month" class="form-select">
+                            <option value="">Semua Bulan</option>
+                            @foreach($months as $num => $name)
+                                <option value="{{ $num }}" @selected($selectedMonth === (string) $num)>{{ $name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- TAHUN -->
+                    <div class="col-sm-6 col-md-2">
+                        <label for="filter-year" class="form-label">TAHUN</label>
+                        <select id="filter-year" name="year" class="form-select">
+                            <option value="">Semua Tahun</option>
+                            @foreach($yearOptions as $yr)
+                                <option value="{{ $yr }}" @selected($selectedYear === (string) $yr)>{{ $yr }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- TIPE -->
+                    <div class="col-sm-6 col-md-2">
+                        <label for="filter-type" class="form-label">TIPE</label>
+                        <select id="filter-type" class="form-select">
+                            <option value="">Semua Tipe</option>
+                            <option value="penerimaan">Penerimaan (Masuk)</option>
+                            <option value="pengeluaran">Pengeluaran (Keluar)</option>
+                        </select>
+                    </div>
+
+                    <!-- STATUS -->
+                    <div class="col-sm-6 col-md-2">
+                        <label for="filter-status" class="form-label">STATUS</label>
+                        <select id="filter-status" class="form-select">
+                            <option value="">Semua Status</option>
+                            <option value="lunas" selected>Lunas</option>
+                        </select>
+                    </div>
+
+                    <!-- PROGRAM / KODE -->
+                    <div class="col-sm-6 col-md-2">
+                        <label for="filter-code-select" class="form-label">PROGRAM / KODE</label>
+                        <select id="filter-code-select" class="form-select">
+                            <option value="">Semua Program</option>
+                            @foreach($codeOptions as $cOpt)
+                                <option value="{{ $cOpt }}">{{ $cOpt }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- CARI -->
+                    <div class="col-md-3 col-sm-12">
+                        <label for="filter-search-input" class="form-label">CARI</label>
+                        <input type="text" id="filter-search-input" class="form-control" placeholder="Judul, kode, uraian...">
+                    </div>
+
+                    <!-- ACTIONS: TERAPKAN & RESET -->
+                    <div class="col-auto d-flex align-items-center gap-2">
+                        <button type="submit" class="btn btn-primary" style="height: 38px;">
+                            <i class="fas fa-filter me-1"></i> Terapkan
+                        </button>
+                        <a href="{{ route('admin.cashbook.show', $project) }}" class="btn-filter-reset" id="filter-reset-link" title="Reset filter">
+                            <i class="fas fa-rotate-left"></i>
+                            <span>Reset</span>
+                        </a>
+                    </div>
+                </div>
             </form>
         </div>
+    </div>
+
+    <!-- Analytics Progress Cards (Reference-Style Side-by-Side) -->
+    <div class="row g-3 mb-3">
+        <!-- Pemasukan per Program Layanan (Lunas) -->
+        <div class="col-md-6">
+            <div class="card h-100 mb-0">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fas fa-chart-column text-success" style="font-size: 0.95rem;"></i>
+                            <span class="fw-bold text-dark small">Pemasukan per Program Layanan (Lunas)</span>
+                        </div>
+                        <span class="badge-soft-success cashbook-number">+ {{ $formatRupiah($income) }}</span>
+                    </div>
+                    @php $topIncomes = array_slice($incomeByCode, 0, 4, true); @endphp
+                    @forelse($topIncomes as $cName => $amt)
+                        @php $pct = min(100, max(12, round(($amt / $maxIncomeVal) * 100))); @endphp
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="text-truncate small text-dark" style="min-width: 140px; max-width: 180px;" title="{{ $cName }}">
+                                {{ $cName }}
+                            </div>
+                            <div class="progress-clean flex-grow-1">
+                                <div class="progress-clean-bar emerald" style="width: {{ $pct }}%;"></div>
+                            </div>
+                            <div class="fw-bold text-dark small text-end cashbook-number" style="min-width: 95px;">
+                                {{ number_format($amt, 0, ',', '.') }}
+                            </div>
+                        </div>
+                    @empty
+                        <div class="text-muted small py-2">Belum ada rincian pemasukan untuk periode ini.</div>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+
+        <!-- Pengeluaran per Kategori (Lunas) -->
+        <div class="col-md-6">
+            <div class="card h-100 mb-0">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fas fa-pie-chart text-warning" style="font-size: 0.95rem;"></i>
+                            <span class="fw-bold text-dark small">Pengeluaran per Kategori (Lunas)</span>
+                        </div>
+                        <span class="badge-soft-danger cashbook-number">− {{ $formatRupiah($expense) }}</span>
+                    </div>
+                    @php $topExpenses = array_slice($expenseByCode, 0, 4, true); @endphp
+                    @forelse($topExpenses as $cName => $amt)
+                        @php $pct = min(100, max(12, round(($amt / $maxExpenseVal) * 100))); @endphp
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="text-truncate small text-dark" style="min-width: 140px; max-width: 180px;" title="{{ $cName }}">
+                                {{ $cName }}
+                            </div>
+                            <div class="progress-clean flex-grow-1">
+                                <div class="progress-clean-bar amber" style="width: {{ $pct }}%;"></div>
+                            </div>
+                            <div class="fw-bold text-dark small text-end cashbook-number" style="min-width: 95px;">
+                                {{ number_format($amt, 0, ',', '.') }}
+                            </div>
+                        </div>
+                    @empty
+                        <div class="text-muted small py-2">Belum ada rincian pengeluaran untuk periode ini.</div>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Table Card (Matching Reference Screenshot) -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-2">
+                <h2 class="h6 fw-bold mb-0 text-dark">Daftar Transaksi</h2>
+                <span class="text-muted small" id="trans-count-label">{{ $transactions->count() }} transaksi ditemukan</span>
+            </div>
+            <div class="small text-muted font-monospace">
+                Saldo Kas Proyek: <strong class="text-primary">{{ $formatRupiah($balance) }}</strong>
+            </div>
+        </div>
         <div class="card-body p-0">
-            <p class="small text-secondary px-3 pt-3 mb-2" id="cashbook-table-help">Diurutkan dari tanggal terlama. Tanda + berarti penerimaan, tanda − berarti pengeluaran. Saldo berjalan merupakan saldo kumulatif proyek; kartu di atas merangkum transaksi pada periode yang dipilih. Geser tabel untuk melihat semua kolom.</p>
-            <div class="table-responsive" tabindex="0" role="region" aria-label="Transaksi buku kas proyek" aria-describedby="cashbook-table-help">
-                <table class="table table-hover cashbook-table mb-0">
-                    <caption class="visually-hidden">Buku kas {{ $project->nama_proyek }}. Harga, total, dan saldo dalam rupiah. Saldo berjalan dihitung oleh server setelah setiap transaksi.</caption>
+            <div class="table-responsive" tabindex="0" role="region" aria-label="Transaksi buku kas proyek">
+                <table class="table table-hover align-middle mb-0" id="cashbook-trans-table">
                     <thead>
                         <tr>
-                            <th scope="col">Tanggal</th>
-                            <th scope="col">Jenis</th>
-                            <th scope="col">Kode</th>
-                            <th scope="col">Uraian</th>
-                            <th scope="col">Satuan</th>
-                            <th scope="col" class="text-end">Kuantitas</th>
-                            <th scope="col" class="text-end">Harga satuan (Rp)</th>
-                            <th scope="col" class="text-end">Total (Rp)</th>
-                            <th scope="col" class="text-end">Saldo berjalan (Rp)</th>
-                            <th scope="col">Catatan</th>
-                            <th scope="col" class="text-end">Aksi</th>
+                            <th scope="col" style="width: 130px;">KODE</th>
+                            <th scope="col" style="width: 110px;">TANGGAL</th>
+                            <th scope="col" style="width: 100px;">TIPE</th>
+                            <th scope="col" style="min-width: 230px;">JUDUL / PENERIMA</th>
+                            <th scope="col" style="min-width: 140px;">PROGRAM</th>
+                            <th scope="col" class="text-end" style="width: 140px;">NOMINAL</th>
+                            <th scope="col" style="width: 120px;">METODE</th>
+                            <th scope="col" style="width: 100px;">STATUS</th>
+                            <th scope="col" class="text-end" style="min-width: 145px;">AKSI</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -212,73 +341,126 @@
                                         'formatted_size' => $attachment->formattedSize(),
                                     ] : null,
                                 ];
+                                
+                                // Standardized code display matching TRX-YYYYMM-XXXX style or custom code
+                                $displayCode = $transaction->code ?: ('TRX-' . $transaction->transaction_date->format('Ym') . '-' . str_pad($transaction->id, 4, '0', STR_PAD_LEFT));
                             @endphp
-                            <tr>
+                            <tr class="cashbook-row" data-type="{{ $transaction->type }}" data-code="{{ strtolower($transaction->code ?? '') }}" data-text="{{ strtolower($transaction->description . ' ' . $transaction->code . ' ' . $transaction->notes . ' ' . $displayCode) }}">
+                                <!-- KODE (Crimson Bold Monospace matching reference) -->
                                 <td class="text-nowrap">
-                                    <time datetime="{{ $transaction->transaction_date->format('Y-m-d') }}">{{ $transaction->transaction_date->format('d/m/Y') }}</time>
+                                    <span style="color: #b91c1c; font-weight: 700; font-family: ui-monospace, monospace; font-size: 0.8rem; letter-spacing: -0.2px;">
+                                        {{ $displayCode }}
+                                    </span>
+                                </td>
+
+                                <!-- TANGGAL -->
+                                <td class="text-nowrap">
+                                    <span class="text-secondary small">{{ $transaction->transaction_date->format('d/m/Y') }}</span>
                                     @if($transaction->last_edited_at)
                                         <div class="mt-1">
                                             <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle text-wrap text-start" title="Terakhir diedit pada {{ $transaction->last_edited_at->format('d/m/Y H:i:s') }}@if($transaction->editor) oleh {{ $transaction->editor->name }}@endif" style="font-size: 0.72rem; font-weight: 500;">
                                                 <i class="fas fa-edit me-1" aria-hidden="true"></i>Last edited: {{ $transaction->last_edited_at->format('d/m/Y H:i') }}
+                                                @if($transaction->editor)
+                                                    <span class="d-block">{{ $transaction->editor->name }}</span>
+                                                @endif
                                             </span>
                                         </div>
                                     @endif
                                 </td>
+
+                                <!-- TIPE (Soft Badges) -->
                                 <td class="text-nowrap">
-                                    <span class="badge bg-light text-dark border">
-                                        <i class="fas {{ $isIncome ? 'fa-arrow-down' : 'fa-arrow-up' }} me-1" aria-hidden="true"></i>{{ $isIncome ? 'Penerimaan' : 'Pengeluaran' }}
+                                    @if($isIncome)
+                                        <span class="badge-soft-success">
+                                            <i class="fas fa-arrow-down" style="font-size: 0.65rem;"></i> Masuk
+                                        </span>
+                                    @else
+                                        <span class="badge-soft-danger">
+                                            <i class="fas fa-arrow-up" style="font-size: 0.65rem;"></i> Keluar
+                                        </span>
+                                    @endif
+                                </td>
+
+                                <!-- JUDUL / PENERIMA -->
+                                <td>
+                                    <div class="fw-bold text-dark">{{ $transaction->description }}</div>
+                                    <div class="d-flex align-items-center gap-2 flex-wrap mt-0.5">
+                                        @if($transaction->notes)
+                                            <span class="text-muted small" style="font-size: 0.76rem;">{{ $transaction->notes }}</span>
+                                        @endif
+                                        @if($attachment)
+                                            <button type="button" class="btn btn-xs btn-outline-primary d-inline-flex align-items-center gap-1 py-0 px-1.5" style="font-size: 0.7rem;" data-bs-toggle="modal" data-bs-target="#cashbook-photo-modal" data-photo-url="{{ $attachment->url }}" data-photo-title="Foto bukti: {{ $transaction->description }}" data-photo-caption="{{ $attachment->original_name }} ({{ $attachment->formattedSize() }})">
+                                                <i class="fas fa-image" aria-hidden="true"></i> Foto bukti
+                                            </button>
+                                        @endif
+                                        @if($transaction->unit || $cleanQty != '1')
+                                            <span class="badge bg-light text-muted border py-0 px-1" style="font-size: 0.7rem;">
+                                                {{ $formatQuantityDisplay($transaction->quantity) }} {{ $transaction->unit }}
+                                            </span>
+                                        @endif
+                                    </div>
+                                </td>
+
+                                <!-- PROGRAM / KODE -->
+                                <td>
+                                    <span class="text-secondary small">{{ $transaction->code ?: '—' }}</span>
+                                </td>
+
+                                <!-- NOMINAL -->
+                                <td class="text-end text-nowrap">
+                                    @if($isIncome)
+                                        <span class="fw-bold text-success cashbook-number">+{{ $formatRupiah($transaction->total) }}</span>
+                                    @else
+                                        <span class="fw-bold text-danger cashbook-number">−{{ $formatRupiah($transaction->total) }}</span>
+                                    @endif
+                                </td>
+
+                                <!-- METODE -->
+                                <td class="text-nowrap">
+                                    <span class="text-secondary small">Transfer Bank</span>
+                                </td>
+
+                                <!-- STATUS -->
+                                <td class="text-nowrap">
+                                    <span class="badge-soft-success">
+                                        <i class="fas fa-check" style="font-size: 0.65rem;"></i> Lunas
                                     </span>
                                 </td>
-                                <td class="text-break">{{ $transaction->code ?: '-' }}</td>
-                                <td class="cashbook-copy">{{ $transaction->description }}</td>
-                                <td class="text-break">{{ $transaction->unit ?: '-' }}</td>
-                                <td class="text-end cashbook-number">{{ $formatQuantityDisplay($transaction->quantity) }}</td>
-                                <td class="text-end cashbook-number">{{ $formattedUnitPrice }}</td>
-                                <td class="text-end cashbook-number fw-semibold">{{ $formattedTotal }}</td>
-                                <td class="text-end cashbook-number fw-semibold">{{ $formattedRunningBalance }}</td>
-                                <td class="cashbook-copy">
-                                    @if($transaction->notes)
-                                        <div>{{ $transaction->notes }}</div>
-                                    @endif
-                                    @if($attachment)
-                                        <div class="{{ $transaction->notes ? 'mt-1' : '' }}">
-                                            <button type="button" class="btn btn-xs btn-outline-primary d-inline-flex align-items-center gap-1 text-nowrap" data-bs-toggle="modal" data-bs-target="#cashbook-photo-modal" data-photo-url="{{ $attachment->url }}" data-photo-title="Foto bukti: {{ $transaction->description }}" data-photo-caption="{{ $attachment->original_name }} ({{ $attachment->formattedSize() }})">
-                                                <i class="fas fa-image" aria-hidden="true"></i>
-                                                <span>Foto bukti</span>
-                                            </button>
-                                        </div>
-                                    @endif
-                                    @if(! $transaction->notes && ! $attachment)
-                                        <span class="text-secondary">-</span>
-                                    @endif
-                                </td>
+
+                                <!-- AKSI (Square Icon Buttons matching reference) -->
                                 <td class="text-end text-nowrap">
-                                    <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#cashbook-detail-modal" data-cashflow="{{ json_encode($transactionData, JSON_THROW_ON_ERROR) }}" aria-label="Detail transaksi {{ $transaction->description }}">
-                                        <i class="fas fa-eye me-1" aria-hidden="true"></i> Detail
-                                    </button>
-                                    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#cashbook-modal" data-cashflow="{{ json_encode($transactionData, JSON_THROW_ON_ERROR) }}" aria-label="Ubah transaksi {{ $transaction->description }}">
-                                        <i class="fas fa-pen me-1" aria-hidden="true"></i> Ubah
-                                    </button>
-                                    <form action="{{ route('admin.cashbook.destroy', [$project, $transaction]) }}" method="POST" class="d-inline" data-cashbook-delete>
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-outline-danger" aria-label="Hapus transaksi {{ $transaction->description }}" disabled data-cashbook-delete-button>
-                                            <i class="fas fa-trash me-1" aria-hidden="true"></i> Hapus
+                                    <div class="d-inline-flex gap-1 align-items-center">
+                                        <!-- Print Icon -->
+                                        <button type="button" class="btn-action-icon" onclick="window.print()" title="Cetak transaksi">
+                                            <i class="fas fa-print"></i>
                                         </button>
-                                    </form>
-                                    @if($transaction->last_edited_at)
-                                        <div class="text-end text-muted mt-1 small" style="font-size: 0.72rem;" title="Terakhir diedit pada {{ $transaction->last_edited_at->format('d/m/Y H:i:s') }}@if($transaction->editor) oleh {{ $transaction->editor->name }}@endif">
-                                            <i class="fas fa-history me-1" aria-hidden="true"></i>Last edited: <span class="fw-semibold text-dark">{{ $transaction->last_edited_at->format('d/m/Y H:i') }}</span>
-                                        </div>
-                                    @endif
+                                        <!-- Detail Icon -->
+                                        <button type="button" class="btn-action-icon" data-bs-toggle="modal" data-bs-target="#cashbook-detail-modal" data-cashflow="{{ json_encode($transactionData, JSON_THROW_ON_ERROR) }}" title="Lihat detail transaksi">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <!-- Edit Icon -->
+                                        <button type="button" class="btn-action-icon" data-bs-toggle="modal" data-bs-target="#cashbook-modal" data-cashflow="{{ json_encode($transactionData, JSON_THROW_ON_ERROR) }}" title="Ubah transaksi">
+                                            <i class="fas fa-pen"></i>
+                                        </button>
+                                        <!-- Delete Icon -->
+                                        <form action="{{ route('admin.cashbook.destroy', [$project, $transaction]) }}" method="POST" class="d-inline m-0" data-cashbook-delete>
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn-action-icon danger" disabled data-cashbook-delete-button title="Hapus transaksi">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="11" class="text-center py-5 px-3">
-                                    <p class="fw-semibold mb-1">Belum ada transaksi kas untuk proyek ini.</p>
+                                <td colspan="9" class="text-center py-5 px-3">
+                                    <p class="fw-semibold mb-1 text-dark">Belum ada transaksi kas untuk proyek ini.</p>
                                     <p class="small text-secondary mb-3">Tambahkan penerimaan atau pengeluaran pertama untuk mulai mencatat saldo.</p>
-                                    <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#cashbook-modal">Tambah transaksi kas</button>
+                                    <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#cashbook-modal">
+                                        <i class="fas fa-plus me-1"></i> Tambah Transaksi Kas
+                                    </button>
                                 </td>
                             </tr>
                         @endforelse
@@ -486,48 +668,72 @@
                         </div>
 
                         <div class="col-12">
-                            <label for="cashbook-attachment" class="form-label d-flex justify-content-between align-items-center mb-1">
-                                <span class="fw-semibold"><i class="fas fa-camera text-primary me-1" aria-hidden="true"></i> Foto bukti / catatan (opsional)</span>
-                                <span class="small text-muted">Bisa gunakan foto atau catatan teks di atas</span>
-                            </label>
+                            <div class="d-flex justify-content-between align-items-center mb-1.5">
+                                <label class="form-label mb-0 fw-bold text-dark small">
+                                    <i class="fas fa-camera text-primary me-1" aria-hidden="true"></i> FOTO BUKTI / NOTA (OPSIONAL)
+                                </label>
+                                <span class="text-muted" style="font-size: 0.72rem;">Maks. 10 MB (JPG, PNG, WEBP)</span>
+                            </div>
 
-                            {{-- Existing attachment in Edit mode --}}
-                            <div id="cashbook-current-attachment" class="p-2 mb-2 border rounded bg-light d-flex align-items-center justify-content-between" hidden>
-                                <div class="d-flex align-items-center gap-2 overflow-hidden">
-                                    <img id="cashbook-current-attachment-thumb" src="" alt="Thumbnail" class="rounded border" style="width: 44px; height: 44px; object-fit: cover;">
-                                    <div class="text-truncate">
-                                        <div class="small fw-semibold text-truncate" id="cashbook-current-attachment-name">-</div>
-                                        <a href="#" id="cashbook-current-attachment-link" target="_blank" class="small text-primary text-decoration-none">
-                                            <i class="fas fa-external-link-alt me-1"></i>Lihat foto saat ini
-                                        </a>
+                            {{-- 1. FOTO SAAT INI (Tampil saat edit transaksi yang memiliki foto) --}}
+                            <div id="cashbook-current-attachment" class="card border p-3 mb-2.5 bg-light d-none" style="border-radius: 12px;">
+                                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                                    <div class="d-flex align-items-center gap-2.5 overflow-hidden">
+                                        <img id="cashbook-current-attachment-thumb" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 24 24'%3E%3Cpath fill='%2394a3b8' d='M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z'/%3E%3C/svg%3E" alt="Foto Tersimpan" class="rounded-2 border object-fit-cover shadow-xs" style="width: 48px; height: 48px; background: #fff;">
+                                        <div class="text-truncate">
+                                            <div class="d-flex align-items-center gap-1.5 mb-0.5">
+                                                <span class="badge bg-secondary-subtle text-secondary border py-0.5 px-1.5" style="font-size: 0.65rem;">Tersimpan</span>
+                                                <span class="small fw-bold text-dark text-truncate" id="cashbook-current-attachment-name">-</span>
+                                            </div>
+                                            <a href="#" id="cashbook-current-attachment-link" target="_blank" class="small text-primary text-decoration-none fw-semibold" style="font-size: 0.75rem;">
+                                                <i class="fas fa-external-link-alt me-1"></i>Lihat foto saat ini
+                                            </a>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="form-check ms-3 text-nowrap">
-                                    <input class="form-check-input" type="checkbox" name="remove_attachment" id="cashbook-remove-attachment" value="1">
-                                    <label class="form-check-label small text-danger fw-semibold" for="cashbook-remove-attachment">
-                                        Hapus foto
-                                    </label>
+                                    <div class="form-check p-2 bg-white rounded-2 border border-danger-subtle text-nowrap">
+                                        <input class="form-check-input ms-0.5" type="checkbox" name="remove_attachment" id="cashbook-remove-attachment" value="1">
+                                        <label class="form-check-label small text-danger fw-semibold ms-1.5" for="cashbook-remove-attachment" style="cursor: pointer; font-size: 0.76rem;">
+                                            <i class="fas fa-trash-alt me-1"></i>Hapus foto ini
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
 
-                            {{-- File input --}}
-                            <input type="file" id="cashbook-attachment" name="attachment" class="form-control @error('attachment') is-invalid @enderror" accept="image/jpeg,image/png,image/jpg,image/webp" aria-describedby="cashbook-attachment-help cashbook-attachment-error" @error('attachment') aria-invalid="true" @enderror>
-                            <div class="form-text" id="cashbook-attachment-help">Pilih foto bukti/nota (JPG, PNG, WEBP, maks 10 MB). Foto akan ditampilkan pada catatan transaksi.</div>
-                            <div class="invalid-feedback" id="cashbook-attachment-error">@error('attachment'){{ $message }}@enderror</div>
+                            {{-- 2. UPLOAD DROPZONE / FILE SELECTOR --}}
+                            <div id="cashbook-upload-zone" class="border border-2 border-dashed rounded-3 p-3 text-center bg-white position-relative" style="cursor: pointer; border-color: #cbd5e1 !important; transition: all 0.2s ease;">
+                                <input type="file" id="cashbook-attachment" name="attachment" class="position-absolute top-0 start-0 w-100 h-100 opacity-0 @error('attachment') is-invalid @enderror" accept="image/jpeg,image/png,image/jpg,image/webp" style="cursor: pointer; z-index: 2;" aria-describedby="cashbook-attachment-help cashbook-attachment-error">
 
-                            {{-- Preview for newly selected file --}}
-                            <div id="cashbook-new-attachment-preview" class="mt-2 p-2 border rounded bg-white d-flex align-items-center justify-content-between" hidden>
-                                <div class="d-flex align-items-center gap-2 overflow-hidden">
-                                    <img id="cashbook-new-attachment-img" src="" alt="Preview baru" class="rounded border" style="width: 44px; height: 44px; object-fit: cover;">
-                                    <div class="text-truncate">
-                                        <div class="small fw-semibold text-truncate" id="cashbook-new-attachment-name"></div>
-                                        <div class="small text-muted" id="cashbook-new-attachment-size" style="font-size: 0.75rem;"></div>
+                                {{-- Idle State --}}
+                                <div id="cashbook-upload-idle" class="py-1">
+                                    <div class="mx-auto mb-1.5 d-flex align-items-center justify-content-center rounded-circle bg-primary-subtle text-primary" style="width: 40px; height: 40px;">
+                                        <i class="fas fa-cloud-arrow-up fs-5"></i>
+                                    </div>
+                                    <div class="fw-semibold text-dark small mb-0.5">
+                                        <span class="text-primary text-decoration-underline">Pilih file foto</span> atau seret foto bukti ke sini
+                                    </div>
+                                    <div class="text-muted" style="font-size: 0.72rem;" id="cashbook-attachment-help">
+                                        Pilih foto bukti/nota (JPG, PNG, WEBP, maks 10 MB). Foto akan ditampilkan pada catatan transaksi.
                                     </div>
                                 </div>
-                                <button type="button" id="cashbook-new-attachment-clear" class="btn btn-sm btn-outline-danger">
-                                    <i class="fas fa-times me-1"></i>Batal pilih
-                                </button>
+
+                                {{-- Preview State (File Baru Dipilih) --}}
+                                <div id="cashbook-new-attachment-preview" class="d-none align-items-center justify-content-between p-2 bg-light rounded-3 text-start position-relative" style="z-index: 3;">
+                                    <div class="d-flex align-items-center gap-2.5 overflow-hidden">
+                                        <img id="cashbook-new-attachment-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 24 24'%3E%3Cpath fill='%2394a3b8' d='M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z'/%3E%3C/svg%3E" alt="Foto Baru" class="rounded-2 border object-fit-cover shadow-xs" style="width: 48px; height: 48px; background: #fff;">
+                                        <div class="text-truncate">
+                                            <div class="d-flex align-items-center gap-1.5 mb-0.5">
+                                                <span class="badge bg-success-subtle text-success border border-success-subtle py-0.5 px-1.5" style="font-size: 0.65rem;">Foto Baru</span>
+                                                <span class="small fw-bold text-dark text-truncate" id="cashbook-new-attachment-name"></span>
+                                            </div>
+                                            <span class="badge bg-white text-muted border py-0.5 px-1.5" id="cashbook-new-attachment-size" style="font-size: 0.7rem;"></span>
+                                        </div>
+                                    </div>
+                                    <button type="button" id="cashbook-new-attachment-clear" class="btn btn-sm btn-outline-danger px-2.5 py-1" style="font-size: 0.75rem;">
+                                        <i class="fas fa-times me-1"></i>Batal
+                                    </button>
+                                </div>
                             </div>
+                            <div class="invalid-feedback d-block" id="cashbook-attachment-error">@error('attachment'){{ $message }}@enderror</div>
                         </div>
                     </div>
                 </div>
@@ -584,6 +790,7 @@
             const currentAttachmentName = document.getElementById('cashbook-current-attachment-name');
             const currentAttachmentLink = document.getElementById('cashbook-current-attachment-link');
             const removeAttachmentCheckbox = document.getElementById('cashbook-remove-attachment');
+            const uploadIdle = document.getElementById('cashbook-upload-idle');
             const newAttachmentPreview = document.getElementById('cashbook-new-attachment-preview');
             const newAttachmentImg = document.getElementById('cashbook-new-attachment-img');
             const newAttachmentName = document.getElementById('cashbook-new-attachment-name');
@@ -591,14 +798,30 @@
             const newAttachmentClear = document.getElementById('cashbook-new-attachment-clear');
             const modalLastEdited = document.getElementById('cashbook-modal-last-edited');
             const modalLastEditedText = document.getElementById('cashbook-modal-last-edited-text');
+            const placeholderSvg = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 24 24'%3E%3Cpath fill='%2394a3b8' d='M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z'/%3E%3C/svg%3E";
 
             function clearNewAttachment() {
                 if (attachmentInput) attachmentInput.value = '';
-                if (newAttachmentPreview) newAttachmentPreview.hidden = true;
-                if (newAttachmentImg) newAttachmentImg.src = '';
+                if (newAttachmentPreview) {
+                    newAttachmentPreview.classList.add('d-none');
+                    newAttachmentPreview.classList.remove('d-flex');
+                }
+                if (uploadIdle) uploadIdle.classList.remove('d-none');
+                if (newAttachmentImg) newAttachmentImg.src = placeholderSvg;
             }
 
-            newAttachmentClear?.addEventListener('click', clearNewAttachment);
+            newAttachmentClear?.addEventListener('click', event => {
+                event.preventDefault();
+                event.stopPropagation();
+                clearNewAttachment();
+            });
+
+            removeAttachmentCheckbox?.addEventListener('change', () => {
+                if (currentAttachmentThumb) {
+                    currentAttachmentThumb.style.opacity = removeAttachmentCheckbox.checked ? '0.3' : '1';
+                    currentAttachmentThumb.style.filter = removeAttachmentCheckbox.checked ? 'grayscale(100%)' : 'none';
+                }
+            });
 
             attachmentInput?.addEventListener('change', () => {
                 const file = attachmentInput.files?.[0];
@@ -615,7 +838,11 @@
                             const kb = file.size / 1024;
                             newAttachmentSize.textContent = kb >= 1024 ? (kb / 1024).toFixed(2) + ' MB' : kb.toFixed(1) + ' KB';
                         }
-                        if (newAttachmentPreview) newAttachmentPreview.hidden = false;
+                        if (uploadIdle) uploadIdle.classList.add('d-none');
+                        if (newAttachmentPreview) {
+                            newAttachmentPreview.classList.remove('d-none');
+                            newAttachmentPreview.classList.add('d-flex');
+                        }
                     };
                     reader.readAsDataURL(file);
                 } else {
@@ -903,14 +1130,25 @@
 
                 clearNewAttachment();
                 if (removeAttachmentCheckbox) removeAttachmentCheckbox.checked = false;
+                if (currentAttachmentThumb) {
+                    currentAttachmentThumb.style.opacity = '1';
+                    currentAttachmentThumb.style.filter = 'none';
+                }
 
                 if (transaction?.attachment) {
-                    if (currentAttachmentWrap) currentAttachmentWrap.hidden = false;
+                    if (currentAttachmentWrap) {
+                        currentAttachmentWrap.classList.remove('d-none');
+                        currentAttachmentWrap.hidden = false;
+                    }
                     if (currentAttachmentThumb) currentAttachmentThumb.src = transaction.attachment.url;
                     if (currentAttachmentName) currentAttachmentName.textContent = transaction.attachment.original_name + (transaction.attachment.formatted_size ? ' (' + transaction.attachment.formatted_size + ')' : '');
                     if (currentAttachmentLink) currentAttachmentLink.href = transaction.attachment.url;
                 } else {
-                    if (currentAttachmentWrap) currentAttachmentWrap.hidden = true;
+                    if (currentAttachmentWrap) {
+                        currentAttachmentWrap.classList.add('d-none');
+                        currentAttachmentWrap.hidden = true;
+                    }
+                    if (currentAttachmentThumb) currentAttachmentThumb.src = placeholderSvg;
                 }
 
                 if (transaction?.last_edited_at_display) {
@@ -1011,6 +1249,59 @@
                     if (!window.confirm('Hapus transaksi kas ini? Saldo proyek akan dihitung ulang. Tindakan ini tidak dapat dibatalkan.')) event.preventDefault();
                 });
                 deleteForm.querySelector('[data-cashbook-delete-button]').disabled = false;
+            });
+
+            // Instant client-side filtering matching reference filter controls
+            const filterType = document.getElementById('filter-type');
+            const filterCode = document.getElementById('filter-code-select');
+            const filterSearch = document.getElementById('filter-search-input');
+            const transRows = document.querySelectorAll('.cashbook-row');
+            const transCounter = document.getElementById('trans-count-label');
+
+            function applyTableFilters() {
+                const selectedType = filterType ? filterType.value.toLowerCase() : '';
+                const selectedCode = filterCode ? filterCode.value.toLowerCase() : '';
+                const query = filterSearch ? filterSearch.value.trim().toLowerCase() : '';
+
+                let visibleCount = 0;
+                transRows.forEach(row => {
+                    const rowType = (row.dataset.type || '').toLowerCase();
+                    const rowCode = (row.dataset.code || '').toLowerCase();
+                    const rowText = (row.dataset.text || '').toLowerCase();
+
+                    const matchType = !selectedType || rowType === selectedType;
+                    const matchCode = !selectedCode || rowCode === selectedCode || rowCode.includes(selectedCode);
+                    const matchQuery = !query || rowText.includes(query);
+
+                    if (matchType && matchCode && matchQuery) {
+                        row.style.display = '';
+                        visibleCount++;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+
+                if (transCounter) {
+                    transCounter.textContent = `${visibleCount} transaksi ditemukan`;
+                }
+            }
+
+            if (filterType) filterType.addEventListener('change', applyTableFilters);
+            if (filterCode) filterCode.addEventListener('change', applyTableFilters);
+            if (filterSearch) filterSearch.addEventListener('input', applyTableFilters);
+
+            // Periode pill buttons handler
+            document.querySelectorAll('[data-period-btn]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('[data-period-btn]').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    const period = btn.dataset.periodBtn;
+                    const monthSelect = document.getElementById('filter-month');
+                    if (period === 'semua' && monthSelect && monthSelect.value !== '') {
+                        monthSelect.value = '';
+                        document.getElementById('cashbook-filter-form')?.submit();
+                    }
+                });
             });
 
             updatePreview();

@@ -257,7 +257,7 @@
         }
 
         /* ==============================================
-           POLISHED MODERN HEADER NAVBAR
+           POLISHED MODERN HEADER NAVBAR (REF: MINIMAL CLEAN)
            ============================================== */
         .app-header {
             height: var(--lte-header-height);
@@ -266,15 +266,58 @@
             box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.02);
             display: flex;
             align-items: center;
-            padding: 0 1.25rem;
+            padding: 0 1.5rem;
             flex-shrink: 0;
             z-index: 1030;
         }
 
+        .header-page-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #0f172a;
+            letter-spacing: -0.2px;
+            margin: 0;
+            white-space: nowrap;
+        }
+
+        .btn-nav-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 5px 15px;
+            font-size: 0.825rem;
+            font-weight: 600;
+            color: #334155;
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            text-decoration: none;
+            transition: all 0.15s ease;
+            cursor: pointer;
+            line-height: 1.4;
+        }
+        .btn-nav-pill:hover {
+            background-color: #f8fafc;
+            border-color: #cbd5e1;
+            color: #0f172a;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        }
+
+        .header-greeting {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin: 0;
+            white-space: nowrap;
+        }
+        .header-greeting strong {
+            color: #0f172a;
+            font-weight: 700;
+        }
+
         /* Sleek Button Icon */
         .nav-btn-icon {
-            width: 38px;
-            height: 38px;
+            width: 36px;
+            height: 36px;
             border-radius: 8px;
             border: 1px solid #e2e8f0;
             background-color: #ffffff;
@@ -282,7 +325,7 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             cursor: pointer;
             transition: all 0.15s ease-in-out;
             position: relative;
@@ -291,29 +334,9 @@
             background-color: #f8fafc;
             color: #0d6efd;
             border-color: #cbd5e1;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
         }
 
-        /* Portal Website Pill */
-        .nav-portal-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 14px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: #2563eb;
-            background-color: #eff6ff;
-            border: 1px solid #dbeafe;
-            border-radius: 20px;
-            text-decoration: none;
-            transition: all 0.15s ease;
-        }
-        .nav-portal-pill:hover {
-            background-color: #dbeafe;
-            color: #1d4ed8;
-            border-color: #bfdbfe;
-        }
         /* Notif Badge */
         .notif-badge-pill {
             position: absolute;
@@ -329,71 +352,15 @@
             line-height: 1;
         }
 
-        /* User Pill Button */
-        .nav-user-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 9px;
-            padding: 4px 12px 4px 5px;
-            background-color: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 30px;
-            cursor: pointer;
-            text-decoration: none;
-            transition: all 0.15s ease;
-        }
-        .nav-user-pill:hover {
-            background-color: #f8fafc;
-            border-color: #cbd5e1;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
-        }
-        .user-avatar-circle {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #0d6efd, #0284c7);
-            color: #ffffff;
-            font-size: 0.8rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 2px 4px rgba(13, 110, 253, 0.25);
-            flex-shrink: 0;
-        }
-        .user-avatar-circle.lg {
-            width: 44px;
-            height: 44px;
-            font-size: 1.1rem;
-        }
-        .user-meta-name {
-            font-size: 0.825rem;
-            font-weight: 600;
-            color: #1e293b;
-            line-height: 1.2;
-        }
-        .user-meta-role {
-            font-size: 0.68rem;
-            font-weight: 500;
-            color: #64748b;
-            text-transform: uppercase;
-            letter-spacing: 0.4px;
-        }
-        .user-meta-caret {
-            font-size: 0.65rem;
-            color: #94a3b8;
-            margin-left: 2px;
-        }
-
         /* Custom Dropdowns */
         .custom-dropdown-menu {
-            border-radius: 10px !important;
+            border-radius: 12px !important;
             border: 1px solid #e2e8f0 !important;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04) !important;
             padding: 0.4rem !important;
         }
         .custom-dropdown-item {
-            border-radius: 6px !important;
+            border-radius: 8px !important;
             padding: 0.5rem 0.75rem !important;
             font-size: 0.85rem !important;
             color: #334155 !important;
@@ -401,6 +368,7 @@
             align-items: center !important;
             gap: 10px !important;
             transition: background-color 0.15s !important;
+            text-decoration: none;
         }
         .custom-dropdown-item:hover {
             background-color: #f1f5f9 !important;
@@ -418,25 +386,14 @@
             min-height: calc(100vh - var(--lte-header-height) - 48px);
         }
         .content-header {
-            padding: 1.25rem 0 0.85rem;
+            padding: 1.15rem 0 0.75rem;
         }
         .content-header h1 {
-            font-size: 1.35rem;
+            font-size: 1.25rem;
             font-weight: 700;
             margin: 0;
             color: #0f172a;
             letter-spacing: -0.3px;
-        }
-        .breadcrumb-pill {
-            background-color: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 20px;
-            padding: 4px 12px;
-            font-size: 0.8rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            margin-bottom: 0;
         }
 
         /* Footer */
@@ -445,125 +402,322 @@
             height: 48px;
             background-color: #ffffff;
             border-top: 1px solid #eef2f6;
-            padding: 0 1.25rem;
-            font-size: 0.85rem;
+            padding: 0 1.5rem;
+            font-size: 0.825rem;
             color: #64748b;
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
 
-        /* Clean AdminLTE Card */
+        /* ==============================================
+           CLEAN MODERN DESIGN SYSTEM (BASED ON REFERENCE)
+           ============================================== */
+        /* Cards */
         .card {
             background-color: #ffffff;
-            border: 1px solid var(--lte-card-border);
-            border-radius: 8px;
+            border: 1px solid #eef2f6;
+            border-radius: 16px;
             box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.02);
             margin-bottom: 1.25rem;
+            transition: box-shadow 0.2s ease;
         }
         .card-header {
-            background-color: #fafbfc;
-            border-bottom: 1px solid #edf2f7;
-            padding: 0.85rem 1.15rem;
-            font-weight: 600;
-            font-size: 0.925rem;
-            border-top-left-radius: 8px !important;
-            border-top-right-radius: 8px !important;
+            background-color: #ffffff;
+            border-bottom: 1px solid #f8fafc;
+            padding: 1.15rem 1.4rem;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: #0f172a;
+            border-top-left-radius: 16px !important;
+            border-top-right-radius: 16px !important;
         }
         .card-body {
-            padding: 1.15rem;
+            padding: 1.35rem 1.4rem;
         }
         .card-footer {
             background-color: #fafbfc;
-            border-top: 1px solid #edf2f7;
-            padding: 0.85rem 1.15rem;
-            border-bottom-left-radius: 8px !important;
-            border-bottom-right-radius: 8px !important;
+            border-top: 1px solid #f8fafc;
+            padding: 1rem 1.4rem;
+            border-bottom-left-radius: 16px !important;
+            border-bottom-right-radius: 16px !important;
         }
 
-        /* AdminLTE Info Box (Clean & Minimalist) */
-        .info-box {
-            display: flex;
-            background-color: #ffffff;
-            border: 1px solid var(--lte-card-border);
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            min-height: 80px;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.02);
-            overflow: hidden;
+        /* Form Labels & Controls */
+        .form-label, .filter-label {
+            font-size: 0.72rem !important;
+            font-weight: 700 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.05em !important;
+            color: #64748b !important;
+            margin-bottom: 0.35rem !important;
+            display: block;
         }
-        .info-box-icon {
-            display: flex;
+        .form-control, .form-select {
+            border-radius: 10px !important;
+            border: 1px solid #e2e8f0 !important;
+            height: 38px !important;
+            font-size: 0.85rem !important;
+            padding: 0.45rem 0.85rem !important;
+            background-color: #ffffff !important;
+            color: #1e293b !important;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #3b82f6 !important;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12) !important;
+            outline: none;
+        }
+        .form-control::placeholder {
+            color: #94a3b8;
+            font-size: 0.825rem;
+        }
+
+        /* Filter Segmented Pill Group (e.g. Harian / Bulanan / Tahunan) */
+        .filter-pill-group {
+            display: inline-flex;
             align-items: center;
-            justify-content: center;
-            width: 70px;
-            font-size: 1.45rem;
-            color: #ffffff;
-            flex-shrink: 0;
+            background: #f1f5f9;
+            padding: 3px;
+            border-radius: 10px;
+            gap: 2px;
+            height: 38px;
         }
-        .info-box-content {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: 0.6rem 1rem;
-            flex-grow: 1;
-            line-height: 1.3;
-        }
-        .info-box-text {
-            font-size: 0.78rem;
-            color: #64748b;
-            text-transform: uppercase;
+        .filter-pill-item {
+            border: none;
+            background: transparent;
+            padding: 4px 14px;
+            font-size: 0.8rem;
             font-weight: 600;
-            letter-spacing: 0.4px;
+            color: #64748b;
+            border-radius: 8px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.15s;
+            line-height: 1.5;
+            white-space: nowrap;
         }
-        .info-box-number {
-            font-size: 1.4rem;
+        .filter-pill-item:hover {
+            color: #1e293b;
+        }
+        .filter-pill-item.active {
+            background: #ffffff;
+            color: #be123c;
             font-weight: 700;
-            color: #0f172a;
-            margin-top: 2px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
         }
 
-        /* Clean Tables */
+        /* Filter Reset Button */
+        .btn-filter-reset {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            height: 38px;
+            padding: 0 14px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            color: #475569;
+            font-size: 0.825rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.15s;
+            cursor: pointer;
+        }
+        .btn-filter-reset:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+            color: #0f172a;
+        }
+
+        /* Modern Tables */
         .table {
             margin-bottom: 0;
-            font-size: 0.875rem;
+            font-size: 0.85rem;
+            --bs-table-bg: transparent;
         }
         .table thead th {
             font-weight: 700;
-            color: #475569;
-            background-color: #f8fafc;
-            border-bottom: 1px solid #e2e8f0;
-            padding: 0.75rem 0.95rem;
-            white-space: nowrap;
-            font-size: 0.76rem;
+            color: #64748b;
+            background-color: #ffffff;
+            border-bottom: 1px solid #f1f5f9;
+            padding: 0.95rem 1.15rem;
+            font-size: 0.72rem;
             text-transform: uppercase;
-            letter-spacing: 0.4px;
+            letter-spacing: 0.06em;
+            white-space: nowrap;
         }
         .table tbody td {
-            padding: 0.75rem 0.95rem;
+            padding: 0.95rem 1.15rem;
             vertical-align: middle;
-            border-bottom: 1px solid #f1f5f9;
+            border-bottom: 1px solid #f8fafc;
             color: #334155;
+            background-color: #ffffff;
         }
-        .table-hover tbody tr:hover {
-            background-color: #f8fafc !important;
+        .table-hover tbody tr:hover td {
+            background-color: #fbfcfe !important;
         }
 
-        /* Form Controls */
-        .form-label {
-            font-size: 0.85rem;
+        /* Buttons */
+        .btn {
+            border-radius: 10px;
             font-weight: 600;
-            color: #334155;
-            margin-bottom: 0.35rem;
+            font-size: 0.85rem;
+            padding: 0.45rem 1rem;
+            transition: all 0.15s ease;
         }
-        .form-control, .form-select {
-            font-size: 0.875rem;
-            border-radius: 6px;
+        .btn-sm {
+            border-radius: 8px;
+            font-size: 0.8rem;
+            padding: 0.35rem 0.75rem;
+        }
+        .btn-primary {
+            background-color: #2563eb;
+            border-color: #2563eb;
+            color: #ffffff;
+        }
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+            border-color: #1d4ed8;
+        }
+        .btn-outline-secondary {
+            border-color: #e2e8f0;
+            color: #475569;
+            background-color: #ffffff;
+        }
+        .btn-outline-secondary:hover {
+            background-color: #f8fafc;
+            border-color: #cbd5e1;
+            color: #1e293b;
+        }
+
+        /* Soft Badges */
+        .badge-soft-success {
+            background-color: #ecfdf5 !important;
+            color: #047857 !important;
+            border: 1px solid #a7f3d0 !important;
+            border-radius: 8px !important;
+            font-weight: 600 !important;
+            font-size: 0.75rem !important;
+            padding: 4px 10px !important;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .badge-soft-danger {
+            background-color: #fff1f2 !important;
+            color: #be123c !important;
+            border: 1px solid #fecdd3 !important;
+            border-radius: 8px !important;
+            font-weight: 600 !important;
+            font-size: 0.75rem !important;
+            padding: 4px 10px !important;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .badge-soft-warning {
+            background-color: #fffbeb !important;
+            color: #b45309 !important;
+            border: 1px solid #fde68a !important;
+            border-radius: 8px !important;
+            font-weight: 600 !important;
+            font-size: 0.75rem !important;
+            padding: 4px 10px !important;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .badge-soft-primary {
+            background-color: #eff6ff !important;
+            color: #1d4ed8 !important;
+            border: 1px solid #bfdbfe !important;
+            border-radius: 8px !important;
+            font-weight: 600 !important;
+            font-size: 0.75rem !important;
+            padding: 4px 10px !important;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .badge-soft-neutral {
+            background-color: #f8fafc !important;
+            color: #475569 !important;
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 8px !important;
+            font-weight: 600 !important;
+            font-size: 0.75rem !important;
+            padding: 4px 10px !important;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Square Action Icon Buttons matching reference: 🖨 👁 ✎ 🗑 */
+        .btn-action-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            color: #475569;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            text-decoration: none;
+            transition: all 0.15s ease;
+            padding: 0;
+            cursor: pointer;
+        }
+        .btn-action-icon:hover {
+            background: #f1f5f9;
+            color: #0f172a;
             border-color: #cbd5e1;
         }
-        .form-control:focus, .form-select:focus {
-            border-color: #0d6efd;
-            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.12);
+        .btn-action-icon.danger {
+            background: #fff1f2;
+            border-color: #fecdd3;
+            color: #e11d48;
+        }
+        .btn-action-icon.danger:hover {
+            background: #ffe4e6;
+            border-color: #fda4af;
+            color: #be123c;
+        }
+        .btn-action-icon.primary {
+            background: #eff6ff;
+            border-color: #bfdbfe;
+            color: #2563eb;
+        }
+        .btn-action-icon.primary:hover {
+            background: #dbeafe;
+            border-color: #93c5fd;
+            color: #1d4ed8;
+        }
+
+        /* Sleek Progress Bars for Analytics Cards */
+        .progress-clean {
+            height: 7px;
+            border-radius: 9999px;
+            background-color: #f1f5f9;
+            overflow: hidden;
+            position: relative;
+            width: 100%;
+        }
+        .progress-clean-bar {
+            height: 100%;
+            border-radius: 9999px;
+            transition: width 0.3s ease;
+        }
+        .progress-clean-bar.emerald {
+            background-color: #10b981;
+        }
+        .progress-clean-bar.amber {
+            background-color: #f59e0b;
+        }
+        .progress-clean-bar.blue {
+            background-color: #3b82f6;
         }
 
         /* WhatsApp Button */
@@ -573,17 +727,11 @@
             border: 0;
             font-weight: 600;
             font-size: 0.8rem;
-            border-radius: 6px;
+            border-radius: 8px;
         }
         .btn-wa:hover {
             background-color: #1eb956;
             color: #ffffff;
-        }
-
-        /* Soft Badge System */
-        .badge {
-            font-weight: 600;
-            padding: 0.35em 0.65em;
         }
     </style>
     @stack('styles')
@@ -597,26 +745,26 @@
     <div class="app-wrapper">
 
         <!-- ==============================================
-             POLISHED MODERN NAVBAR
+             POLISHED MODERN NAVBAR (REF: MINIMAL CLEAN)
              ============================================== -->
         <nav class="app-header navbar navbar-expand">
             <div class="container-fluid px-0 d-flex align-items-center justify-content-between">
                 
-                <!-- Left Nav: Toggle & Quick Website Link -->
-                <div class="d-flex align-items-center gap-2">
+                <!-- Left Nav: Toggle & Page Title -->
+                <div class="d-flex align-items-center gap-3">
                     <button class="nav-btn-icon" id="sidebarToggleBtn" type="button" title="Perluas / Ciutkan Navigasi">
                         <i class="fas fa-bars-staggered"></i>
                     </button>
-
-                    <a href="/" target="_blank" class="nav-portal-pill d-none d-sm-inline-flex">
-                        <span>Lihat Website</span>
-                        <i class="fas fa-arrow-up-right-from-square" style="font-size: 0.7rem; opacity: 0.7;"></i>
-                    </a>
-
+                    <h1 class="header-page-title d-none d-sm-block">@yield('page-title', 'Dashboard')</h1>
                 </div>
 
-                <!-- Right Nav: Notifikasi & Profile Pill Dropdown -->
-                <div class="d-flex align-items-center gap-2">
+                <!-- Right Nav: Lihat Website, Notifikasi, Halo Administrator, Keluar -->
+                <div class="d-flex align-items-center gap-3">
+                    <a href="/" target="_blank" class="btn-nav-pill d-none d-md-inline-flex" title="Buka website publik">
+                        <i class="fas fa-arrow-up-right-from-square" style="font-size: 0.72rem; opacity: 0.75;"></i>
+                        <span>Lihat Website</span>
+                    </a>
+
                     @if($isAdmin)
                     @php
                         $unreadQuotes = \App\Models\Penawaran::where('status', 'pending')->count();
@@ -659,36 +807,19 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- Subtle Divider -->
-                    <div class="vr my-auto mx-1 text-muted opacity-25" style="height: 24px;"></div>
-
                     @endif
 
-                    <!-- User Profile Pill Dropdown -->
-                    <div class="dropdown">
-                        <button class="nav-user-pill" data-bs-toggle="dropdown" aria-expanded="false">
-                            <div class="user-avatar-circle">
-                                {{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 1)) }}
-                            </div>
-                            <div class="user-meta d-none d-md-flex flex-column text-start">
-                                <span class="user-meta-name">{{ auth()->user()->name ?? 'Administrator' }}</span>
-                                <span class="user-meta-role">{{ $panelRole }}</span>
-                            </div>
-                            <i class="fas fa-chevron-down user-meta-caret"></i>
-                        </button>
+                    <!-- User Greeting Text with Dropdown settings -->
+                    <div class="dropdown d-none d-sm-block">
+                        <a href="#" class="text-decoration-none text-dark header-greeting d-flex align-items-center gap-1" data-bs-toggle="dropdown" aria-expanded="false" role="button">
+                            <span>Halo, <strong>{{ auth()->user()->name ?? 'Administrator' }}</strong></span>
+                            <i class="fas fa-chevron-down text-muted" style="font-size: 0.65rem;"></i>
+                        </a>
                         <div class="dropdown-menu dropdown-menu-end custom-dropdown-menu mt-2" style="width: 240px;">
                             <div class="p-3 border-bottom bg-light rounded-top">
-                                <div class="d-flex align-items-center gap-2">
-                                    <div class="user-avatar-circle lg">
-                                        {{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 1)) }}
-                                    </div>
-                                    <div class="min-w-0">
-                                        <div class="fw-bold text-dark text-truncate small">{{ auth()->user()->name ?? 'Admin' }}</div>
-                                        <div class="text-muted text-truncate" style="font-size: 0.72rem;">{{ auth()->user()->email ?? '-' }}</div>
-                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle mt-1 font-monospace" style="font-size: 0.65rem;">{{ $isAdmin ? 'ADMINISTRATOR' : 'ACCOUNTING' }}</span>
-                                    </div>
-                                </div>
+                                <div class="fw-bold text-dark text-truncate small">{{ auth()->user()->name ?? 'Admin' }}</div>
+                                <div class="text-muted text-truncate" style="font-size: 0.72rem;">{{ auth()->user()->email ?? '-' }}</div>
+                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle mt-1 font-monospace" style="font-size: 0.65rem;">{{ $isAdmin ? 'ADMINISTRATOR' : 'ACCOUNTING' }}</span>
                             </div>
                             <div class="p-1">
                                 @if($isAdmin)
@@ -701,17 +832,17 @@
                                     <i class="fas fa-globe text-muted" style="width: 16px;"></i>
                                     <span>Halaman Utama Website</span>
                                 </a>
-                                <div class="dropdown-divider my-1"></div>
-                                <form method="POST" action="/logout">
-                                    @csrf
-                                    <button type="submit" class="custom-dropdown-item text-danger w-100 border-0 bg-transparent text-start">
-                                        <i class="fas fa-sign-out-alt text-danger" style="width: 16px;"></i>
-                                        <span>Keluar (Logout)</span>
-                                    </button>
-                                </form>
                             </div>
                         </div>
                     </div>
+
+                    <!-- Keluar Pill Button -->
+                    <form method="POST" action="/logout" class="d-inline m-0">
+                        @csrf
+                        <button type="submit" class="btn-nav-pill" title="Keluar dari akun">
+                            <span>Keluar</span>
+                        </button>
+                    </form>
 
                 </div>
             </div>
@@ -914,9 +1045,12 @@
                 <div class="container-fluid px-3">
                     <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
                         <div>
-                            <h1 class="m-0 text-dark fw-bold" style="font-size: 1.35rem;">@yield('page-title', 'Dashboard')</h1>
+                            <h1 class="m-0 text-dark fw-bold d-sm-none" style="font-size: 1.25rem;">@yield('page-title', 'Dashboard')</h1>
+                            @hasSection('page-subtitle')
+                                <p class="text-muted small mb-0 mt-1">@yield('page-subtitle')</p>
+                            @endif
                         </div>
-                        <div class="d-flex align-items-center gap-2">
+                        <div class="d-flex align-items-center gap-2 ms-auto">
                             @yield('page-actions')
                             @hasSection('breadcrumb')
                                 <ol class="breadcrumb mb-0 align-items-center bg-white px-3 py-1 rounded-pill border" style="font-size: 0.8rem; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">

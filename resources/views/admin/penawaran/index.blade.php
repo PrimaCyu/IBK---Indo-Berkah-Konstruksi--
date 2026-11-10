@@ -50,38 +50,38 @@
     </div>
 @endif
 
-<!-- Filter & Search Bar (Minimalis & Rapi) -->
+<!-- Filter & Search Bar (Minimalist Segmented Controls) -->
 <div class="card mb-3">
-    <div class="card-body p-2 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
-        <!-- Status Tabs Minimalis -->
-        <div class="btn-group btn-group-sm" role="group">
-            <a href="/admin/penawaran{{ request('search') ? '?search=' . urlencode(request('search')) : '' }}" class="btn {{ !request('status') ? 'btn-dark' : 'btn-outline-secondary' }}">
-                Semua <span class="badge {{ !request('status') ? 'bg-secondary' : 'bg-light text-dark' }} ms-1">{{ $counts['total'] }}</span>
+    <div class="card-body p-3 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+        <!-- Status Tabs Segmented Pill -->
+        <div class="filter-pill-group" role="tablist">
+            <a href="/admin/penawaran{{ request('search') ? '?search=' . urlencode(request('search')) : '' }}" class="filter-pill-item {{ !request('status') ? 'active' : '' }}">
+                Semua <span class="badge {{ !request('status') ? 'bg-dark' : 'bg-light text-dark' }} ms-1">{{ $counts['total'] }}</span>
             </a>
-            <a href="/admin/penawaran?status=pending{{ request('search') ? '&search=' . urlencode(request('search')) : '' }}" class="btn {{ request('status') === 'pending' ? 'btn-dark' : 'btn-outline-secondary' }}">
+            <a href="/admin/penawaran?status=pending{{ request('search') ? '&search=' . urlencode(request('search')) : '' }}" class="filter-pill-item {{ request('status') === 'pending' ? 'active' : '' }}">
                 Menunggu <span class="badge {{ request('status') === 'pending' ? 'bg-warning text-dark' : 'bg-light text-dark' }} ms-1">{{ $counts['pending'] }}</span>
             </a>
-            <a href="/admin/penawaran?status=approved{{ request('search') ? '&search=' . urlencode(request('search')) : '' }}" class="btn {{ request('status') === 'approved' ? 'btn-dark' : 'btn-outline-secondary' }}">
+            <a href="/admin/penawaran?status=approved{{ request('search') ? '&search=' . urlencode(request('search')) : '' }}" class="filter-pill-item {{ request('status') === 'approved' ? 'active' : '' }}">
                 Disetujui <span class="badge {{ request('status') === 'approved' ? 'bg-success' : 'bg-light text-dark' }} ms-1">{{ $counts['approved'] }}</span>
             </a>
-            <a href="/admin/penawaran?status=rejected{{ request('search') ? '&search=' . urlencode(request('search')) : '' }}" class="btn {{ request('status') === 'rejected' ? 'btn-dark' : 'btn-outline-secondary' }}">
+            <a href="/admin/penawaran?status=rejected{{ request('search') ? '&search=' . urlencode(request('search')) : '' }}" class="filter-pill-item {{ request('status') === 'rejected' ? 'active' : '' }}">
                 Ditolak <span class="badge {{ request('status') === 'rejected' ? 'bg-danger' : 'bg-light text-dark' }} ms-1">{{ $counts['rejected'] }}</span>
             </a>
         </div>
 
         <!-- Search Input -->
-        <form method="GET" action="/admin/penawaran" class="d-flex align-items-center gap-1">
+        <form method="GET" action="/admin/penawaran" class="d-flex align-items-center gap-2">
             @if(request('status'))
                 <input type="hidden" name="status" value="{{ request('status') }}">
             @endif
-            <div class="input-group input-group-sm" style="min-width: 240px;">
+            <div class="input-group" style="min-width: 260px;">
                 <input type="text" name="search" value="{{ request('search') }}" class="form-control" placeholder="Cari nama, WA, email, lokasi...">
                 @if(request()->filled('search'))
                     <a href="/admin/penawaran{{ request('status') ? '?status=' . request('status') : '' }}" class="btn btn-outline-secondary" title="Reset">
                         <i class="fas fa-times"></i>
                     </a>
                 @endif
-                <button type="submit" class="btn btn-outline-secondary">
+                <button type="submit" class="btn btn-primary">
                     <i class="fas fa-search"></i>
                 </button>
             </div>
@@ -91,26 +91,26 @@
 
 <!-- Table Card -->
 <div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center py-2 px-3">
-        <span class="fw-bold small text-muted text-uppercase" style="letter-spacing: 0.05em;">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span class="fw-bold text-dark small">
             <i class="fas fa-file-invoice-dollar me-1 text-primary"></i> Daftar Penawaran Masuk (RFQ)
         </span>
-        <span class="badge bg-light text-dark border font-monospace">{{ $penawarans->total() }} Data</span>
+        <span class="badge-soft-neutral font-monospace">{{ $penawarans->total() }} Data</span>
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-hover table-striped mb-0 align-middle">
+            <table class="table table-hover align-middle mb-0">
                 <thead>
                     <tr>
-                        <th style="width: 40px;">No</th>
-                        <th>Klien & Kontak</th>
-                        <th>Estimasi Budget</th>
-                        <th>Lokasi</th>
-                        <th>Uraian Kebutuhan</th>
-                        <th style="width: 70px;" class="text-center">Lampiran</th>
-                        <th style="width: 100px;">Tanggal</th>
-                        <th style="width: 100px;">Status</th>
-                        <th class="text-end" style="width: 170px;">Aksi</th>
+                        <th style="width: 45px;">NO</th>
+                        <th>KLIEN & KONTAK</th>
+                        <th>ESTIMASI BUDGET</th>
+                        <th>LOKASI</th>
+                        <th>URAIAN KEBUTUHAN</th>
+                        <th style="width: 75px;" class="text-center">LAMPIRAN</th>
+                        <th style="width: 105px;">TANGGAL</th>
+                        <th style="width: 105px;">STATUS</th>
+                        <th class="text-end" style="width: 180px;">AKSI</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -129,7 +129,7 @@
                                 @endif
                             </td>
                             <td>
-                                <span class="badge bg-light text-dark border">{{ $item->budget }}</span>
+                                <span class="badge-soft-neutral">{{ $item->budget }}</span>
                             </td>
                             <td>
                                 <small class="text-muted text-truncate d-inline-block" style="max-width: 140px;" title="{{ $item->alamat }}">
@@ -141,11 +141,11 @@
                                     {{ strip_tags($item->deskripsi) }}
                                 </small>
                             </td>
-                            <!-- Lampiran Denah / Foto (Thumbnail yang Tampil Jelas) -->
+                            <!-- Lampiran Denah / Foto -->
                             <td class="text-center">
                                 @if($item->foto)
                                     <a href="{{ asset('storage/' . $item->foto) }}" target="_blank" title="Klik untuk lihat gambar penuh">
-                                        <img src="{{ asset('storage/' . $item->foto) }}" alt="Lampiran" class="rounded border object-fit-cover shadow-sm" style="width: 44px; height: 44px;">
+                                        <img src="{{ asset('storage/' . $item->foto) }}" alt="Lampiran" class="rounded border object-fit-cover shadow-sm" style="width: 40px; height: 40px;">
                                     </a>
                                 @else
                                     <span class="text-muted small">-</span>
@@ -156,11 +156,11 @@
                             </td>
                             <td>
                                 @if($item->status === 'approved')
-                                    <span class="badge bg-success-subtle text-success border border-success-subtle">Disetujui</span>
+                                    <span class="badge-soft-success">Disetujui</span>
                                 @elseif($item->status === 'rejected')
-                                    <span class="badge bg-secondary-subtle text-secondary border">Ditolak</span>
+                                    <span class="badge-soft-danger">Ditolak</span>
                                 @else
-                                    <span class="badge bg-warning-subtle text-warning border border-warning-subtle">Menunggu</span>
+                                    <span class="badge-soft-warning">Menunggu</span>
                                 @endif
                             </td>
                             <td class="text-end">
@@ -179,22 +179,22 @@
 
                                     <!-- Tombol WhatsApp -->
                                     @if($phone)
-                                        <a href="https://wa.me/{{ $phone }}?text={{ $waText }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-success py-1 px-2" title="Hubungi via WhatsApp">
+                                        <a href="https://wa.me/{{ $phone }}?text={{ $waText }}" target="_blank" rel="noopener noreferrer" class="btn-action-icon" style="color: #25D366; border-color: #bbf7d0;" title="Hubungi via WhatsApp">
                                             <i class="fab fa-whatsapp"></i>
                                         </a>
                                     @endif
 
                                     <!-- Tombol Detail Modal -->
-                                    <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2" data-bs-toggle="modal" data-bs-target="#detailModal{{ $item->id }}" title="Lihat Rincian">
+                                    <button type="button" class="btn-action-icon" data-bs-toggle="modal" data-bs-target="#detailModal{{ $item->id }}" title="Lihat Rincian">
                                         <i class="fas fa-eye"></i>
                                     </button>
 
                                     <!-- Tombol Hapus -->
-                                    <form action="/admin/penawaran/{{ $item->id }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus data penawaran ini?')">
+                                    <form action="/admin/penawaran/{{ $item->id }}" method="POST" class="d-inline m-0" onsubmit="return confirm('Hapus data penawaran ini?')">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-outline-danger py-1 px-2" title="Hapus">
-                                            <i class="fas fa-trash"></i>
+                                        <button type="submit" class="btn-action-icon danger" title="Hapus">
+                                            <i class="fas fa-trash-alt"></i>
                                         </button>
                                     </form>
                                 </div>

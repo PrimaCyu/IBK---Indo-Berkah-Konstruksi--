@@ -16,133 +16,136 @@
             @csrf
             @method('PUT')
 
-            <div class="card card-primary card-outline card-outline-tabs">
-                <div class="card-header p-0 border-bottom-0">
-                    <ul class="nav nav-tabs" id="settingTabs" role="tablist">
+            <div class="card mb-4">
+                <div class="card-header bg-white border-bottom py-3">
+                    <ul class="nav nav-pills gap-2" id="settingTabs" role="tablist">
                         <li class="nav-item">
-                            <a class="nav-link active fw-semibold" id="tab-hero-link" data-bs-toggle="pill" href="#tab-hero" role="tab">
-                                <i class="fas fa-home me-1"></i> Hero Beranda
-                            </a>
+                            <button type="button" class="nav-link active px-3 py-2 fw-semibold" id="tab-hero-link" data-bs-toggle="pill" data-bs-target="#tab-hero" role="tab">
+                                <i class="fas fa-home me-2 text-primary"></i>Hero Beranda
+                            </button>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link fw-semibold" id="tab-about-link" data-bs-toggle="pill" href="#tab-about" role="tab">
-                                <i class="fas fa-info-circle me-1"></i> Tentang Perusahaan
-                            </a>
+                            <button type="button" class="nav-link px-3 py-2 fw-semibold" id="tab-about-link" data-bs-toggle="pill" data-bs-target="#tab-about" role="tab">
+                                <i class="fas fa-info-circle me-2 text-info"></i>Tentang Perusahaan
+                            </button>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link fw-semibold" id="tab-contact-link" data-bs-toggle="pill" href="#tab-contact" role="tab">
-                                <i class="fas fa-address-book me-1"></i> Kontak & Media Sosial
-                            </a>
+                            <button type="button" class="nav-link px-3 py-2 fw-semibold" id="tab-contact-link" data-bs-toggle="pill" data-bs-target="#tab-contact" role="tab">
+                                <i class="fas fa-address-book me-2 text-emerald"></i>Kontak & Medsos
+                            </button>
                         </li>
                     </ul>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-4">
                     <div class="tab-content" id="settingTabsContent">
                         
                         <!-- TAB 1: HERO BERANDA -->
                         <div class="tab-pane fade show active" id="tab-hero" role="tabpanel">
+                            <h6 class="fw-bold text-dark mb-3">Pengaturan Banner Utama (Hero Section)</h6>
                             <div class="row g-3">
                                 <div class="col-md-4">
-                                    <label class="form-label">Judul Utama (Baris 1)</label>
-                                    <input type="text" name="hero_title_line1" class="form-control form-control-sm" value="{{ $settings['hero_title_line1'] ?? 'Menjaga Kualitas' }}">
+                                    <label class="form-label text-muted small fw-bold">JUDUL UTAMA (BARIS 1)</label>
+                                    <input type="text" name="hero_title_line1" class="form-control" value="{{ $settings['hero_title_line1'] ?? 'Menjaga Kualitas' }}">
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label">Judul Utama (Baris 2)</label>
-                                    <input type="text" name="hero_title_line2" class="form-control form-control-sm" value="{{ $settings['hero_title_line2'] ?? 'mewujud' }}">
+                                    <label class="form-label text-muted small fw-bold">JUDUL UTAMA (BARIS 2)</label>
+                                    <input type="text" name="hero_title_line2" class="form-control" value="{{ $settings['hero_title_line2'] ?? 'mewujud' }}">
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label">Judul Utama (Baris 3)</label>
-                                    <input type="text" name="hero_title_line3" class="form-control form-control-sm" value="{{ $settings['hero_title_line3'] ?? 'Berkah.' }}">
+                                    <label class="form-label text-muted small fw-bold">JUDUL UTAMA (BARIS 3)</label>
+                                    <input type="text" name="hero_title_line3" class="form-control" value="{{ $settings['hero_title_line3'] ?? 'Berkah.' }}">
                                 </div>
 
                                 <div class="col-12">
-                                    <label class="form-label">Subjudul / Deskripsi Hero</label>
-                                    <textarea name="hero_subtitle" class="form-control form-control-sm" rows="3">{{ $settings['hero_subtitle'] ?? 'Membangun lingkungan masa depan yang berdampak. Kami memadukan estetika modern dengan ketahanan struktur tak tertandingi.' }}</textarea>
+                                    <label class="form-label text-muted small fw-bold">SUBJUDUL / DESKRIPSI HERO</label>
+                                    <textarea name="hero_subtitle" class="form-control" rows="3">{{ $settings['hero_subtitle'] ?? 'Membangun lingkungan masa depan yang berdampak. Kami memadukan estetika modern dengan ketahanan struktur tak tertandingi.' }}</textarea>
                                 </div>
 
                                 <div class="col-md-6">
-                                    <label class="form-label">Teks Badge Kualitas</label>
-                                    <input type="text" name="hero_badge_title" class="form-control form-control-sm" value="{{ $settings['hero_badge_title'] ?? 'Fokus pada Kualitas' }}">
+                                    <label class="form-label text-muted small fw-bold">TEKS BADGE KUALITAS</label>
+                                    <input type="text" name="hero_badge_title" class="form-control" value="{{ $settings['hero_badge_title'] ?? 'Fokus pada Kualitas' }}">
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">Subjudul Badge</label>
-                                    <input type="text" name="hero_badge_subtitle" class="form-control form-control-sm" value="{{ $settings['hero_badge_subtitle'] ?? 'Presisi tingkat tinggi dalam setiap tahap konstruksi.' }}">
+                                    <label class="form-label text-muted small fw-bold">SUBJUDUL BADGE</label>
+                                    <input type="text" name="hero_badge_subtitle" class="form-control" value="{{ $settings['hero_badge_subtitle'] ?? 'Presisi tingkat tinggi dalam setiap tahap konstruksi.' }}">
                                 </div>
                             </div>
                         </div>
 
                         <!-- TAB 2: TENTANG KAMI -->
                         <div class="tab-pane fade" id="tab-about" role="tabpanel">
+                            <h6 class="fw-bold text-dark mb-3">Profil & Informasi Perusahaan</h6>
                             <div class="row g-3">
                                 <div class="col-md-12">
-                                    <label class="form-label">Label Seksi Tentang</label>
-                                    <input type="text" name="about_label" class="form-control form-control-sm" value="{{ $settings['about_label'] ?? 'Tentang BestBuild Indo Berkah' }}">
+                                    <label class="form-label text-muted small fw-bold">LABEL SEKSI TENTANG</label>
+                                    <input type="text" name="about_label" class="form-control" value="{{ $settings['about_label'] ?? 'Tentang BestBuild Indo Berkah' }}">
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label">Judul Tentang (Baris 1)</label>
-                                    <input type="text" name="about_title_line1" class="form-control form-control-sm" value="{{ $settings['about_title_line1'] ?? 'Pelopor Kualitas' }}">
+                                    <label class="form-label text-muted small fw-bold">JUDUL TENTANG (BARIS 1)</label>
+                                    <input type="text" name="about_title_line1" class="form-control" value="{{ $settings['about_title_line1'] ?? 'Pelopor Kualitas' }}">
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label">Judul Tentang (Baris 2)</label>
-                                    <input type="text" name="about_title_line2" class="form-control form-control-sm" value="{{ $settings['about_title_line2'] ?? 'dan Keunggulan' }}">
+                                    <label class="form-label text-muted small fw-bold">JUDUL TENTANG (BARIS 2)</label>
+                                    <input type="text" name="about_title_line2" class="form-control" value="{{ $settings['about_title_line2'] ?? 'dan Keunggulan' }}">
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label">Judul Tentang (Baris 3)</label>
-                                    <input type="text" name="about_title_line3" class="form-control form-control-sm" value="{{ $settings['about_title_line3'] ?? 'dalam Setiap Proyek' }}">
+                                    <label class="form-label text-muted small fw-bold">JUDUL TENTANG (BARIS 3)</label>
+                                    <input type="text" name="about_title_line3" class="form-control" value="{{ $settings['about_title_line3'] ?? 'dalam Setiap Proyek' }}">
                                 </div>
 
                                 <div class="col-12">
-                                    <label class="form-label">Deskripsi Profil Perusahaan</label>
-                                    <textarea name="about_description" class="form-control form-control-sm" rows="4">{{ $settings['about_description'] ?? 'INDO BERKAH KONSTRUKSI adalah perusahaan jasa konstruksi yang menyediakan layanan pembangunan rumah, gedung, infrastruktur, renovasi, serta konstruksi besi dan baja.' }}</textarea>
+                                    <label class="form-label text-muted small fw-bold">DESKRIPSI PROFIL PERUSAHAAN</label>
+                                    <textarea name="about_description" class="form-control" rows="4">{{ $settings['about_description'] ?? 'INDO BERKAH KONSTRUKSI adalah perusahaan jasa konstruksi yang menyediakan layanan pembangunan rumah, gedung, infrastruktur, renovasi, serta konstruksi besi dan baja.' }}</textarea>
                                 </div>
 
                                 <div class="col-md-4">
-                                    <label class="form-label">Pengalaman (Tahun)</label>
-                                    <input type="text" name="about_experience" class="form-control form-control-sm" value="{{ $settings['about_experience'] ?? '10+' }}">
+                                    <label class="form-label text-muted small fw-bold">PENGALAMAN (TAHUN)</label>
+                                    <input type="text" name="about_experience" class="form-control" value="{{ $settings['about_experience'] ?? '10+' }}">
                                 </div>
                                 <div class="col-md-8">
-                                    <label class="form-label">Teks Keterangan Pengalaman</label>
-                                    <input type="text" name="about_experience_text" class="form-control form-control-sm" value="{{ $settings['about_experience_text'] ?? 'Tahun Pengalaman Membangun Kepercayaan' }}">
+                                    <label class="form-label text-muted small fw-bold">KETERANGAN PENGALAMAN</label>
+                                    <input type="text" name="about_experience_text" class="form-control" value="{{ $settings['about_experience_text'] ?? 'Tahun Pengalaman Membangun Kepercayaan' }}">
                                 </div>
                             </div>
                         </div>
 
                         <!-- TAB 3: KONTAK & MEDSOS -->
                         <div class="tab-pane fade" id="tab-contact" role="tabpanel">
+                            <h6 class="fw-bold text-dark mb-3">Kontak Resmi & Media Sosial</h6>
                             <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label class="form-label"><i class="fas fa-phone-alt me-1 text-primary"></i> Nomor Telepon / WhatsApp Kantor</label>
-                                    <input type="text" name="footer_telepon" class="form-control form-control-sm" value="{{ $settings['footer_telepon'] ?? '+62 878 6530 9966' }}">
+                                    <label class="form-label text-muted small fw-bold"><i class="fas fa-phone-alt me-1 text-primary"></i> NO. TELEPON / WHATSAPP</label>
+                                    <input type="text" name="footer_telepon" class="form-control" value="{{ $settings['footer_telepon'] ?? '+62 878 6530 9966' }}">
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label"><i class="fas fa-envelope me-1 text-primary"></i> Email Resmi Perusahaan</label>
-                                    <input type="email" name="footer_email" class="form-control form-control-sm" value="{{ $settings['footer_email'] ?? 'partners@indoberkahkonstruksi.com' }}">
+                                    <label class="form-label text-muted small fw-bold"><i class="fas fa-envelope me-1 text-primary"></i> EMAIL RESMI PERUSAHAAN</label>
+                                    <input type="email" name="footer_email" class="form-control" value="{{ $settings['footer_email'] ?? 'partners@indoberkahkonstruksi.com' }}">
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label"><i class="fab fa-facebook me-1 text-primary"></i> URL Akun Facebook</label>
-                                    <input type="url" name="footer_facebook" class="form-control form-control-sm" value="{{ $settings['footer_facebook'] ?? '' }}">
+                                    <label class="form-label text-muted small fw-bold"><i class="fab fa-facebook me-1 text-primary"></i> URL FACEBOOK</label>
+                                    <input type="url" name="footer_facebook" class="form-control" value="{{ $settings['footer_facebook'] ?? '' }}">
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label"><i class="fab fa-instagram me-1 text-danger"></i> URL Akun Instagram</label>
-                                    <input type="url" name="footer_instagram" class="form-control form-control-sm" value="{{ $settings['footer_instagram'] ?? '' }}">
+                                    <label class="form-label text-muted small fw-bold"><i class="fab fa-instagram me-1 text-danger"></i> URL INSTAGRAM</label>
+                                    <input type="url" name="footer_instagram" class="form-control" value="{{ $settings['footer_instagram'] ?? '' }}">
                                 </div>
                                 <div class="col-12">
-                                    <label class="form-label">Teks Tagline Footer</label>
-                                    <input type="text" name="footer_tagline" class="form-control form-control-sm" value="{{ $settings['footer_tagline'] ?? 'Menjaga Kualitas Mewujud Berkah' }}">
+                                    <label class="form-label text-muted small fw-bold">TAGLINE FOOTER</label>
+                                    <input type="text" name="footer_tagline" class="form-control" value="{{ $settings['footer_tagline'] ?? 'Menjaga Kualitas Mewujud Berkah' }}">
                                 </div>
                                 <div class="col-12">
-                                    <label class="form-label">Deskripsi Ringkas Perusahaan (Footer)</label>
-                                    <textarea name="footer_company_text" class="form-control form-control-sm" rows="2">{{ $settings['footer_company_text'] ?? 'Menghadirkan mahakarya arsitektur dan konstruksi dengan standar kualitas premium, presisi, dan dedikasi penuh.' }}</textarea>
+                                    <label class="form-label text-muted small fw-bold">DESKRIPSI RINGKAS (FOOTER)</label>
+                                    <textarea name="footer_company_text" class="form-control" rows="2">{{ $settings['footer_company_text'] ?? 'Menghadirkan mahakarya arsitektur dan konstruksi dengan standar kualitas premium, presisi, dan dedikasi penuh.' }}</textarea>
                                 </div>
                             </div>
                         </div>
 
                     </div>
                 </div>
-                <div class="card-footer d-flex justify-content-between align-items-center">
-                    <span class="text-muted small">Semua perubahan langsung diterapkan ke website publik.</span>
-                    <button type="submit" class="btn btn-sm btn-primary">
-                        <i class="fas fa-save me-1"></i> Simpan Semua Pengaturan
+                <div class="card-footer bg-white border-top py-3 d-flex justify-content-between align-items-center">
+                    <span class="text-muted small"><i class="fas fa-check-circle text-success me-1"></i> Perubahan langsung diterapkan ke tampilan publik.</span>
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="fas fa-save me-1"></i> Simpan Pengaturan
                     </button>
                 </div>
             </div>
