@@ -6,6 +6,8 @@ use App\Models\Project;
 use App\Models\ProjectCashflow;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class ProjectCashflowTest extends TestCase
@@ -144,7 +146,9 @@ class ProjectCashflowTest extends TestCase
             'id' => $cashflowA->id,
             'code' => 'EXP-A-REV',
             'quantity_millis' => 3000,
+            'updated_by' => $admin->id,
         ]);
+        $this->assertNotNull($cashflowA->fresh()->last_edited_at);
 
         // Attempt to update Project A's cashflow under Project B URL (must fail 404)
         $this->put(route('admin.cashbook.update', [$projectB, $cashflowA]), [
@@ -343,6 +347,162 @@ class ProjectCashflowTest extends TestCase
 
         $this->get($url)->assertOk()->assertSee('value="1.2500"', false)->assertSee('Rp 25.000,50');
         $this->assertDatabaseCount('project_cashflows', 0);
+    }
+
+    public function test_month_and_year_filter_transaction_dates_and_keep_running_balance(): void
+    {
+        $project = $this->project(User::factory()->create(['role' => 'owner']));
+        foreach ([['2025-11-01', 'Lama', 'penerimaan', 10000], ['2026-11-02', 'Terpilih', 'pengeluaran', 3000], ['2026-12-01', 'Bulan lain', 'penerimaan', 5000]] as [$date, $description, $type, $price]) {
+            $project->cashflows()->create([
+                'transaction_date' => $date, 'description' => $description, 'type' => $type,
+                'quantity_millis' => 1000, 'unit_price_cents' => $price,
+            ]);
+        }
+
+        $response = $this->actingAs(User::factory()->create(['role' => 'accounting']))
+            ->get(route('admin.cashbook.show', ['project' => $project, 'month' => 11, 'year' => 2026]));
+        $response->assertOk()->assertSee('Terpilih')->assertDontSee('Bulan lain')->assertDontSee('Lama');
+        $response->assertViewHas('expense', '30.00')->assertViewHas('balance', '-30.00');
+        $response->assertViewHas('transactions', fn ($transactions) => $transactions->count() === 1 && $transactions->first()->running_balance === '70.00');
+    }
+
+    public function test_staff_can_store_and_update_cashflow_with_photo_attachment_or_notes_and_track_last_edited(): void
+    {
+        Storage::fake('public');
+
+        /** @var User $accountant */
+        $accountant = User::factory()->create(['role' => 'accounting', 'name' => 'Akuntan Utama']);
+        /** @var User $admin */
+        $admin = User::factory()->create(['role' => 'admin', 'name' => 'Admin Super']);
+        /** @var User $owner */
+        $owner = User::factory()->create(['role' => 'owner']);
+        $project = $this->project($owner, 'Proyek Renovasi Kantor');
+
+        $fakePhoto = UploadedFile::fake()->image('nota-material.jpg', 640, 480);
+
+        // 1. Tambah transaksi dengan foto dan catatan teks
+        $this->actingAs($accountant)->post(route('admin.cashbook.store', $project), [
+            'transaction_date' => '2026-11-09',
+            'type' => 'pengeluaran',
+            'description' => 'Beli Semen Tiga Roda',
+            'quantity' => '10',
+            'unit_price' => '65000',
+            'notes' => 'Catatan nota toko bangunan',
+            'attachment' => $fakePhoto,
+        ])->assertRedirect(route('admin.cashbook.show', $project))->assertSessionHas('success');
+
+        $cashflow = $project->cashflows()->firstOrFail();
+        $this->assertSame($accountant->id, $cashflow->created_by);
+        $this->assertNull($cashflow->last_edited_at);
+        $this->assertCount(1, $cashflow->attachments);
+
+        $attachment = $cashflow->attachments->first();
+        $this->assertSame('nota-material.jpg', $attachment->original_name);
+        Storage::disk('public')->assertExists($attachment->file_path);
+
+        // Periksa tampilan buku kas: memuat catatan teks, tombol foto bukti, dan belum ada tanda last edited
+        $showResponse = $this->get(route('admin.cashbook.show', $project));
+        $showResponse->assertOk()
+            ->assertSee('Catatan nota toko bangunan')
+            ->assertSee('Foto bukti')
+            ->assertSee($attachment->url)
+            ->assertDontSee('Last edited:');
+
+        // 2. Ubah transaksi: edit catatan, ganti foto, dan pastikan last_edited_at tercatat
+        $newPhoto = UploadedFile::fake()->image('nota-revisi.png', 800, 600);
+        $this->actingAs($admin)->put(route('admin.cashbook.update', [$project, $cashflow]), [
+            'transaction_date' => '2026-11-09',
+            'type' => 'pengeluaran',
+            'description' => 'Beli Semen Tiga Roda (Revisi)',
+            'quantity' => '12',
+            'unit_price' => '65000',
+            'notes' => 'Catatan sudah direvisi mandor',
+            'attachment' => $newPhoto,
+        ])->assertRedirect(route('admin.cashbook.show', $project))->assertSessionHas('success');
+
+        $cashflow->refresh();
+        $this->assertSame($admin->id, $cashflow->updated_by);
+        $this->assertNotNull($cashflow->last_edited_at);
+        $this->assertSame('Catatan sudah direvisi mandor', $cashflow->notes);
+
+        // Old file deleted, new file saved
+        Storage::disk('public')->assertMissing($attachment->file_path);
+        $this->assertCount(1, $cashflow->fresh()->attachments);
+        $newAttachment = $cashflow->fresh()->attachments->first();
+        $this->assertSame('nota-revisi.png', $newAttachment->original_name);
+        Storage::disk('public')->assertExists($newAttachment->file_path);
+
+        // Periksa tampilan setelah diedit: sekarang menampilkan Last edited dan nama editor
+        $editedResponse = $this->get(route('admin.cashbook.show', $project));
+        $editedResponse->assertOk()
+            ->assertSee('Catatan sudah direvisi mandor')
+            ->assertSee('Last edited: '.$cashflow->last_edited_at->format('d/m/Y H:i'))
+            ->assertSee('Admin Super')
+            ->assertSee('Foto bukti');
+
+        // 3. Ubah lagi dengan opsi remove_attachment (menghapus foto, menyisakan catatan saja)
+        $this->actingAs($admin)->put(route('admin.cashbook.update', [$project, $cashflow]), [
+            'transaction_date' => '2026-11-09',
+            'type' => 'pengeluaran',
+            'description' => 'Beli Semen Tiga Roda (Tanpa Foto)',
+            'quantity' => '12',
+            'unit_price' => '65000',
+            'notes' => 'Hanya catatan tanpa foto',
+            'remove_attachment' => '1',
+        ])->assertRedirect(route('admin.cashbook.show', $project))->assertSessionHas('success');
+
+        $this->assertCount(0, $cashflow->fresh()->attachments);
+        Storage::disk('public')->assertMissing($newAttachment->file_path);
+    }
+
+    public function test_cashbook_index_displays_monthly_income_recap_matrix_for_all_projects(): void
+    {
+        /** @var User $accountant */
+        $accountant = User::factory()->create(['role' => 'accounting']);
+        /** @var User $owner1 */
+        $owner1 = User::factory()->create(['role' => 'owner', 'name' => 'Klien Alpha']);
+        /** @var User $owner2 */
+        $owner2 = User::factory()->create(['role' => 'owner', 'name' => 'Klien Beta']);
+
+        $projA = $this->project($owner1, 'Proyek Gedung Alpha');
+        $projB = $this->project($owner2, 'Proyek Rumah Beta');
+
+        // Proyek Alpha: Pendapatan di Juli (Rp 50.000.000) dan Agustus (Rp 25.000.000)
+        $projA->cashflows()->create([
+            'transaction_date' => '2026-07-10',
+            'type' => 'penerimaan',
+            'description' => 'Termin 1 Alpha',
+            'quantity_millis' => 1000,
+            'unit_price_cents' => 5000000000,
+        ]);
+        $projA->cashflows()->create([
+            'transaction_date' => '2026-08-15',
+            'type' => 'penerimaan',
+            'description' => 'Termin 2 Alpha',
+            'quantity_millis' => 1000,
+            'unit_price_cents' => 2500000000,
+        ]);
+
+        // Proyek Beta: Pendapatan di Juli (Rp 30.000.000)
+        $projB->cashflows()->create([
+            'transaction_date' => '2026-07-20',
+            'type' => 'penerimaan',
+            'description' => 'Termin 1 Beta',
+            'quantity_millis' => 1000,
+            'unit_price_cents' => 3000000000,
+        ]);
+
+        $response = $this->actingAs($accountant)->get(route('admin.cashbook.index', ['year' => 2026]));
+        $response->assertOk()
+            ->assertSee('Rekapan Pendapatan Bulanan (Semua Proyek)')
+            ->assertSee('Proyek Gedung Alpha')
+            ->assertSee('Proyek Rumah Beta')
+            ->assertSee('Klien Alpha')
+            ->assertSee('Klien Beta')
+            ->assertSee('Rp 50.000.000')
+            ->assertSee('Rp 30.000.000')
+            ->assertSee('Rp 25.000.000')
+            ->assertSee('TOTAL PENDAPATAN SEMUA PROYEK:');
     }
 
     private function project(User $owner, string $name = 'Proyek Uji', string $location = 'Lokasi Uji'): Project

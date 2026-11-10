@@ -7,6 +7,8 @@ use Brick\Math\RoundingMode;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ProjectCashflow extends Model
@@ -24,6 +26,8 @@ class ProjectCashflow extends Model
     protected $fillable = [
         'transaction_date', 'type', 'code', 'description', 'unit',
         'quantity_millis', 'unit_price_cents', 'notes',
+        'created_by', 'updated_by', 'last_edited_at',
+        'payment_method', 'category_id', 'transaction_number', 'receipt_number',
     ];
 
     protected function casts(): array
@@ -32,12 +36,33 @@ class ProjectCashflow extends Model
             'transaction_date' => 'date',
             'quantity_millis' => 'integer',
             'unit_price_cents' => 'integer',
+            'last_edited_at' => 'datetime',
         ];
     }
 
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class);
+    }
+
+    public function attachments(): HasMany
+    {
+        return $this->hasMany(TransactionAttachment::class, 'project_cashflow_id');
+    }
+
+    public function attachment(): HasOne
+    {
+        return $this->hasOne(TransactionAttachment::class, 'project_cashflow_id')->latestOfMany();
+    }
+
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function editor(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'updated_by');
     }
 
     protected function quantity(): Attribute
@@ -62,7 +87,7 @@ class ProjectCashflow extends Model
 
     public static function ledger(Project $project): array
     {
-        $transactions = $project->cashflows()->orderBy('transaction_date')->orderBy('id')->get();
+        $transactions = $project->cashflows()->with(['creator', 'editor', 'attachments'])->orderBy('transaction_date')->orderBy('id')->get();
         $income = $expense = $balance = BigDecimal::of('0.00');
 
         foreach ($transactions as $transaction) {

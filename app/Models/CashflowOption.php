@@ -23,8 +23,21 @@ class CashflowOption extends Model
         $historical = ProjectCashflow::withTrashed()->whereNotNull($type)->where($type, '!=', '')
             ->distinct()->orderBy($type)->pluck($type)->all();
 
+        $candidates = array_merge($stored, $historical);
+        if ($type === 'code') {
+            foreach ($historical as $histCode) {
+                $histStr = trim((string) $histCode);
+                if (str_contains($histStr, '-')) {
+                    $prefix = trim(explode('-', $histStr, 2)[0]);
+                    if ($prefix !== '') {
+                        $candidates[] = $prefix;
+                    }
+                }
+            }
+        }
+
         $deduped = [];
-        foreach (array_merge($stored, $historical) as $item) {
+        foreach ($candidates as $item) {
             $trimmed = trim((string) $item);
             if ($trimmed === '') {
                 continue;

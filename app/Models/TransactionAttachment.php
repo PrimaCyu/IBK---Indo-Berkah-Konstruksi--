@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
 
 class TransactionAttachment extends Model
 {
@@ -22,6 +23,15 @@ class TransactionAttachment extends Model
         return [
             'file_size' => 'integer',
         ];
+    }
+
+    public function getUrlAttribute(): string
+    {
+        if ($this->disk === 'public') {
+            return asset('storage/'.$this->file_path);
+        }
+
+        return Storage::disk($this->disk)->url($this->file_path);
     }
 
     public function cashflow(): BelongsTo
