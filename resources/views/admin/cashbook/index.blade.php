@@ -202,7 +202,9 @@
                 </div>
                 <div class="fs-4 fw-bold text-dark cashbook-number mb-1">{{ $formatRupiah($grandPeriodBalance) }}</div>
                 <div class="d-flex align-items-center justify-content-between">
-                    <small class="text-muted" style="font-size: 0.75rem;">Margin operasional proyek</small>
+                    <small class="text-muted" style="font-size: 0.75rem;">
+                        Margin Laba: <strong>{{ (float)$grandPeriodIncome > 0 ? round(((float)$grandPeriodBalance / (float)$grandPeriodIncome) * 100, 1) : 0 }}%</strong>
+                    </small>
                     <span class="badge-soft-primary font-monospace" style="font-size: 0.7rem;">Saldo Kas</span>
                 </div>
             </div>

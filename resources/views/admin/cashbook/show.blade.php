@@ -96,6 +96,14 @@
         $yearOptions = collect($years ?? [])->push(now()->year)->when($selectedYear !== '', fn ($c) => $c->push((int) $selectedYear))->unique()->sortDesc()->values();
     @endphp
 
+    @php
+        // Persentase Keuntungan Proyek
+        $incomeFloat = (float) $income;
+        $expenseFloat = (float) $expense;
+        $balanceFloat = (float) $balance;
+        $profitPercentage = $incomeFloat > 0 ? round(($balanceFloat / $incomeFloat) * 100, 1) : 0;
+    @endphp
+
     <!-- Top Project Header Card -->
     <div class="card mb-3">
         <div class="card-body p-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
@@ -103,7 +111,14 @@
                 <a href="{{ route('admin.cashbook.index') }}" class="btn btn-sm btn-outline-secondary mb-2">
                     <i class="fas fa-arrow-left me-1" aria-hidden="true"></i> Kembali ke Keuangan Proyek
                 </a>
-                <h2 class="h5 fw-bold text-dark text-break mb-1">{{ $project->nama_proyek }}</h2>
+                <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+                    <h2 class="h5 fw-bold text-dark text-break mb-0">{{ $project->nama_proyek }}</h2>
+                    @if($incomeFloat > 0)
+                        <span class="badge {{ $profitPercentage >= 0 ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-danger-subtle text-danger border border-danger-subtle' }} px-2.5 py-1 fw-bold" style="font-size: 0.76rem; border-radius: 9999px;">
+                            <i class="fas {{ $profitPercentage >= 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down' }} me-1"></i> Keuntungan: {{ $profitPercentage }}%
+                        </span>
+                    @endif
+                </div>
                 <div class="small text-muted text-break">
                     Klien: <span class="fw-semibold text-dark">{{ $project->user->name ?? 'Klien tidak tersedia' }}</span>
                     @if($project->user?->email) ({{ $project->user->email }}) @endif
@@ -319,8 +334,13 @@
                 <h2 class="h6 fw-bold mb-0 text-dark">Daftar Transaksi</h2>
                 <span class="text-muted small" id="trans-count-label">{{ $transactions->count() }} transaksi ditemukan</span>
             </div>
-            <div class="small text-muted font-monospace">
-                Saldo Kas Proyek: <strong class="text-primary">{{ $formatRupiah($balance) }}</strong>
+            <div class="small text-muted font-monospace d-flex align-items-center gap-2">
+                <span>Saldo Kas: <strong class="text-primary">{{ $formatRupiah($balance) }}</strong></span>
+                @if($incomeFloat > 0)
+                    <span class="badge {{ $profitPercentage >= 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger' }} px-2 py-0.5" style="font-size: 0.72rem; border-radius: 6px;">
+                        Laba: {{ $profitPercentage }}%
+                    </span>
+                @endif
             </div>
         </div>
         <div class="card-body p-0">
