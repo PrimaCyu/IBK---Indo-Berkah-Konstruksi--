@@ -40,9 +40,11 @@ Route::get('/berita/{slug}', [BeritaController::class, 'show'])->name('berita.sh
 Route::middleware(['auth', 'user'])->group(function () {
     Route::post('/user-files', [UserFileController::class, 'store'])->name('user-files.store');
     Route::delete('/user-files/{userFile}', [UserFileController::class, 'destroy'])->name('user-files.destroy');
-    Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
     Route::post('/user-feedback', [UserFeedbackController::class, 'store'])->name('user-feedback.store');
 });
+
+// Review publik (tamu & user login bisa kirim review)
+Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
 
 Route::get('/penawaran', [PenawaranController::class, 'index'])->name('penawaran.index');
 Route::post('/penawaran', [PenawaranController::class, 'store'])->name('penawaran.store');

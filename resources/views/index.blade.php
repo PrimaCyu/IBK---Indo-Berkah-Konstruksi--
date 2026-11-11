@@ -359,7 +359,24 @@
             <div class="mb-8 text-center">
                 <span class="block text-[10px] tracking-[0.3em] uppercase text-[#C5A880] mb-2 font-medium">Pengalaman Anda</span>
                 <h3 class="font-light text-white text-2xl md:text-3xl">Bagikan Testimonial</h3>
+                <p class="text-xs text-gray-400 mt-2">Ulasan Anda sangat berarti bagi kami dan akan ditampilkan setelah disetujui admin.</p>
             </div>
+
+            @if(session('success'))
+                <div class="mb-6 p-4 bg-green-900/20 border-l-2 border-green-500 text-green-400 text-sm font-medium tracking-wide">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if($errors->any())
+                <div class="mb-6 p-4 bg-red-900/20 border-l-2 border-red-500 text-red-400 text-sm font-medium tracking-wide">
+                    <ul class="list-disc list-inside space-y-1">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
 
             @auth
                 <div class="mb-6 flex items-center justify-between pb-4 border-b border-white/10">
@@ -374,60 +391,45 @@
                     </div>
                     <span class="text-[10px] uppercase tracking-widest text-[#C5A880] border border-[#C5A880]/30 px-2.5 py-1 rounded">Terverifikasi</span>
                 </div>
-
-                <form action="{{ route('reviews.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
-                    @csrf
-                    <div>
-                        <label class="block text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 mb-3">Pesan Review *</label>
-                        <textarea name="message" rows="3" placeholder="Tuliskan kesan dan saran Anda..." required
-                            class="w-full bg-[#111] border-b-2 border-white/10 px-4 py-3 text-sm text-white focus:outline-none focus:border-[#C5A880] transition-colors resize-none placeholder-gray-600"></textarea>
-                    </div>
-                        
-                    <div>
-                        <label class="block text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 mb-3">Foto Hasil Pengerjaan (Opsional)</label>
-                        <input type="file" name="image" accept="image/*"
-                            class="w-full text-sm text-gray-400 file:mr-4 file:py-2.5 file:px-6 file:border-0 file:text-[10px] file:font-bold file:uppercase file:tracking-widest file:bg-[#C5A880] file:text-[#111] hover:file:bg-white hover:file:text-[#111] file:transition-colors file:cursor-pointer bg-[#111] border-b-2 border-white/10 focus:border-[#C5A880] transition-colors">
-                    </div>
-
-                    <div class="pt-4">
-                        <button type="submit"
-                            class="w-full inline-flex items-center justify-center gap-3 text-[11px] font-bold tracking-[0.2em] uppercase border border-[#C5A880] bg-[#C5A880] text-[#111111] px-8 py-4 hover:bg-transparent hover:text-[#C5A880] transition-all duration-300">
-                            Kirim Review
-                        </button>
-                    </div>
-                </form>
-
-                @if(session('success'))
-                    <div class="mt-6 p-4 bg-green-900/20 border-l-2 border-green-500 text-green-400 text-sm font-medium tracking-wide">
-                        {{ session('success') }}
-                    </div>
-                @endif
-            @else
-                {{-- Belum login: tampilkan pesan & tombol login --}}
-                <div class="text-center py-8 space-y-6">
-                    <div class="w-16 h-16 mx-auto rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[#C5A880]">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="text-white text-base font-light mb-2">Ingin membagikan pengalaman Anda?</p>
-                        <p class="text-gray-400 text-sm max-w-md mx-auto leading-relaxed">
-                            Silakan <span class="text-[#C5A880] font-medium">masuk ke akun</span> Anda terlebih dahulu untuk memberikan testimonial pengerjaan proyek.
-                        </p>
-                    </div>
-                    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
-                        <a href="{{ route('login') }}"
-                            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-[11px] font-bold tracking-[0.2em] uppercase border border-[#C5A880] bg-[#C5A880] text-[#111] px-8 py-4 hover:bg-transparent hover:text-[#C5A880] transition-all duration-300">
-                            Masuk / Login
-                        </a>
-                        <a href="{{ route('penawaran.index') }}"
-                            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-[11px] font-bold tracking-[0.2em] uppercase border border-white/20 text-white px-8 py-4 hover:border-[#C5A880] hover:text-[#C5A880] transition-all duration-300">
-                            Minta Penawaran
-                        </a>
-                    </div>
-                </div>
             @endauth
+
+            <form action="{{ route('reviews.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+                @csrf
+
+                @guest
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 mb-3">Nama Lengkap *</label>
+                            <input type="text" name="name" value="{{ old('name') }}" placeholder="Masukkan nama Anda..." required
+                                class="w-full bg-[#111] border-b-2 border-white/10 px-4 py-3 text-sm text-white focus:outline-none focus:border-[#C5A880] transition-colors placeholder-gray-600">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 mb-3">Email / WhatsApp (Opsional)</label>
+                            <input type="text" name="email" value="{{ old('email') }}" placeholder="Email atau nomor WhatsApp..."
+                                class="w-full bg-[#111] border-b-2 border-white/10 px-4 py-3 text-sm text-white focus:outline-none focus:border-[#C5A880] transition-colors placeholder-gray-600">
+                        </div>
+                    </div>
+                @endguest
+
+                <div>
+                    <label class="block text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 mb-3">Pesan Review *</label>
+                    <textarea name="message" rows="3" placeholder="Tuliskan kesan dan saran Anda mengenai hasil pengerjaan proyek..." required
+                        class="w-full bg-[#111] border-b-2 border-white/10 px-4 py-3 text-sm text-white focus:outline-none focus:border-[#C5A880] transition-colors resize-none placeholder-gray-600">{{ old('message') }}</textarea>
+                </div>
+                    
+                <div>
+                    <label class="block text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 mb-3">Foto Hasil Pengerjaan (Opsional)</label>
+                    <input type="file" name="image" accept="image/*"
+                        class="w-full text-sm text-gray-400 file:mr-4 file:py-2.5 file:px-6 file:border-0 file:text-[10px] file:font-bold file:uppercase file:tracking-widest file:bg-[#C5A880] file:text-[#111] hover:file:bg-white hover:file:text-[#111] file:transition-colors file:cursor-pointer bg-[#111] border-b-2 border-white/10 focus:border-[#C5A880] transition-colors">
+                </div>
+
+                <div class="pt-4">
+                    <button type="submit"
+                        class="w-full inline-flex items-center justify-center gap-3 text-[11px] font-bold tracking-[0.2em] uppercase border border-[#C5A880] bg-[#C5A880] text-[#111111] px-8 py-4 hover:bg-transparent hover:text-[#C5A880] transition-all duration-300">
+                        Kirim Testimonial
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </section>

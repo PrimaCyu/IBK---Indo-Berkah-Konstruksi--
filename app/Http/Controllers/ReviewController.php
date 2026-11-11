@@ -10,15 +10,20 @@ class ReviewController extends Controller
 {
     public function store(Request $request)
     {
-        abort_unless(Auth::check(), 401, 'Silakan login terlebih dahulu untuk memberikan review.');
-
-        $request->validate([
-            'message'    => 'required|max:500',
+        $rules = [
+            'message'    => 'required|string|max:500',
             'image'      => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
             'project_id' => 'nullable|exists:projects,id',
-        ]);
+        ];
 
-        if ($request->filled('project_id')) {
+        if (! Auth::check()) {
+            $rules['name'] = 'required|string|max:100';
+            $rules['email'] = 'nullable|email|max:100';
+        }
+
+        $request->validate($rules);
+
+        if ($request->filled('project_id') && Auth::check()) {
             $ownsProject = \App\Models\Project::where('id', $request->project_id)
                 ->where('user_id', Auth::id())
                 ->exists();
@@ -33,12 +38,14 @@ class ReviewController extends Controller
 
         Review::create([
             'user_id'     => Auth::id(),
+            'guest_name'  => Auth::check() ? null : $request->input('name'),
+            'guest_email' => Auth::check() ? null : $request->input('email'),
             'project_id'  => $request->project_id,
             'message'     => $request->message,
             'is_approved' => false,
             'image'       => $imagePath,
         ]);
 
-        return back()->with('success', 'Review berhasil dikirim.');
+        return redirect()->to(url()->previous() . '#tambah-review')->with('success', 'Terima kasih! Testimonial Anda telah dikirim dan sedang menunggu persetujuan admin.');
     }
 }

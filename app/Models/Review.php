@@ -8,11 +8,23 @@ class Review extends Model
 {
     protected $fillable = [
         'user_id',
+        'guest_name',
+        'guest_email',
         'project_id',
         'message',
         'is_approved',
         'image'
     ];
+
+    public function getReviewerNameAttribute(): string
+    {
+        return $this->user->name ?? ($this->guest_name ?: 'Pengunjung');
+    }
+
+    public function getReviewerEmailAttribute(): ?string
+    {
+        return $this->user->email ?? $this->guest_email;
+    }
 
     public function user()
     {

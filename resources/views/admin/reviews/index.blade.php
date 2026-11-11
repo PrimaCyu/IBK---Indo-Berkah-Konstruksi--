@@ -82,8 +82,8 @@
                                 @endif
                             </td>
                             <td>
-                                <div class="fw-bold text-dark">{{ $item->user->name ?? '-' }}</div>
-                                <small class="text-muted">{{ $item->user->email ?? '' }}</small>
+                                 <div class="fw-bold text-dark">{{ $item->reviewer_name }}</div>
+                                 <small class="text-muted">{{ $item->reviewer_email ?? ($item->user_id ? 'Akun Terdaftar' : 'Tamu / Umum') }}</small>
                             </td>
                             <td>
                                 <span class="badge-soft-neutral">{{ $item->project->nama_proyek ?? 'Umum' }}</span>
