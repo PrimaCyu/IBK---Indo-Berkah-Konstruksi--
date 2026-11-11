@@ -2,7 +2,6 @@
 
 @section('title', 'Overview Keuangan Umum - PT Indo Berkah Konstruksi')
 @section('page-title', 'Overview Keuangan Umum')
-@section('page-subtitle', 'Monitoring dan rekapitulasi performa keuangan perusahaan secara konsolidasi')
 
 @section('breadcrumb')
     <li class="breadcrumb-item text-muted">Manajemen Keuangan</li>
@@ -42,15 +41,9 @@
 @endphp
 
 @section('page-actions')
-    <div class="d-flex align-items-center gap-2">
-        <a href="{{ route('admin.cashbook.index') }}" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1.5 shadow-sm">
-            <i class="fas fa-wallet text-primary"></i>
-            <span>Buka Keuangan Proyek</span>
-        </a>
-        <span class="badge-soft-primary px-3 py-1.5 font-monospace">
-            <i class="fas fa-calendar-alt me-1" aria-hidden="true"></i> {{ $periodTitle }}
-        </span>
-    </div>
+    <span class="badge-soft-primary px-3 py-1.5 font-monospace">
+        <i class="fas fa-calendar-alt me-1" aria-hidden="true"></i> {{ $periodTitle }}
+    </span>
 @endsection
 
 @section('content')
