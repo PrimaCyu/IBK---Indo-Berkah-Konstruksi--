@@ -37,6 +37,8 @@
             background-color: var(--lte-body-bg);
             color: #1e293b;
             -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+            max-width: 100%;
         }
 
         /* Layout Structure */
@@ -482,6 +484,9 @@
             border-radius: 10px;
             gap: 2px;
             height: 38px;
+            max-width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
         .filter-pill-item {
             border: none;

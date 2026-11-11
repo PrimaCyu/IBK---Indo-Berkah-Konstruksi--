@@ -104,6 +104,16 @@
         overflow: hidden;
         text-overflow: ellipsis;
     }
+    @media (max-width: 576px) {
+        .analytics-label {
+            width: 110px;
+            font-size: 0.775rem;
+        }
+        .analytics-amount {
+            width: 95px !important;
+            font-size: 0.775rem !important;
+        }
+    }
     .analytics-bar-wrap {
         flex-grow: 1;
         min-width: 80px;
