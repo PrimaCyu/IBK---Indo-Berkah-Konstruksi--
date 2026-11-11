@@ -24,10 +24,13 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class ProjectCashflowController extends Controller
 {
-    public function index(Request $request): View
+    /**
+     * Resolusi parameter filter periode bersama untuk Keuangan Umum & Proyek.
+     *
+     * @return array<string, mixed>
+     */
+    private function resolvePeriodFilters(Request $request): array
     {
-        Gate::authorize('viewAny', ProjectCashflow::class);
-
         $filters = $request->validate([
             'period_mode' => ['nullable', 'string', 'in:lengkap,bulan,tahun,range,month,year'],
             'preset' => ['nullable', 'string', 'in:today,this_month,this_year,all,custom_date,custom_month'],
@@ -38,17 +41,21 @@ class ProjectCashflowController extends Controller
             'start_month' => ['nullable', 'integer', 'between:1,12'],
             'end_month' => ['nullable', 'integer', 'between:1,12'],
             'search' => ['nullable', 'string', 'max:100'],
+            'status' => ['nullable', 'string', 'max:50'],
         ]);
 
         $periodMode = $request->query('period_mode');
         $preset = $request->query('preset');
-        $search = is_string($request->query('search')) ? trim($request->query('search')) : '';
         $selectedYear = ! empty($filters['year']) ? (int) $filters['year'] : (int) now()->year;
         $selectedMonth = ! empty($filters['month']) ? (int) $filters['month'] : null;
 
         $startDate = null;
         $endDate = null;
-        $monthNames = [1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'];
+        $monthNames = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember',
+        ];
 
         // Evaluasi 3 Bagian Periode: Lengkap, Bulan, Tahun
         if ($periodMode === 'lengkap' || $periodMode === 'range' || $request->filled('start_date') || $request->filled('end_date')) {
@@ -93,7 +100,6 @@ class ProjectCashflowController extends Controller
             }
         }
 
-        // Extract transaction years from cashflow dates
         $years = ProjectCashflow::pluck('transaction_date')
             ->map(fn ($d) => (int) ($d instanceof CarbonInterface ? $d->year : Carbon::parse($d)->year))
             ->push((int) now()->year)
@@ -101,24 +107,42 @@ class ProjectCashflowController extends Controller
             ->sortDesc()
             ->values();
 
-        $query = Project::with('user');
-        if ($search !== '') {
-            $query->where(function ($q) use ($search) {
-                $q->where('nama_proyek', 'like', "%{$search}%")
-                    ->orWhere('alamat_proyek', 'like', "%{$search}%")
-                    ->orWhereHas('user', function ($uq) use ($search) {
-                        $uq->where('name', 'like', "%{$search}%")
-                            ->orWhere('email', 'like', "%{$search}%");
-                    });
-            });
-        }
+        return [
+            'activeMode' => $activeMode,
+            'selectedYear' => $selectedYear,
+            'selectedMonth' => $selectedMonth,
+            'startDate' => $startDate,
+            'endDate' => $endDate,
+            'periodTitle' => $periodTitle,
+            'years' => $years,
+            'monthNames' => $monthNames,
+            'preset' => $preset,
+        ];
+    }
 
-        $allProjects = $query->orderBy('nama_proyek')->orderBy('id')->get();
+    /**
+     * Halaman 1: Overview Keuangan Umum (Konsolidasi Finansial Perusahaan)
+     */
+    public function general(Request $request): View
+    {
+        Gate::authorize('viewAny', ProjectCashflow::class);
+
+        $period = $this->resolvePeriodFilters($request);
+        $activeMode = $period['activeMode'];
+        $selectedYear = $period['selectedYear'];
+        $selectedMonth = $period['selectedMonth'];
+        $startDate = $period['startDate'];
+        $endDate = $period['endDate'];
+        $periodTitle = $period['periodTitle'];
+        $years = $period['years'];
+        $monthNames = $period['monthNames'];
+        $preset = $period['preset'];
+
+        $allProjects = Project::with('user')->orderBy('nama_proyek')->orderBy('id')->get();
         $projectIds = $allProjects->pluck('id');
         $allCashflows = ProjectCashflow::with('category')->whereIn('project_id', $projectIds)->get();
         $cashflowsByProject = $allCashflows->groupBy('project_id');
 
-        $projectsData = [];
         $grandPeriodIncome = BigDecimal::of('0.00');
         $grandPeriodExpense = BigDecimal::of('0.00');
         $grandLifetimeBalance = BigDecimal::of('0.00');
@@ -129,10 +153,10 @@ class ProjectCashflowController extends Controller
 
         $categoryIncomeTotals = [];
         $categoryExpenseTotals = [];
+        $totalPendingCount = 0;
 
         foreach ($allProjects as $project) {
             $cfs = $cashflowsByProject->get($project->id, collect());
-
             $pIncome = BigDecimal::of('0.00');
             $pExpense = BigDecimal::of('0.00');
             $pLifetimeBalance = BigDecimal::of('0.00');
@@ -144,9 +168,12 @@ class ProjectCashflowController extends Controller
                 if ($cf->status === 'ditolak') {
                     continue;
                 }
+                if ($cf->status === 'pending') {
+                    $totalPendingCount++;
+                }
                 $isLunas = in_array($cf->status, ['lunas', null], true);
                 if (! $isLunas) {
-                    continue; // Pending transactions don't affect settled balance yet
+                    continue;
                 }
 
                 $cfTotal = BigDecimal::of($cf->total);
@@ -155,14 +182,12 @@ class ProjectCashflowController extends Controller
                 $m = (int) $cfDate->month;
                 $y = (int) $cfDate->year;
 
-                // Lifetime balance
                 if ($cf->type === 'penerimaan') {
                     $pLifetimeBalance = $pLifetimeBalance->plus($cfTotal);
                 } else {
                     $pLifetimeBalance = $pLifetimeBalance->minus($cfTotal);
                 }
 
-                // Monthly matrix for the selected year (penerimaan only)
                 if ($y === $selectedYear && $cf->type === 'penerimaan') {
                     $projectMonthly[$m] = $projectMonthly[$m]->plus($cfTotal);
                     $projectYearIncome = $projectYearIncome->plus($cfTotal);
@@ -170,7 +195,6 @@ class ProjectCashflowController extends Controller
                     $matrixGrandIncome = $matrixGrandIncome->plus($cfTotal);
                 }
 
-                // Filter for selected period using unified startDate and endDate
                 $matchPeriod = ($startDate === null || $cfDate->gte($startDate->startOfDay()))
                     && ($endDate === null || $cfDate->lte($endDate->endOfDay()));
 
@@ -186,45 +210,9 @@ class ProjectCashflowController extends Controller
                 }
             }
 
-            $pBalance = $pIncome->minus($pExpense);
             $grandPeriodIncome = $grandPeriodIncome->plus($pIncome);
             $grandPeriodExpense = $grandPeriodExpense->plus($pExpense);
             $grandLifetimeBalance = $grandLifetimeBalance->plus($pLifetimeBalance);
-
-            // Hitung total penerimaan lifetime untuk rasio margin proyek
-            $pLifetimeIncome = BigDecimal::of('0.00');
-            foreach ($cfs as $cf) {
-                if ($cf->status === 'ditolak') {
-                    continue;
-                }
-                $isLunas = in_array($cf->status, ['lunas', null], true);
-                if (! $isLunas) {
-                    continue;
-                }
-                if ($cf->type === 'penerimaan') {
-                    $pLifetimeIncome = $pLifetimeIncome->plus(BigDecimal::of($cf->total));
-                }
-            }
-
-            $lifetimeIncomeFloat = $pLifetimeIncome->toFloat();
-            $lifetimeBalanceFloat = $pLifetimeBalance->toFloat();
-            $lifetimeMargin = $lifetimeIncomeFloat > 0 ? round(($lifetimeBalanceFloat / $lifetimeIncomeFloat) * 100, 1) : null;
-
-            $periodIncomeFloat = $pIncome->toFloat();
-            $periodBalanceFloat = $pBalance->toFloat();
-            $periodMargin = $periodIncomeFloat > 0 ? round(($periodBalanceFloat / $periodIncomeFloat) * 100, 1) : null;
-
-            $projectsData[] = [
-                'project' => $project,
-                'period_income' => (string) $pIncome,
-                'period_expense' => (string) $pExpense,
-                'period_balance' => (string) $pBalance,
-                'lifetime_balance' => (string) $pLifetimeBalance,
-                'lifetime_margin' => $lifetimeMargin,
-                'period_margin' => $periodMargin,
-                'pending_count' => $cfs->where('status', 'pending')->count(),
-                'has_transactions' => $cfs->isNotEmpty(),
-            ];
 
             $monthlyMatrix[] = [
                 'project' => $project,
@@ -238,7 +226,6 @@ class ProjectCashflowController extends Controller
         $grandPeriodBalanceFloat = $grandPeriodBalance->toFloat();
         $grandMargin = $grandPeriodIncomeFloat > 0 ? round(($grandPeriodBalanceFloat / $grandPeriodIncomeFloat) * 100, 1) : null;
 
-        // Calculate breakdown percentages
         $incomeBreakdown = [];
         $incomeTotalFloat = $grandPeriodIncome->toFloat();
         foreach ($categoryIncomeTotals as $cat => $amountBd) {
@@ -267,11 +254,7 @@ class ProjectCashflowController extends Controller
 
         $expenseRatio = $incomeTotalFloat > 0 ? min(round(($expenseTotalFloat / $incomeTotalFloat) * 100, 1), 100) : 0;
 
-        $projects = (clone $query)->paginate(15)->withQueryString();
-
-        return view('admin.cashbook.index', [
-            'projects' => $projects,
-            'projectsData' => $projectsData,
+        return view('admin.cashbook.general', [
             'monthlyMatrix' => $monthlyMatrix,
             'matrixMonthTotals' => array_map(fn ($bd) => (string) $bd, $matrixMonthTotals),
             'matrixGrandIncome' => (string) $matrixGrandIncome,
@@ -283,19 +266,165 @@ class ProjectCashflowController extends Controller
             'incomeBreakdown' => $incomeBreakdown,
             'expenseBreakdown' => $expenseBreakdown,
             'expenseRatio' => $expenseRatio,
-            'totalPendingCount' => ProjectCashflow::where('status', 'pending')->count(),
+            'totalPendingCount' => $totalPendingCount,
+            'totalProjectsCount' => $allProjects->count(),
             'periodTitle' => $periodTitle,
             'activeMode' => $activeMode,
             'filterMode' => $activeMode,
             'preset' => $preset,
             'startDate' => $request->query('start_date'),
             'endDate' => $request->query('end_date'),
-            'startMonth' => $request->query('start_month'),
-            'endMonth' => $request->query('end_month'),
+            'selectedMonth' => $selectedMonth,
+            'selectedYear' => $selectedYear,
+            'months' => $monthNames,
+            'years' => $years,
+        ]);
+    }
+
+    /**
+     * Halaman 2: Daftar Keuangan Proyek (Pengelolaan Arus Kas per Proyek)
+     */
+    public function index(Request $request): View
+    {
+        Gate::authorize('viewAny', ProjectCashflow::class);
+
+        $period = $this->resolvePeriodFilters($request);
+        $activeMode = $period['activeMode'];
+        $selectedYear = $period['selectedYear'];
+        $selectedMonth = $period['selectedMonth'];
+        $startDate = $period['startDate'];
+        $endDate = $period['endDate'];
+        $periodTitle = $period['periodTitle'];
+        $years = $period['years'];
+        $monthNames = $period['monthNames'];
+        $preset = $period['preset'];
+
+        $search = is_string($request->query('search')) ? trim($request->query('search')) : '';
+        $statusFilter = is_string($request->query('status')) ? trim($request->query('status')) : '';
+
+        $query = Project::with('user');
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('nama_proyek', 'like', "%{$search}%")
+                    ->orWhere('alamat_proyek', 'like', "%{$search}%")
+                    ->orWhereHas('user', function ($uq) use ($search) {
+                        $uq->where('name', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        if ($statusFilter !== '') {
+            $query->where('status', $statusFilter);
+        }
+
+        $allFilteredProjects = $query->orderBy('nama_proyek')->orderBy('id')->get();
+        $projectIds = $allFilteredProjects->pluck('id');
+        $allCashflows = ProjectCashflow::with('category')->whereIn('project_id', $projectIds)->get();
+        $cashflowsByProject = $allCashflows->groupBy('project_id');
+
+        $projectsData = [];
+        $totalPendingCount = 0;
+        $grandPeriodIncome = BigDecimal::of('0.00');
+        $grandPeriodExpense = BigDecimal::of('0.00');
+        $grandLifetimeBalance = BigDecimal::of('0.00');
+
+        foreach ($allFilteredProjects as $project) {
+            $cfs = $cashflowsByProject->get($project->id, collect());
+            $pIncome = BigDecimal::of('0.00');
+            $pExpense = BigDecimal::of('0.00');
+            $pLifetimeBalance = BigDecimal::of('0.00');
+            $pLifetimeIncome = BigDecimal::of('0.00');
+
+            foreach ($cfs as $cf) {
+                if ($cf->status === 'ditolak') {
+                    continue;
+                }
+                if ($cf->status === 'pending') {
+                    $totalPendingCount++;
+                }
+                $isLunas = in_array($cf->status, ['lunas', null], true);
+                if (! $isLunas) {
+                    continue;
+                }
+
+                $cfTotal = BigDecimal::of($cf->total);
+                $date = $cf->transaction_date;
+                $cfDate = $date instanceof CarbonInterface ? $date : Carbon::parse($date);
+
+                if ($cf->type === 'penerimaan') {
+                    $pLifetimeBalance = $pLifetimeBalance->plus($cfTotal);
+                    $pLifetimeIncome = $pLifetimeIncome->plus($cfTotal);
+                } else {
+                    $pLifetimeBalance = $pLifetimeBalance->minus($cfTotal);
+                }
+
+                $matchPeriod = ($startDate === null || $cfDate->gte($startDate->startOfDay()))
+                    && ($endDate === null || $cfDate->lte($endDate->endOfDay()));
+
+                if ($matchPeriod) {
+                    if ($cf->type === 'penerimaan') {
+                        $pIncome = $pIncome->plus($cfTotal);
+                    } else {
+                        $pExpense = $pExpense->plus($cfTotal);
+                    }
+                }
+            }
+
+            $pBalance = $pIncome->minus($pExpense);
+            $grandPeriodIncome = $grandPeriodIncome->plus($pIncome);
+            $grandPeriodExpense = $grandPeriodExpense->plus($pExpense);
+            $grandLifetimeBalance = $grandLifetimeBalance->plus($pLifetimeBalance);
+
+            $lifetimeIncomeFloat = $pLifetimeIncome->toFloat();
+            $lifetimeBalanceFloat = $pLifetimeBalance->toFloat();
+            $lifetimeMargin = $lifetimeIncomeFloat > 0 ? round(($lifetimeBalanceFloat / $lifetimeIncomeFloat) * 100, 1) : null;
+
+            $periodIncomeFloat = $pIncome->toFloat();
+            $periodBalanceFloat = $pBalance->toFloat();
+            $periodMargin = $periodIncomeFloat > 0 ? round(($periodBalanceFloat / $periodIncomeFloat) * 100, 1) : null;
+
+            $projectsData[] = [
+                'project' => $project,
+                'period_income' => (string) $pIncome,
+                'period_expense' => (string) $pExpense,
+                'period_balance' => (string) $pBalance,
+                'lifetime_balance' => (string) $pLifetimeBalance,
+                'lifetime_margin' => $lifetimeMargin,
+                'period_margin' => $periodMargin,
+                'pending_count' => $cfs->where('status', 'pending')->count(),
+                'has_transactions' => $cfs->isNotEmpty(),
+            ];
+        }
+
+        $grandPeriodBalance = $grandPeriodIncome->minus($grandPeriodExpense);
+        $grandPeriodIncomeFloat = $grandPeriodIncome->toFloat();
+        $grandPeriodBalanceFloat = $grandPeriodBalance->toFloat();
+        $grandMargin = $grandPeriodIncomeFloat > 0 ? round(($grandPeriodBalanceFloat / $grandPeriodIncomeFloat) * 100, 1) : null;
+
+        $projects = (clone $query)->paginate(15)->withQueryString();
+
+        return view('admin.cashbook.index', [
+            'projects' => $projects,
+            'projectsData' => $projectsData,
+            'totalPendingCount' => $totalPendingCount,
+            'grandPeriodIncome' => (string) $grandPeriodIncome,
+            'grandPeriodExpense' => (string) $grandPeriodExpense,
+            'grandPeriodBalance' => (string) $grandPeriodBalance,
+            'grandLifetimeBalance' => (string) $grandLifetimeBalance,
+            'grandMargin' => $grandMargin,
+            'periodTitle' => $periodTitle,
+            'activeMode' => $activeMode,
+            'filterMode' => $activeMode,
+            'preset' => $preset,
+            'startDate' => $request->query('start_date'),
+            'endDate' => $request->query('end_date'),
             'selectedMonth' => $selectedMonth,
             'selectedYear' => $selectedYear,
             'years' => $years,
+            'months' => $monthNames,
             'search' => $search,
+            'statusFilter' => $statusFilter,
         ]);
     }
 

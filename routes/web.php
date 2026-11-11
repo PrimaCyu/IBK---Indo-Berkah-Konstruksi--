@@ -104,8 +104,9 @@ Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:6,
 
 Route::post('/logout', [AuthController::class, 'logout']);
 
-// Buku kas internal: accounting tidak mendapat akses ke pengelolaan admin lainnya.
+// Buku kas & keuangan internal: accounting tidak mendapat akses ke pengelolaan admin lainnya.
 Route::middleware(['auth', 'accounting'])->prefix('admin')->name('admin.cashbook.')->scopeBindings()->group(function () {
+    Route::get('/keuangan-umum', [ProjectCashflowController::class, 'general'])->name('general');
     Route::get('/keuangan-proyek', [ProjectCashflowController::class, 'index'])->name('index');
     Route::get('/projects/{project}/buku-kas/export', [ProjectCashflowController::class, 'export'])->name('export');
     Route::get('/projects/{project}/buku-kas', [ProjectCashflowController::class, 'show'])->name('show');

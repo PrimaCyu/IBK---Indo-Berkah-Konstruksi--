@@ -80,7 +80,9 @@ class AuthController extends Controller
                         : ! isset($parts['scheme']));
                 $allowed = match ($user->role) {
                     'admin' => $path === '/admin' || str_starts_with($path, '/admin/'),
-                    'accounting' => $path === '/admin/keuangan-proyek' || str_starts_with($path, '/admin/keuangan-proyek/'),
+                    'accounting' => $path === '/admin/keuangan-proyek' || str_starts_with($path, '/admin/keuangan-proyek/')
+                        || $path === '/admin/keuangan-umum' || str_starts_with($path, '/admin/keuangan-umum/')
+                        || str_starts_with($path, '/admin/projects/'),
                     default => $path === '/dashbord' || str_starts_with($path, '/dashbord/'),
                 };
                 if ($local && $allowed) {

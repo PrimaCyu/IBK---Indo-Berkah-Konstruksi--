@@ -914,16 +914,6 @@
                         </a>
                     </li>
 
-                    @endif
-                    <li class="nav-item">
-                        <a href="{{ route('admin.cashbook.index') }}" class="nav-link {{ request()->routeIs('admin.cashbook.*') ? 'active' : '' }}">
-                            <div class="nav-left">
-                                <i class="fas fa-book" aria-hidden="true"></i>
-                                <span>Keuangan Proyek</span>
-                            </div>
-                        </a>
-                    </li>
-                    @if($isAdmin)
                     <li class="nav-item">
                         <a href="/admin/user-files" class="nav-link {{ request()->is('admin/user-files*') ? 'active' : '' }}">
                             <div class="nav-left">
@@ -945,7 +935,30 @@
                             @endif
                         </a>
                     </li>
+                    @endif
 
+                    <!-- MANAJEMEN KEUANGAN -->
+                    <li class="nav-header">Manajemen Keuangan</li>
+
+                    <li class="nav-item">
+                        <a href="{{ route('admin.cashbook.general') }}" class="nav-link {{ request()->routeIs('admin.cashbook.general') ? 'active' : '' }}">
+                            <div class="nav-left">
+                                <i class="fas fa-chart-pie" aria-hidden="true"></i>
+                                <span>Keuangan Umum</span>
+                            </div>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="{{ route('admin.cashbook.index') }}" class="nav-link {{ (request()->routeIs('admin.cashbook.index') || request()->routeIs('admin.cashbook.show')) ? 'active' : '' }}">
+                            <div class="nav-left">
+                                <i class="fas fa-wallet" aria-hidden="true"></i>
+                                <span>Keuangan Proyek</span>
+                            </div>
+                        </a>
+                    </li>
+
+                    @if($isAdmin)
                     <!-- PENJUALAN & KLIEN -->
                     <li class="nav-header">Penjualan & Klien</li>
 

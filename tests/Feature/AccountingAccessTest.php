@@ -19,17 +19,23 @@ class AccountingAccessTest extends TestCase
         $project = $this->project($owner);
 
         $this->get(route('admin.cashbook.index'))->assertRedirect(route('login'));
+        $this->get(route('admin.cashbook.general'))->assertRedirect(route('login'));
         $this->actingAs($owner)->get(route('admin.cashbook.index'))->assertForbidden();
+        $this->get(route('admin.cashbook.general'))->assertForbidden();
         $this->get(route('admin.cashbook.show', $project))->assertForbidden();
         $this->actingAs($admin)->get(route('admin.cashbook.index'))
-            ->assertOk()->assertSee('Keuangan Proyek')->assertSee('/admin/penawaran', false);
+            ->assertOk()->assertSee('Keuangan Proyek')->assertSee('Keuangan Umum')->assertSee('/admin/penawaran', false);
+        $this->get(route('admin.cashbook.general'))
+            ->assertOk()->assertSee('Overview Keuangan Umum')->assertSee('Manajemen Keuangan');
         $this->get(route('admin.projects.index'))->assertOk()->assertSee(route('admin.cashbook.show', $project), false);
 
         $this->actingAs($accountant)->get(route('admin.cashbook.index'))
-            ->assertOk()->assertSee('Accounting')->assertSee('Keuangan Proyek')
+            ->assertOk()->assertSee('Accounting')->assertSee('Keuangan Proyek')->assertSee('Keuangan Umum')
             ->assertDontSee('/admin/penawaran', false)
             ->assertDontSee('/admin/settings', false)
             ->assertDontSee('/admin/users', false);
+        $this->get(route('admin.cashbook.general'))
+            ->assertOk()->assertSee('Overview Keuangan Umum')->assertSee('Manajemen Keuangan');
         $this->get(route('admin.cashbook.show', $project))->assertOk();
     }
 

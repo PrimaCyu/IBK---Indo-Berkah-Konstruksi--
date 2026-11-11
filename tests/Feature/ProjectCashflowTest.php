@@ -455,7 +455,7 @@ class ProjectCashflowTest extends TestCase
         Storage::disk('public')->assertMissing($newAttachment->file_path);
     }
 
-    public function test_cashbook_index_displays_monthly_income_recap_matrix_for_all_projects(): void
+    public function test_cashbook_general_displays_monthly_income_recap_matrix_for_all_projects(): void
     {
         /** @var User $accountant */
         $accountant = User::factory()->create(['role' => 'accounting']);
@@ -492,7 +492,7 @@ class ProjectCashflowTest extends TestCase
             'unit_price_cents' => 3000000000,
         ]);
 
-        $response = $this->actingAs($accountant)->get(route('admin.cashbook.index', ['year' => 2026]));
+        $response = $this->actingAs($accountant)->get(route('admin.cashbook.general', ['year' => 2026]));
         $response->assertOk()
             ->assertSee('Rekapan Pendapatan Bulanan (Semua Proyek)')
             ->assertSee('Proyek Gedung Alpha')
