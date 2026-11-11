@@ -865,10 +865,15 @@
         </div>
     </div>
 
+    @php
+        // Kumpulkan data kode yang sudah ada untuk auto-increment suffix
+        $allExistingCodes = $transactions->pluck('code')->filter()->values()->all();
+    @endphp
+
     {{-- Modal Tambah / Ubah Transaksi --}}
     <div class="modal fade" id="cashbook-modal" tabindex="-1" aria-labelledby="cashbook-modal-title" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-scrollable modal-fullscreen-sm-down">
-            <form id="cashbook-form" class="modal-content" method="POST" enctype="multipart/form-data" action="{{ $editingTransaction ? route('admin.cashbook.update', [$project, $editingTransaction]) : route('admin.cashbook.store', $project) }}" data-store-url="{{ route('admin.cashbook.store', $project) }}" data-options-url="{{ route('admin.cashbook.options.store', $project) }}" data-today="{{ now()->format('Y-m-d') }}" data-reopen="{{ $errors->any() ? '1' : '0' }}">
+            <form id="cashbook-form" class="modal-content" method="POST" enctype="multipart/form-data" action="{{ $editingTransaction ? route('admin.cashbook.update', [$project, $editingTransaction]) : route('admin.cashbook.store', $project) }}" data-store-url="{{ route('admin.cashbook.store', $project) }}" data-options-url="{{ route('admin.cashbook.options.store', $project) }}" data-today="{{ now()->format('Y-m-d') }}" data-reopen="{{ $errors->any() ? '1' : '0' }}" data-existing-codes="{{ json_encode($allExistingCodes) }}">
                 @csrf
                 <input type="hidden" id="cashbook-method" name="_method" value="PUT" @disabled(! $editingTransaction)>
                 <input type="hidden" id="cashbook-id" name="_cashflow_id" value="{{ old('_cashflow_id') }}">
@@ -1209,7 +1214,44 @@
                 codeValue.value = prefix && suffix ? `${prefix.replace(/-+$/, '')}-${suffix.replace(/^-+/, '')}` : (prefix || suffix);
                 codeSuffix.setCustomValidity(codeValue.value.length > 50 ? 'Kode transaksi maksimal 50 karakter.' : '');
             }
-            fields.code.addEventListener('change', updateCode);
+
+            function autoSuggestNextSuffix() {
+                const prefix = (fields.code.value || '').trim();
+                if (!prefix) return;
+
+                // Hanya auto-suggest jika form adalah Tambah Baru (bukan sedang ubah transaksi lama)
+                if (cashflowId.value) return;
+
+                try {
+                    const existingCodes = JSON.parse(form.dataset.existingCodes || '[]');
+                    let maxNum = 0;
+                    const cleanPrefix = prefix.replace(/-+$/, '');
+                    const regex = new RegExp(`^${cleanPrefix}[-_]?(\\d+)$`, 'i');
+
+                    existingCodes.forEach(c => {
+                        const m = (c || '').trim().match(regex);
+                        if (m && m[1]) {
+                            const val = parseInt(m[1], 10);
+                            if (val > maxNum) maxNum = val;
+                        }
+                    });
+
+                    const nextNum = maxNum + 1;
+                    // Format dengan 3 digit (001, 002, ... 999, 1000)
+                    codeSuffix.value = String(nextNum).padStart(3, '0');
+                    updateCode();
+                } catch (e) {
+                    // fallback
+                }
+            }
+
+            fields.code.addEventListener('change', () => {
+                if (!cashflowId.value) {
+                    autoSuggestNextSuffix();
+                } else {
+                    updateCode();
+                }
+            });
             codeSuffix.addEventListener('input', updateCode);
             let returnFocusTo = document.getElementById('cashbook-add');
             let currentDetailTransaction = null;
@@ -1459,8 +1501,21 @@
                     field.removeAttribute('aria-invalid');
                 });
 
-                codeSuffix.value = '';
-                updateCode();
+                if (transaction) {
+                    // Jika sedang Ubah Transaksi: ekstrak suffix yang tersimpan
+                    const fullCode = (transaction.code || '').trim();
+                    const prefix = (fields.code.value || '').trim();
+                    if (prefix && fullCode.startsWith(prefix)) {
+                        codeSuffix.value = fullCode.slice(prefix.length).replace(/^-+/, '');
+                    } else {
+                        codeSuffix.value = '';
+                    }
+                    updateCode();
+                } else {
+                    // Jika Tambah Baru: otomatis generate nomor urut berikutnya dari 1 s/d tak terhingga
+                    codeSuffix.value = '';
+                    autoSuggestNextSuffix();
+                }
                 priceDisplay.value = transaction ? canonicalToDisplayRupiah(transaction.unit_price) : '';
                 priceDisplay.classList.remove('is-invalid');
                 priceDisplay.removeAttribute('aria-invalid');
