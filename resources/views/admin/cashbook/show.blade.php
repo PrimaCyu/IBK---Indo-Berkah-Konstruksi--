@@ -936,9 +936,7 @@
                                 <div class="small text-danger mt-1" id="cashbook-code-custom-feedback" hidden></div>
                             </div>
                             <input type="hidden" name="code" id="cashbook-code-value" value="{{ $oldCode }}">
-                            <label for="cashbook-code-suffix" class="form-label mt-2">Nomor atau akhiran kode</label>
-                            <input type="text" id="cashbook-code-suffix" class="form-control" maxlength="50" placeholder="Contoh: 001">
-                            <div class="form-text" id="cashbook-code-help">Pilih prefix dan isi akhiran, misalnya INV dan 001 menjadi INV-001. Kode lama dapat dipilih tanpa akhiran.</div>
+                            <input type="hidden" id="cashbook-code-suffix" value="">
                             <div class="invalid-feedback d-block" id="cashbook-code-error">@error('code'){{ $message }}@enderror</div>
                         </div>
 
@@ -1210,14 +1208,17 @@
 
             function updateCode() {
                 const prefix = fields.code.value;
-                const suffix = codeSuffix.value.trim();
+                const suffix = (codeSuffix?.value || '').trim();
                 codeValue.value = prefix && suffix ? `${prefix.replace(/-+$/, '')}-${suffix.replace(/^-+/, '')}` : (prefix || suffix);
-                codeSuffix.setCustomValidity(codeValue.value.length > 50 ? 'Kode transaksi maksimal 50 karakter.' : '');
             }
 
             function autoSuggestNextSuffix() {
                 const prefix = (fields.code.value || '').trim();
-                if (!prefix) return;
+                if (!prefix) {
+                    if (codeSuffix) codeSuffix.value = '';
+                    updateCode();
+                    return;
+                }
 
                 // Hanya auto-suggest jika form adalah Tambah Baru (bukan sedang ubah transaksi lama)
                 if (cashflowId.value) return;
@@ -1238,10 +1239,10 @@
 
                     const nextNum = maxNum + 1;
                     // Format dengan 3 digit (001, 002, ... 999, 1000)
-                    codeSuffix.value = String(nextNum).padStart(3, '0');
+                    if (codeSuffix) codeSuffix.value = String(nextNum).padStart(3, '0');
                     updateCode();
                 } catch (e) {
-                    // fallback
+                    updateCode();
                 }
             }
 
@@ -1252,7 +1253,7 @@
                     updateCode();
                 }
             });
-            codeSuffix.addEventListener('input', updateCode);
+            if (codeSuffix) codeSuffix.addEventListener('input', updateCode);
             let returnFocusTo = document.getElementById('cashbook-add');
             let currentDetailTransaction = null;
 
@@ -1502,18 +1503,9 @@
                 });
 
                 if (transaction) {
-                    // Jika sedang Ubah Transaksi: ekstrak suffix yang tersimpan
                     const fullCode = (transaction.code || '').trim();
-                    const prefix = (fields.code.value || '').trim();
-                    if (prefix && fullCode.startsWith(prefix)) {
-                        codeSuffix.value = fullCode.slice(prefix.length).replace(/^-+/, '');
-                    } else {
-                        codeSuffix.value = '';
-                    }
-                    updateCode();
+                    if (codeValue) codeValue.value = fullCode;
                 } else {
-                    // Jika Tambah Baru: otomatis generate nomor urut berikutnya dari 1 s/d tak terhingga
-                    codeSuffix.value = '';
                     autoSuggestNextSuffix();
                 }
                 priceDisplay.value = transaction ? canonicalToDisplayRupiah(transaction.unit_price) : '';
