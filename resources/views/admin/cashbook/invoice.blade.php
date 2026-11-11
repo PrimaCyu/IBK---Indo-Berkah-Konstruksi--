@@ -96,11 +96,27 @@
             margin-bottom: 32px;
         }
 
+        .company-brand {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .company-logo {
+            width: 58px;
+            height: 58px;
+            object-fit: contain;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            padding: 3px;
+        }
+
         .company-brand h1 {
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             font-weight: 800;
             color: var(--primary);
-            letter-spacing: -0.02em;
+            letter-spacing: -0.01em;
             text-transform: uppercase;
         }
 
@@ -339,11 +355,15 @@
         <!-- HEADER -->
         <div class="invoice-header">
             <div class="company-brand">
-                <h1>PT Indo Berkah Konstruksi</h1>
-                <p>
-                    Jasa Konstruksi, Renovasi, & Interior Desain<br>
-                    Website: indoberkah.com | Email: admin@indoberkah.com
-                </p>
+                <img src="{{ asset('image/Logo/Logo PT. Indo Berkah.png') }}" alt="Logo Indo Berkah Konstruksi" class="company-logo">
+                <div>
+                    <h1>Indo Berkah Konstruksi</h1>
+                    <p>
+                        Jasa Konstruksi, Renovasi, & Interior Desain<br>
+                        Website: www.indoberkahkonstruksi.com &bull; Telp: +62 878 6530 9966<br>
+                        Email: partners@indoberkahkonstruksi.com
+                    </p>
+                </div>
             </div>
             <div class="invoice-title-block">
                 <div class="invoice-badge-title">KUITANSI RESMI</div>
@@ -443,7 +463,7 @@
             <div class="notes-box">
                 <h4>KETERANGAN</h4>
                 <p>
-                    Bukti pembayaran ini sah dan diterbitkan secara digital oleh sistem PT Indo Berkah Konstruksi.
+                    Bukti pembayaran ini sah dan diterbitkan secara digital oleh sistem Indo Berkah Konstruksi.
                     Simpan kuitansi ini sebagai bukti transaksi resmi proyek.
                 </p>
             </div>
@@ -451,7 +471,7 @@
                 <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px;">Denpasar, {{ $cashflow->transaction_date ? $cashflow->transaction_date->translatedFormat('d F Y') : now()->translatedFormat('d F Y') }}</div>
                 <div style="font-size: 0.85rem; font-weight: 700; color: var(--primary);">Bagian Keuangan</div>
                 <div class="signature-line"></div>
-                <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-main);">PT Indo Berkah Konstruksi</div>
+                <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-main);">Indo Berkah Konstruksi</div>
             </div>
         </div>
     </div>
