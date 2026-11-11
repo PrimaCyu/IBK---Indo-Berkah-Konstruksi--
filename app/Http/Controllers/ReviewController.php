@@ -46,6 +46,6 @@ class ReviewController extends Controller
             'image'       => $imagePath,
         ]);
 
-        return redirect()->to(url()->previous() . '#tambah-review')->with('success', 'Terima kasih! Testimonial Anda telah dikirim dan sedang menunggu persetujuan admin.');
+        return redirect()->to(url()->previous() . '#tambah-review')->with('success', 'Terima kasih! Testimonial Anda telah berhasil dikirim.');
     }
 }

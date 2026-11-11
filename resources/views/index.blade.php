@@ -359,7 +359,7 @@
             <div class="mb-8 text-center">
                 <span class="block text-[10px] tracking-[0.3em] uppercase text-[#C5A880] mb-2 font-medium">Pengalaman Anda</span>
                 <h3 class="font-light text-white text-2xl md:text-3xl">Bagikan Testimonial</h3>
-                <p class="text-xs text-gray-400 mt-2">Ulasan Anda sangat berarti bagi kami dan akan ditampilkan setelah disetujui admin.</p>
+                <p class="text-xs text-gray-400 mt-2">Ulasan dan masukan Anda sangat berarti untuk peningkatan layanan kami.</p>
             </div>
 
             @if(session('success'))
