@@ -3,16 +3,191 @@
 @section('title', 'Buku kas: ' . $project->nama_proyek)
 @section('page-title', 'Buku kas proyek')
 
-@section('breadcrumb')
-    <li class="breadcrumb-item"><a href="{{ route('admin.cashbook.index') }}">Keuangan proyek</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Buku kas</li>
-@endsection
-
 @push('styles')
     <style>
+        .content-header { display: none !important; }
         .cashbook-table { min-width: 78rem; }
         .cashbook-table .cashbook-copy { min-width: 13rem; max-width: 24rem; overflow-wrap: anywhere; white-space: pre-line; }
         .cashbook-number { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+        /* Modern Project Header Styles */
+        .project-header-card {
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04), 0 1px 2px rgba(15, 23, 42, 0.02);
+            background: #ffffff;
+            overflow: hidden;
+        }
+        .project-header-eyebrow {
+            background-color: #f8fafc;
+            border-bottom: 1px solid #f1f5f9 !important;
+            padding: 0.55rem 1.25rem;
+        }
+        @media (min-width: 768px) {
+            .project-header-eyebrow {
+                padding: 0.55rem 1.5rem;
+            }
+        }
+        .project-header-back-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            background-color: #ffffff;
+            color: #475569;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+            transition: all 0.15s ease-in-out;
+            flex-shrink: 0;
+        }
+        .project-header-back-btn:hover {
+            background-color: #f8fafc;
+            border-color: #cbd5e1;
+            color: #0f172a;
+            transform: translateX(-1px);
+        }
+        .project-header-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #0f172a;
+            letter-spacing: -0.25px;
+            line-height: 1.3;
+        }
+        .project-status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.725rem;
+            font-weight: 600;
+            letter-spacing: 0.2px;
+            line-height: 1.3;
+            border: 1px solid transparent;
+        }
+        .project-status-badge .badge-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            display: inline-block;
+            flex-shrink: 0;
+        }
+        .badge-status-pengerjaan {
+            background-color: #eff6ff;
+            color: #1d4ed8;
+            border-color: #bfdbfe;
+        }
+        .badge-status-selesai {
+            background-color: #ecfdf5;
+            color: #047857;
+            border-color: #a7f3d0;
+        }
+        .badge-status-batal {
+            background-color: #fef2f2;
+            color: #b91c1c;
+            border-color: #fecaca;
+        }
+        .badge-status-perencanaan {
+            background-color: #f8fafc;
+            color: #475569;
+            border-color: #e2e8f0;
+        }
+
+        /* Client Biodata Styles (Spacious & Clean) */
+        .client-bio-container {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            row-gap: 8px;
+            font-size: 0.8125rem;
+            line-height: 1.5;
+        }
+        .client-bio-item {
+            display: inline-flex;
+            align-items: center;
+            color: #475569;
+            white-space: nowrap;
+        }
+        .client-bio-item.bio-address {
+            white-space: normal;
+        }
+        .client-bio-item .bio-icon {
+            color: #94a3b8;
+            font-size: 0.825rem;
+            margin-right: 6px;
+            flex-shrink: 0;
+        }
+        .client-bio-item .bio-label {
+            color: #64748b;
+            margin-right: 4px;
+        }
+        .client-bio-item .bio-value {
+            color: #0f172a;
+            font-weight: 600;
+        }
+        .client-bio-item .bio-link {
+            color: #475569;
+            text-decoration: none;
+            transition: color 0.15s ease;
+        }
+        .client-bio-item .bio-link:hover {
+            color: #2563eb;
+            text-decoration: underline;
+        }
+        .client-bio-item .bio-text {
+            color: #475569;
+        }
+        .bio-divider {
+            width: 1px;
+            height: 13px;
+            background-color: #cbd5e1;
+            margin: 0 12px;
+            display: inline-block;
+            flex-shrink: 0;
+        }
+        @media (max-width: 767.98px) {
+            .bio-divider {
+                display: none !important;
+            }
+            .client-bio-container {
+                gap: 8px 16px;
+            }
+        }
+        .project-btn-primary {
+            height: 38px;
+            padding: 0 16px;
+            font-size: 0.825rem;
+            font-weight: 600;
+            border-radius: 8px;
+            background-color: #2563eb;
+            border-color: #2563eb;
+            color: #ffffff;
+            box-shadow: 0 1px 2px rgba(37, 99, 235, 0.2);
+            transition: all 0.15s ease;
+        }
+        .project-btn-primary:hover {
+            background-color: #1d4ed8;
+            border-color: #1d4ed8;
+            color: #ffffff;
+            box-shadow: 0 2px 4px rgba(37, 99, 235, 0.25);
+            transform: translateY(-0.5px);
+        }
+        .project-btn-secondary {
+            height: 38px;
+            padding: 0 14px;
+            font-size: 0.825rem;
+            font-weight: 500;
+            border-radius: 8px;
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0 !important;
+            color: #334155;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+            transition: all 0.15s ease;
+        }
+        .project-btn-secondary:hover {
+            background-color: #f8fafc;
+            border-color: #cbd5e1 !important;
+            color: #0f172a;
+        }
     </style>
 @endpush
 
@@ -96,78 +271,157 @@
         $yearOptions = collect($years ?? [])->push(now()->year)->when($selectedYear !== '', fn ($c) => $c->push((int) $selectedYear))->unique()->sortDesc()->values();
     @endphp
 
-    @php
-        // Persentase Keuntungan Proyek
-        $incomeFloat = (float) $income;
-        $expenseFloat = (float) $expense;
-        $balanceFloat = (float) $balance;
-        $profitPercentage = $incomeFloat > 0 ? round(($balanceFloat / $incomeFloat) * 100, 1) : 0;
-    @endphp
-
-    <!-- Top Project Header Card -->
-    <div class="card mb-3">
-        <div class="card-body p-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
-            <div>
-                <a href="{{ route('admin.cashbook.index') }}" class="btn btn-sm btn-outline-secondary mb-2">
-                    <i class="fas fa-arrow-left me-1" aria-hidden="true"></i> Kembali ke Keuangan Proyek
-                </a>
-                <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
-                    <h2 class="h5 fw-bold text-dark text-break mb-0">{{ $project->nama_proyek }}</h2>
-                    @if($incomeFloat > 0)
-                        <span class="badge {{ $profitPercentage >= 0 ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-danger-subtle text-danger border border-danger-subtle' }} px-2.5 py-1 fw-bold" style="font-size: 0.76rem; border-radius: 9999px;">
-                            <i class="fas {{ $profitPercentage >= 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down' }} me-1"></i> Keuntungan: {{ $profitPercentage }}%
-                        </span>
-                    @endif
-                </div>
-                <div class="small text-muted text-break">
-                    Klien: <span class="fw-semibold text-dark">{{ $project->user->name ?? 'Klien tidak tersedia' }}</span>
-                    @if($project->user?->email) ({{ $project->user->email }}) @endif
-                    @if($project->alamat_proyek) &bull; {{ strip_tags((string) $project->alamat_proyek) }} @endif
-                </div>
+    {{-- Project Header Card (Modern Professional SaaS Design) --}}
+    <div class="card border mb-3 project-header-card">
+        {{-- Card Eyebrow Bar: Integrated Breadcrumbs & Context --}}
+        <div class="project-header-eyebrow d-flex align-items-center justify-content-between">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0 align-items-center" style="font-size: 0.775rem; background: transparent; padding: 0;">
+                    <li class="breadcrumb-item">
+                        <a href="{{ $panelHome ?? route('admin.dashboard') }}" class="text-decoration-none text-muted d-inline-flex align-items-center">
+                            <i class="fas fa-house me-1 text-secondary" style="font-size: 0.68rem;"></i> Home
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{{ route('admin.cashbook.index') }}" class="text-decoration-none text-muted">Keuangan Proyek</a>
+                    </li>
+                    <li class="breadcrumb-item active text-dark fw-semibold" aria-current="page">Buku Kas</li>
+                </ol>
+            </nav>
+            <div class="d-none d-md-inline-flex align-items-center gap-1.5 text-muted" style="font-size: 0.75rem;">
+                <i class="fas fa-wallet text-primary"></i>
+                <span class="fw-medium">Buku Kas Proyek</span>
             </div>
-            <div class="d-flex flex-wrap gap-2">
-                <button type="button" id="cashbook-add" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#cashbook-modal">
-                    <i class="fas fa-plus me-1" aria-hidden="true"></i> Tambah Transaksi Kas
-                </button>
-                <a href="{{ route('admin.cashbook.export', $project) }}" class="btn btn-outline-secondary">
-                    <i class="fas fa-file-excel me-1" aria-hidden="true"></i> Unduh (.xlsx)
-                </a>
+        </div>
+
+        {{-- Card Body: Project Identity, Biodata & Actions --}}
+        <div class="card-body p-3.5 p-md-4">
+            <div class="d-flex justify-content-between align-items-start align-items-md-center flex-column flex-md-row gap-3">
+                
+                {{-- Left: Back Navigation & Project Identity --}}
+                <div class="d-flex align-items-start gap-3 min-w-0">
+                    <a href="{{ route('admin.cashbook.index') }}" 
+                       class="btn btn-sm project-header-back-btn d-inline-flex align-items-center justify-content-center" 
+                       title="Kembali ke Keuangan Proyek" 
+                       aria-label="Kembali ke Keuangan Proyek">
+                        <i class="fas fa-arrow-left"></i>
+                    </a>
+
+                    <div class="min-w-0">
+                        {{-- Title Row with Status Badge --}}
+                        <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+                            <h1 class="h5 fw-bold text-dark text-break mb-0 project-header-title">
+                                {{ $project->nama_proyek }}
+                            </h1>
+                            @php
+                                $statusConfig = match($project->status ?? 'perencanaan') {
+                                    'selesai' => [
+                                        'class' => 'badge-status-selesai',
+                                        'dot' => '#10b981',
+                                        'label' => 'Selesai'
+                                    ],
+                                    'dalam_pengerjaan' => [
+                                        'class' => 'badge-status-pengerjaan',
+                                        'dot' => '#3b82f6',
+                                        'label' => 'Dalam Pengerjaan'
+                                    ],
+                                    'dibatalkan' => [
+                                        'class' => 'badge-status-batal',
+                                        'dot' => '#ef4444',
+                                        'label' => 'Dibatalkan'
+                                    ],
+                                    default => [
+                                        'class' => 'badge-status-perencanaan',
+                                        'dot' => '#64748b',
+                                        'label' => 'Perencanaan'
+                                    ],
+                                };
+                            @endphp
+                            <span class="project-status-badge {{ $statusConfig['class'] }}">
+                                <span class="badge-dot" style="background-color: {{ $statusConfig['dot'] }};"></span>
+                                {{ $statusConfig['label'] }}
+                            </span>
+                        </div>
+
+                        {{-- Structured & Spacious Client Biodata Row --}}
+                        <div class="client-bio-container mt-1.5">
+                            <div class="client-bio-item">
+                                <i class="fas fa-user-circle bio-icon"></i>
+                                <span class="bio-label">Klien:</span>
+                                <span class="bio-value">{{ $project->user->name ?? 'Klien tidak tersedia' }}</span>
+                            </div>
+
+                            @if($project->user?->email)
+                                <span class="bio-divider d-none d-sm-inline-block"></span>
+                                <div class="client-bio-item">
+                                    <i class="fas fa-envelope bio-icon"></i>
+                                    <a href="mailto:{{ $project->user->email }}" class="bio-link">
+                                        {{ $project->user->email }}
+                                    </a>
+                                </div>
+                            @endif
+
+                            @if($project->alamat_proyek)
+                                <span class="bio-divider d-none d-md-inline-block"></span>
+                                <div class="client-bio-item bio-address">
+                                    <i class="fas fa-location-dot bio-icon"></i>
+                                    <span class="bio-text text-truncate" style="max-width: 480px;" title="{{ strip_tags((string) $project->alamat_proyek) }}">
+                                        {{ strip_tags((string) $project->alamat_proyek) }}
+                                    </span>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Right: Action Buttons --}}
+                <div class="d-flex align-items-center gap-2 flex-wrap flex-sm-nowrap w-100 w-md-auto justify-content-start justify-content-md-end mt-2 mt-md-0">
+                    {{-- Secondary Action: Export XLSX --}}
+                    <a href="{{ route('admin.cashbook.export', $project) }}" 
+                       class="btn btn-sm project-btn-secondary d-inline-flex align-items-center justify-content-center gap-2" 
+                       title="Unduh rekap kas (.xlsx)">
+                        <i class="fas fa-file-excel text-success" style="font-size: 0.85rem;"></i>
+                        <span>Unduh (.xlsx)</span>
+                    </a>
+
+                    {{-- Primary Action: Add Cashflow --}}
+                    <button type="button" 
+                            id="cashbook-add" 
+                            class="btn btn-sm btn-primary project-btn-primary d-inline-flex align-items-center justify-content-center gap-2" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#cashbook-modal">
+                        <i class="fas fa-plus" style="font-size: 0.75rem;"></i>
+                        <span>Tambah Transaksi Kas</span>
+                    </button>
+                </div>
+
             </div>
         </div>
     </div>
 
-    <!-- Filter Card: 2 Baris Teratur (Baris 1: Periode, Baris 2: Pencarian & Kategori) -->
+    <!-- Filter Card: 2 Baris Teratur & Proporsional -->
     <div class="card mb-3">
         <div class="card-body p-3">
             <form id="cashbook-filter-form" method="GET" action="{{ route('admin.cashbook.show', $project) }}">
-                <input type="hidden" name="period_mode" id="input-period-mode-show" value="{{ $activeMode ?? 'bulan' }}">
-
-                <!-- Baris 1: Filter Waktu (Fokus & Lega) -->
-                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 pb-2.5 mb-2.5 border-bottom">
-                    <div class="d-flex align-items-center flex-wrap gap-2">
-                        <span class="small fw-bold text-muted text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">Periode:</span>
-                        <div class="btn-group btn-group-sm period-segmented-control" role="group" aria-label="Pilihan Periode Waktu">
-                            <button type="button" class="btn btn-sm {{ ($activeMode ?? 'bulan') === 'lengkap' ? 'btn-primary active text-white' : 'btn-outline-secondary bg-white text-dark' }}" id="btn-period-lengkap-show" onclick="setShowPeriodMode('lengkap')">
-                                <i class="fas fa-calendar-week me-1"></i> Lengkap
-                            </button>
-                            <button type="button" class="btn btn-sm {{ ($activeMode ?? 'bulan') === 'bulan' ? 'btn-primary active text-white' : 'btn-outline-secondary bg-white text-dark' }}" id="btn-period-bulan-show" onclick="setShowPeriodMode('bulan')">
-                                <i class="fas fa-calendar-day me-1"></i> Bulan
-                            </button>
-                            <button type="button" class="btn btn-sm {{ ($activeMode ?? 'bulan') === 'tahun' ? 'btn-primary active text-white' : 'btn-outline-secondary bg-white text-dark' }}" id="btn-period-tahun-show" onclick="setShowPeriodMode('tahun')">
-                                <i class="fas fa-calendar-alt me-1"></i> Tahun
-                            </button>
-                        </div>
+                {{-- Baris 1: Filter Waktu, Tipe, & Status --}}
+                <div class="row g-2 align-items-center mb-2">
+                    {{-- Waktu: Periode + Bulan/Tahun atau Rentang Tanggal --}}
+                    <div class="col-12 col-md-auto d-flex align-items-center gap-1.5 flex-wrap">
+                        <span class="small fw-bold text-muted text-uppercase text-nowrap" style="font-size: 0.72rem; letter-spacing: 0.5px;">Periode:</span>
+                        <select name="period_mode" id="filter-period-mode-show" class="form-select form-select-sm fw-medium text-dark bg-white" style="width: 105px; min-width: 105px;" onchange="setShowPeriodMode(this.value)">
+                            <option value="bulan" @selected(($activeMode ?? 'bulan') === 'bulan')>Bulan</option>
+                            <option value="lengkap" @selected(($activeMode ?? 'bulan') === 'lengkap')>Lengkap</option>
+                            <option value="tahun" @selected(($activeMode ?? 'bulan') === 'tahun')>Tahun</option>
+                        </select>
 
                         {{-- Mode Bulan & Tahun --}}
-                        <div class="d-inline-flex align-items-center gap-1.5 ms-1" id="filter-col-month">
-                            <select id="filter-month" name="month" class="form-select form-select-sm" style="min-width: 135px;">
+                        <div class="d-inline-flex align-items-center gap-1.5" id="filter-col-month-year">
+                            <select id="filter-month" name="month" class="form-select form-select-sm" style="width: 130px; min-width: 120px;">
                                 @foreach($months as $num => $name)
                                     <option value="{{ $num }}" @selected((int)($selectedMonth ?? 0) === (int)$num)>{{ $name }}</option>
                                 @endforeach
                             </select>
-                        </div>
-                        <div class="d-inline-flex align-items-center gap-1.5" id="filter-col-year">
-                            <select id="filter-year" name="year" class="form-select form-select-sm" style="min-width: 95px;">
+                            <select id="filter-year" name="year" class="form-select form-select-sm" style="width: 90px; min-width: 85px;">
                                 @foreach($yearOptions as $yr)
                                     <option value="{{ $yr }}" @selected((int)($selectedYear ?? 0) === (int)$yr)>{{ $yr }}</option>
                                 @endforeach
@@ -175,43 +429,16 @@
                         </div>
 
                         {{-- Mode Rentang Tanggal (Lengkap) --}}
-                        <div class="d-inline-flex align-items-center gap-1.5 ms-1 d-none" id="filter-col-start-date">
-                            <span class="small text-muted">Dari:</span>
-                            <input type="date" id="filter-show-start-date" name="start_date" value="{{ $startDate ? (is_string($startDate) ? $startDate : $startDate->format('Y-m-d')) : '' }}" class="form-control form-control-sm" style="width: 140px;" disabled>
-                        </div>
-                        <div class="d-inline-flex align-items-center gap-1.5 d-none" id="filter-col-end-date">
-                            <span class="small text-muted">s/d</span>
-                            <input type="date" id="filter-show-end-date" name="end_date" value="{{ $endDate ? (is_string($endDate) ? $endDate : $endDate->format('Y-m-d')) : '' }}" class="form-control form-control-sm" style="width: 140px;" disabled>
-                        </div>
-                    </div>
-
-                    {{-- Tombol Aksi Terapkan & Reset Periode --}}
-                    <div class="d-flex align-items-center gap-2">
-                        <button type="submit" class="btn btn-sm btn-primary px-3 d-flex align-items-center gap-1.5" style="height: 31px;">
-                            <i class="fas fa-filter"></i> Terapkan
-                        </button>
-                        @if(request()->hasAny(['month', 'year', 'status', 'start_date', 'end_date', 'period_mode']))
-                            <a href="{{ route('admin.cashbook.show', $project) }}" class="btn btn-sm btn-outline-secondary d-flex align-items-center justify-content-center" title="Reset filter" style="height: 31px; width: 31px; padding: 0;">
-                                <i class="fas fa-rotate-left"></i>
-                            </a>
-                        @endif
-                    </div>
-                </div>
-
-                <!-- Baris 2: Pencarian Cepat & Kategori Transaksi (Proporsional & Seimbang) -->
-                <div class="row g-2 align-items-center">
-                    {{-- Cari Transaksi --}}
-                    <div class="col-md-4">
-                        <div class="input-group input-group-sm">
-                            <span class="input-group-text bg-light border-end-0 text-muted"><i class="fas fa-search"></i></span>
-                            <input type="text" id="filter-search-input" class="form-control form-control-sm border-start-0" placeholder="Cari uraian, kode, catatan...">
+                        <div class="d-inline-flex align-items-center gap-1 d-none" id="filter-col-dates">
+                            <input type="date" id="filter-show-start-date" name="start_date" value="{{ $startDate ? (is_string($startDate) ? $startDate : $startDate->format('Y-m-d')) : '' }}" class="form-control form-control-sm" style="width: 135px; min-width: 130px;" disabled title="Tanggal Mulai">
+                            <span class="small text-muted text-nowrap px-1">s/d</span>
+                            <input type="date" id="filter-show-end-date" name="end_date" value="{{ $endDate ? (is_string($endDate) ? $endDate : $endDate->format('Y-m-d')) : '' }}" class="form-control form-control-sm" style="width: 135px; min-width: 130px;" disabled title="Tanggal Akhir">
                         </div>
                     </div>
 
                     {{-- Tipe --}}
-                    <div class="col-6 col-md-2">
-                        <select id="filter-type" class="form-select form-select-sm">
->>>>>>> origin/main
+                    <div class="col-6 col-md-auto ms-md-auto">
+                        <select id="filter-type" class="form-select form-select-sm" style="min-width: 135px;">
                             <option value="">Semua Tipe</option>
                             <option value="penerimaan">Penerimaan (Masuk)</option>
                             <option value="pengeluaran">Pengeluaran (Keluar)</option>
@@ -219,23 +446,46 @@
                     </div>
 
                     {{-- Status --}}
-                    <div class="col-6 col-md-2">
-                        <select id="filter-status" name="status" class="form-select form-select-sm" onchange="document.getElementById('cashbook-filter-form').submit()">
+                    <div class="col-6 col-md-auto">
+                        <select id="filter-status" name="status" class="form-select form-select-sm" style="min-width: 135px;" onchange="document.getElementById('cashbook-filter-form').submit()">
                             <option value="">Semua Status</option>
                             <option value="lunas" @selected(($statusFilter ?? '') === 'lunas')>Lunas</option>
                             <option value="pending" @selected(($statusFilter ?? '') === 'pending')>Pending</option>
                             <option value="ditolak" @selected(($statusFilter ?? '') === 'ditolak')>Ditolak</option>
                         </select>
                     </div>
+                </div>
 
-                    {{-- Program / Kode --}}
-                    <div class="col-12 col-md-4">
+                {{-- Baris 2: Pencarian Cepat, Program / Kategori, & Tombol Aksi --}}
+                <div class="row g-2 align-items-center">
+                    {{-- Cari Transaksi --}}
+                    <div class="col-12 col-md-5 col-lg-6">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-light border-end-0 text-muted"><i class="fas fa-search"></i></span>
+                            <input type="text" id="filter-search-input" class="form-control form-control-sm border-start-0" placeholder="Cari uraian, kode TRX, catatan, atau penerima...">
+                        </div>
+                    </div>
+
+                    {{-- Program / Kategori --}}
+                    <div class="col-12 col-md-4 col-lg">
                         <select id="filter-code-select" class="form-select form-select-sm">
                             <option value="">Semua Program / Kategori</option>
                             @foreach($codeOptions as $cOpt)
                                 <option value="{{ $cOpt }}">{{ $cOpt }}</option>
                             @endforeach
                         </select>
+                    </div>
+
+                    {{-- Tombol Terapkan & Reset --}}
+                    <div class="col-auto d-flex align-items-center gap-1.5 ms-auto">
+                        <button type="submit" class="btn btn-sm btn-primary px-3 text-nowrap d-flex align-items-center gap-1.5" style="height: 31px;">
+                            <i class="fas fa-filter"></i> Terapkan
+                        </button>
+                        @if(request()->hasAny(['month', 'year', 'status', 'start_date', 'end_date', 'period_mode']))
+                            <a href="{{ route('admin.cashbook.show', $project) }}" class="btn btn-sm btn-outline-secondary d-flex align-items-center justify-content-center" title="Reset filter" style="height: 31px; width: 31px; padding: 0;">
+                                <i class="fas fa-rotate-left"></i>
+                            </a>
+                        @endif
                     </div>
                 </div>
             </form>
@@ -334,11 +584,11 @@
                 <h2 class="h6 fw-bold mb-0 text-dark">Daftar Transaksi</h2>
                 <span class="text-muted small" id="trans-count-label">{{ $transactions->count() }} transaksi ditemukan</span>
             </div>
-            <div class="small text-muted font-monospace d-flex align-items-center gap-2">
-                <span>Saldo Kas: <strong class="text-primary">{{ $formatRupiah($balance) }}</strong></span>
-                @if($incomeFloat > 0)
-                    <span class="badge {{ $profitPercentage >= 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger' }} px-2 py-0.5" style="font-size: 0.72rem; border-radius: 6px;">
-                        Laba: {{ $profitPercentage }}%
+            <div class="small text-muted font-monospace d-flex align-items-center gap-1 flex-wrap">
+                <span>Saldo Kas: <strong class="text-dark">{{ $formatRupiah($balance) }}</strong></span>
+                @if(($marginPercent ?? null) !== null)
+                    <span class="{{ $marginPercent >= 0 ? 'text-success' : 'text-danger' }} fw-semibold ms-1" style="font-size: 0.8rem;" title="Margin Keuntungan Kas Proyek">
+                        ({{ $marginPercent >= 0 ? '+' : '' }}{{ $marginPercent }}% {{ $marginPercent >= 0 ? 'Laba' : 'Defisit' }})
                     </span>
                 @endif
             </div>
@@ -1397,29 +1647,15 @@
     </script>
     <script>
         function setShowPeriodMode(mode) {
-            const inputMode = document.getElementById('input-period-mode-show');
-            if (inputMode) inputMode.value = mode;
-
-            const btnLengkap = document.getElementById('btn-period-lengkap-show');
-            const btnBulan = document.getElementById('btn-period-bulan-show');
-            const btnTahun = document.getElementById('btn-period-tahun-show');
-
-            [btnLengkap, btnBulan, btnTahun].forEach(b => {
-                if (!b) return;
-                b.classList.remove('btn-primary', 'active', 'text-white');
-                b.classList.add('btn-outline-secondary', 'bg-white', 'text-dark');
-            });
-
-            const activeBtn = mode === 'lengkap' ? btnLengkap : (mode === 'tahun' ? btnTahun : btnBulan);
-            if (activeBtn) {
-                activeBtn.classList.remove('btn-outline-secondary', 'bg-white', 'text-dark');
-                activeBtn.classList.add('btn-primary', 'active', 'text-white');
+            const selectMode = document.getElementById('filter-period-mode-show');
+            if (selectMode && selectMode.value !== mode) {
+                selectMode.value = mode;
             }
 
+            const colMonthYear = document.getElementById('filter-col-month-year');
             const colMonth = document.getElementById('filter-col-month');
             const colYear = document.getElementById('filter-col-year');
-            const colStartDate = document.getElementById('filter-col-start-date');
-            const colEndDate = document.getElementById('filter-col-end-date');
+            const colDates = document.getElementById('filter-col-dates');
 
             const inputMonth = document.getElementById('filter-month');
             const inputYear = document.getElementById('filter-year');
@@ -1427,42 +1663,41 @@
             const inputEndDate = document.getElementById('filter-show-end-date');
 
             if (mode === 'lengkap') {
-                if (colMonth) colMonth.classList.add('d-none');
-                if (colYear) colYear.classList.add('d-none');
+                if (colMonthYear) colMonthYear.classList.add('d-none');
                 if (inputMonth) inputMonth.disabled = true;
                 if (inputYear) inputYear.disabled = true;
 
-                if (colStartDate) colStartDate.classList.remove('d-none');
-                if (colEndDate) colEndDate.classList.remove('d-none');
+                if (colDates) colDates.classList.remove('d-none');
                 if (inputStartDate) inputStartDate.disabled = false;
                 if (inputEndDate) inputEndDate.disabled = false;
             } else if (mode === 'tahun') {
+                if (colMonthYear) colMonthYear.classList.remove('d-none');
                 if (colMonth) colMonth.classList.add('d-none');
                 if (inputMonth) inputMonth.disabled = true;
 
                 if (colYear) colYear.classList.remove('d-none');
                 if (inputYear) inputYear.disabled = false;
 
-                if (colStartDate) colStartDate.classList.add('d-none');
-                if (colEndDate) colEndDate.classList.add('d-none');
+                if (colDates) colDates.classList.add('d-none');
                 if (inputStartDate) inputStartDate.disabled = true;
                 if (inputEndDate) inputEndDate.disabled = true;
             } else {
                 // Mode 'bulan' (Bulan + Tahun)
+                if (colMonthYear) colMonthYear.classList.remove('d-none');
                 if (colMonth) colMonth.classList.remove('d-none');
-                if (colYear) colYear.classList.remove('d-none');
                 if (inputMonth) inputMonth.disabled = false;
+
+                if (colYear) colYear.classList.remove('d-none');
                 if (inputYear) inputYear.disabled = false;
 
-                if (colStartDate) colStartDate.classList.add('d-none');
-                if (colEndDate) colEndDate.classList.add('d-none');
+                if (colDates) colDates.classList.add('d-none');
                 if (inputStartDate) inputStartDate.disabled = true;
                 if (inputEndDate) inputEndDate.disabled = true;
             }
         }
 
         document.addEventListener('DOMContentLoaded', function () {
-            const initialMode = document.getElementById('input-period-mode-show')?.value || 'bulan';
+            const initialMode = document.getElementById('filter-period-mode-show')?.value || 'bulan';
             setShowPeriodMode(initialMode);
         });
     </script>

@@ -191,12 +191,37 @@ class ProjectCashflowController extends Controller
             $grandPeriodExpense = $grandPeriodExpense->plus($pExpense);
             $grandLifetimeBalance = $grandLifetimeBalance->plus($pLifetimeBalance);
 
+            // Hitung total penerimaan lifetime untuk rasio margin proyek
+            $pLifetimeIncome = BigDecimal::of('0.00');
+            foreach ($cfs as $cf) {
+                if ($cf->status === 'ditolak') {
+                    continue;
+                }
+                $isLunas = in_array($cf->status, ['lunas', null], true);
+                if (! $isLunas) {
+                    continue;
+                }
+                if ($cf->type === 'penerimaan') {
+                    $pLifetimeIncome = $pLifetimeIncome->plus(BigDecimal::of($cf->total));
+                }
+            }
+
+            $lifetimeIncomeFloat = $pLifetimeIncome->toFloat();
+            $lifetimeBalanceFloat = $pLifetimeBalance->toFloat();
+            $lifetimeMargin = $lifetimeIncomeFloat > 0 ? round(($lifetimeBalanceFloat / $lifetimeIncomeFloat) * 100, 1) : null;
+
+            $periodIncomeFloat = $pIncome->toFloat();
+            $periodBalanceFloat = $pBalance->toFloat();
+            $periodMargin = $periodIncomeFloat > 0 ? round(($periodBalanceFloat / $periodIncomeFloat) * 100, 1) : null;
+
             $projectsData[] = [
                 'project' => $project,
                 'period_income' => (string) $pIncome,
                 'period_expense' => (string) $pExpense,
                 'period_balance' => (string) $pBalance,
                 'lifetime_balance' => (string) $pLifetimeBalance,
+                'lifetime_margin' => $lifetimeMargin,
+                'period_margin' => $periodMargin,
                 'pending_count' => $cfs->where('status', 'pending')->count(),
                 'has_transactions' => $cfs->isNotEmpty(),
             ];
@@ -209,6 +234,9 @@ class ProjectCashflowController extends Controller
         }
 
         $grandPeriodBalance = $grandPeriodIncome->minus($grandPeriodExpense);
+        $grandPeriodIncomeFloat = $grandPeriodIncome->toFloat();
+        $grandPeriodBalanceFloat = $grandPeriodBalance->toFloat();
+        $grandMargin = $grandPeriodIncomeFloat > 0 ? round(($grandPeriodBalanceFloat / $grandPeriodIncomeFloat) * 100, 1) : null;
 
         // Calculate breakdown percentages
         $incomeBreakdown = [];
@@ -251,6 +279,7 @@ class ProjectCashflowController extends Controller
             'grandPeriodExpense' => (string) $grandPeriodExpense,
             'grandPeriodBalance' => (string) $grandPeriodBalance,
             'grandLifetimeBalance' => (string) $grandLifetimeBalance,
+            'grandMargin' => $grandMargin,
             'incomeBreakdown' => $incomeBreakdown,
             'expenseBreakdown' => $expenseBreakdown,
             'expenseRatio' => $expenseRatio,
@@ -359,6 +388,10 @@ class ProjectCashflowController extends Controller
         $ledger['expense'] = (string) $expense;
         $ledger['balance'] = (string) $income->minus($expense);
 
+        $incomeFloat = $income->toFloat();
+        $balanceFloat = $income->minus($expense)->toFloat();
+        $marginPercent = $incomeFloat > 0 ? round(($balanceFloat / $incomeFloat) * 100, 1) : null;
+
         return view('admin.cashbook.show', [
             'project' => $project,
             'codeOptions' => CashflowOption::optionsFor('code'),
@@ -371,6 +404,7 @@ class ProjectCashflowController extends Controller
             'selectedMonth' => $selectedMonth,
             'selectedYear' => $selectedYear,
             'filterMode' => $activeMode,
+            'marginPercent' => $marginPercent,
             'startDate' => $request->query('start_date'),
             'endDate' => $request->query('end_date'),
             'startMonth' => $request->query('start_month'),

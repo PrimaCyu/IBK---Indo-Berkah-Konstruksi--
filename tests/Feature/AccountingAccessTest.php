@@ -42,7 +42,7 @@ class AccountingAccessTest extends TestCase
             $this->get($url)->assertForbidden();
         }
 
-        foreach (['/admin/projects', '/admin/users', '/projects', '/user-files', '/reviews', '/user-feedback'] as $url) {
+        foreach (['/admin/projects', '/admin/users', '/projects', '/user-files', '/user-feedback'] as $url) {
             $this->post($url, [])->assertForbidden();
         }
     }

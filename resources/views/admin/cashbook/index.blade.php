@@ -213,7 +213,7 @@
                 <div class="fs-4 fw-bold text-dark cashbook-number mb-1">{{ $formatRupiah($grandPeriodBalance) }}</div>
                 <div class="d-flex align-items-center justify-content-between">
                     <small class="text-muted" style="font-size: 0.75rem;">
-                        Margin Laba: <strong>{{ (float)$grandPeriodIncome > 0 ? round(((float)$grandPeriodBalance / (float)$grandPeriodIncome) * 100, 1) : 0 }}%</strong>
+                        Margin: <strong class="{{ ($grandMargin ?? 0) >= 0 ? 'text-success' : 'text-danger' }} font-monospace">{{ ($grandMargin ?? 0) >= 0 ? '+' : '' }}{{ $grandMargin ?? 0 }}% Laba</strong>
                     </small>
                     <span class="badge-soft-primary font-monospace" style="font-size: 0.7rem;">Saldo Kas</span>
                 </div>
@@ -226,22 +226,14 @@
 <div class="card mb-3">
     <div class="card-body p-3">
         <form method="GET" action="{{ route('admin.cashbook.index') }}" id="cashbook-filter-form" class="row g-2 align-items-center">
-            <input type="hidden" name="period_mode" id="input-period-mode" value="{{ $activeMode ?? 'bulan' }}">
-
-            {{-- 3 Pilihan Periode: Lengkap, Bulan, Tahun --}}
-            <div class="col-12 col-md-auto d-flex align-items-center gap-2">
-                <span class="small fw-bold text-muted text-uppercase d-none d-lg-inline" style="font-size: 0.72rem; letter-spacing: 0.5px;">Periode:</span>
-                <div class="btn-group btn-group-sm period-segmented-control" role="group" aria-label="Pilihan Periode Waktu">
-                    <button type="button" class="btn btn-sm {{ ($activeMode ?? 'bulan') === 'lengkap' ? 'btn-primary active text-white' : 'btn-outline-secondary bg-white text-dark' }}" id="btn-period-lengkap" onclick="setPeriodMode('lengkap')">
-                        <i class="fas fa-calendar-week me-1"></i> Lengkap
-                    </button>
-                    <button type="button" class="btn btn-sm {{ ($activeMode ?? 'bulan') === 'bulan' ? 'btn-primary active text-white' : 'btn-outline-secondary bg-white text-dark' }}" id="btn-period-bulan" onclick="setPeriodMode('bulan')">
-                        <i class="fas fa-calendar-day me-1"></i> Bulan
-                    </button>
-                    <button type="button" class="btn btn-sm {{ ($activeMode ?? 'bulan') === 'tahun' ? 'btn-primary active text-white' : 'btn-outline-secondary bg-white text-dark' }}" id="btn-period-tahun" onclick="setPeriodMode('tahun')">
-                        <i class="fas fa-calendar-alt me-1"></i> Tahun
-                    </button>
-                </div>
+            {{-- Pilihan Mode Periode (Dropdown: Bulan, Lengkap, Tahun) --}}
+            <div class="col-auto d-flex align-items-center gap-1.5">
+                <span class="small fw-bold text-muted text-uppercase d-none d-sm-inline" style="font-size: 0.72rem; letter-spacing: 0.5px;">Periode:</span>
+                <select name="period_mode" id="filter-period-mode" class="form-select form-select-sm fw-medium text-dark bg-white" style="min-width: 105px;" onchange="setPeriodMode(this.value)">
+                    <option value="bulan" @selected(($activeMode ?? 'bulan') === 'bulan')>Bulan</option>
+                    <option value="lengkap" @selected(($activeMode ?? 'bulan') === 'lengkap')>Lengkap</option>
+                    <option value="tahun" @selected(($activeMode ?? 'bulan') === 'tahun')>Tahun</option>
+                </select>
             </div>
 
             {{-- Dynamic Inputs Bulan & Tahun --}}
@@ -261,11 +253,10 @@
             </div>
 
             {{-- Dynamic Inputs Rentang Tanggal (Lengkap) --}}
-            <div class="col-6 col-sm-auto d-none" id="filter-col-start-date">
-                <input type="date" id="filter-start-date" name="start_date" value="{{ $startDate ? (is_string($startDate) ? $startDate : $startDate->format('Y-m-d')) : '' }}" class="form-control form-control-sm" style="width: 140px;" disabled>
-            </div>
-            <div class="col-6 col-sm-auto d-none" id="filter-col-end-date">
-                <input type="date" id="filter-end-date" name="end_date" value="{{ $endDate ? (is_string($endDate) ? $endDate : $endDate->format('Y-m-d')) : '' }}" class="form-control form-control-sm" style="width: 140px;" disabled>
+            <div class="col-auto d-flex align-items-center gap-1.5 d-none" id="filter-col-dates">
+                <input type="date" id="filter-start-date" name="start_date" value="{{ $startDate ? (is_string($startDate) ? $startDate : $startDate->format('Y-m-d')) : '' }}" class="form-control form-control-sm" style="width: 140px;" disabled title="Tanggal Mulai">
+                <span class="small text-muted">s/d</span>
+                <input type="date" id="filter-end-date" name="end_date" value="{{ $endDate ? (is_string($endDate) ? $endDate : $endDate->format('Y-m-d')) : '' }}" class="form-control form-control-sm" style="width: 140px;" disabled title="Tanggal Akhir">
             </div>
 
             {{-- Cari Proyek / Klien --}}
@@ -293,29 +284,14 @@
 
 <script>
     function setPeriodMode(mode) {
-        const inputMode = document.getElementById('input-period-mode');
-        if (inputMode) inputMode.value = mode;
-
-        const btnLengkap = document.getElementById('btn-period-lengkap');
-        const btnBulan = document.getElementById('btn-period-bulan');
-        const btnTahun = document.getElementById('btn-period-tahun');
-
-        [btnLengkap, btnBulan, btnTahun].forEach(b => {
-            if (!b) return;
-            b.classList.remove('btn-primary', 'active', 'text-white');
-            b.classList.add('btn-outline-secondary', 'bg-white', 'text-dark');
-        });
-
-        const activeBtn = mode === 'lengkap' ? btnLengkap : (mode === 'tahun' ? btnTahun : btnBulan);
-        if (activeBtn) {
-            activeBtn.classList.remove('btn-outline-secondary', 'bg-white', 'text-dark');
-            activeBtn.classList.add('btn-primary', 'active', 'text-white');
+        const selectMode = document.getElementById('filter-period-mode');
+        if (selectMode && selectMode.value !== mode) {
+            selectMode.value = mode;
         }
 
         const colMonth = document.getElementById('filter-col-month');
         const colYear = document.getElementById('filter-col-year');
-        const colStartDate = document.getElementById('filter-col-start-date');
-        const colEndDate = document.getElementById('filter-col-end-date');
+        const colDates = document.getElementById('filter-col-dates');
 
         const inputMonth = document.getElementById('filter-month');
         const inputYear = document.getElementById('filter-year');
@@ -328,8 +304,7 @@
             if (inputMonth) inputMonth.disabled = true;
             if (inputYear) inputYear.disabled = true;
 
-            if (colStartDate) colStartDate.classList.remove('d-none');
-            if (colEndDate) colEndDate.classList.remove('d-none');
+            if (colDates) colDates.classList.remove('d-none');
             if (inputStartDate) inputStartDate.disabled = false;
             if (inputEndDate) inputEndDate.disabled = false;
         } else if (mode === 'tahun') {
@@ -339,8 +314,7 @@
             if (colYear) colYear.classList.remove('d-none');
             if (inputYear) inputYear.disabled = false;
 
-            if (colStartDate) colStartDate.classList.add('d-none');
-            if (colEndDate) colEndDate.classList.add('d-none');
+            if (colDates) colDates.classList.add('d-none');
             if (inputStartDate) inputStartDate.disabled = true;
             if (inputEndDate) inputEndDate.disabled = true;
         } else {
@@ -350,15 +324,14 @@
             if (inputMonth) inputMonth.disabled = false;
             if (inputYear) inputYear.disabled = false;
 
-            if (colStartDate) colStartDate.classList.add('d-none');
-            if (colEndDate) colEndDate.classList.add('d-none');
+            if (colDates) colDates.classList.add('d-none');
             if (inputStartDate) inputStartDate.disabled = true;
             if (inputEndDate) inputEndDate.disabled = true;
         }
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-        const initialMode = document.getElementById('input-period-mode')?.value || 'bulan';
+        const initialMode = document.getElementById('filter-period-mode')?.value || 'bulan';
         setPeriodMode(initialMode);
     });
 </script>
@@ -529,9 +502,14 @@
                                         @endif
                                     </td>
                                     <td class="text-end">
-                                        <span class="fw-bold text-primary font-monospace" style="font-size: 0.9rem;">
+                                        <div class="fw-bold text-dark font-monospace" style="font-size: 0.875rem;">
                                             {{ $formatRupiah($item['lifetime_balance']) }}
-                                        </span>
+                                        </div>
+                                        @if($item['lifetime_margin'] !== null)
+                                            <div class="font-monospace {{ $item['lifetime_margin'] >= 0 ? 'text-success' : 'text-danger' }}" style="font-size: 0.72rem; font-weight: 600;" title="Margin Profit: {{ $item['lifetime_margin'] }}%">
+                                                <i class="fas {{ $item['lifetime_margin'] >= 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down' }} me-0.5" style="font-size: 0.65rem;"></i>{{ $item['lifetime_margin'] >= 0 ? '+' : '' }}{{ $item['lifetime_margin'] }}% Laba
+                                            </div>
+                                        @endif
                                     </td>
                                     <td class="text-center">
                                         @if(($item['pending_count'] ?? 0) > 0)
