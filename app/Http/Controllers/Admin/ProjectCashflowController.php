@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\CashflowOption;
 use App\Models\Project;
 use App\Models\ProjectCashflow;
+use App\Models\TransactionCategory;
 use Brick\Math\BigDecimal;
 use Brick\Math\RoundingMode;
 use Carbon\Carbon;
@@ -613,6 +614,9 @@ class ProjectCashflowController extends Controller
         unset($validated['attachment'], $validated['remove_attachment']);
 
         $validated['created_by'] = auth()->id();
+        if (empty($validated['category_id'])) {
+            $validated['category_id'] = $this->resolveCategoryId($validated['code'] ?? null, $validated['type']);
+        }
         $validated['status'] = $validated['status'] ?? (auth()->user()?->role === 'accounting' ? 'pending' : 'lunas');
         if ($validated['status'] === 'lunas' && auth()->user()?->role === 'admin') {
             $validated['approved_by'] = auth()->id();
@@ -647,6 +651,9 @@ class ProjectCashflowController extends Controller
 
         $validated['updated_by'] = auth()->id();
         $validated['last_edited_at'] = now();
+        if (empty($validated['category_id'])) {
+            $validated['category_id'] = $this->resolveCategoryId($validated['code'] ?? null, $validated['type']);
+        }
 
         if (isset($validated['status']) && $validated['status'] === 'lunas' && $cashflow->status !== 'lunas') {
             $validated['approved_by'] = auth()->id();
@@ -770,5 +777,32 @@ class ProjectCashflowController extends Controller
         unset($validated['quantity'], $validated['unit_price']);
 
         return $validated;
+    }
+
+    private function resolveCategoryId(?string $code, string $type): ?int
+    {
+        $codeUpper = strtoupper(trim((string) $code));
+        $slug = null;
+        if (str_starts_with($codeUpper, 'MAT')) {
+            $slug = 'pembelian-material';
+        } elseif (str_starts_with($codeUpper, 'UPAH')) {
+            $slug = 'gaji';
+        } elseif (str_starts_with($codeUpper, 'SEWA')) {
+            $slug = 'peralatan';
+        } elseif (str_starts_with($codeUpper, 'KONS')) {
+            $slug = 'konsumsi';
+        } elseif (str_starts_with($codeUpper, 'TRANS')) {
+            $slug = 'transportasi';
+        } elseif (str_starts_with($codeUpper, 'ADM')) {
+            $slug = 'administrasi';
+        } elseif (str_starts_with($codeUpper, 'OPS')) {
+            $slug = 'operasional';
+        } elseif (str_starts_with($codeUpper, 'INV') || $type === 'penerimaan') {
+            $slug = 'pembayaran-klien';
+        } else {
+            $slug = 'operasional';
+        }
+
+        return TransactionCategory::where('slug', $slug)->value('id');
     }
 }
