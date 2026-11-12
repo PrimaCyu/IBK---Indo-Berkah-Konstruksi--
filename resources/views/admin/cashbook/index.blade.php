@@ -48,14 +48,31 @@
         width: 32px;
         height: 32px;
         border-radius: 50%;
-        background-color: #f1f5f9;
-        color: #475569;
+        background-color: #EFF6FF;
+        color: #2563EB;
+        border: 1px solid #DBEAFE;
         display: inline-flex;
         align-items: center;
         justify-content: center;
         font-weight: 700;
         font-size: 0.75rem;
         flex-shrink: 0;
+    }
+    #proyek-table-card .table th {
+        font-size: 0.72rem;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        font-weight: 700;
+        color: #64748B;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        vertical-align: middle;
+        white-space: nowrap;
+    }
+    #proyek-table-card .table td {
+        vertical-align: middle;
+        padding-top: 10px;
+        padding-bottom: 10px;
     }
     .pending-banner {
         background-color: #FFFDF0;
@@ -362,22 +379,22 @@
     </div>
     <div class="card-body p-0">
         <div class="table-responsive p-0" tabindex="0" role="region" aria-label="Daftar proyek dan rincian kas">
-            <table class="table table-hover align-middle mb-0" style="table-layout: fixed; width: 100%;">
+            <table class="table table-hover align-middle mb-0" style="table-layout: fixed; width: 100%; min-width: 1080px;">
                 <colgroup>
-                    <col style="width: 35px;">
+                    <col style="width: 45px;">
+                    <col style="width: 25%;">
                     <col style="width: 19%;">
-                    <col style="width: 12%;">
-                    <col style="width: 12%;">
-                    <col style="width: 12%;">
-                    <col style="width: 9%;">
                     <col style="width: 11%;">
-                    <col style="width: 65px;">
-                    <col style="width: 85px;">
+                    <col style="width: 11%;">
+                    <col style="width: 10%;">
+                    <col style="width: 11%;">
+                    <col style="width: 80px;">
+                    <col style="width: 95px;">
                 </colgroup>
                 <thead class="table-light">
                     <tr>
                         <th scope="col" class="text-center px-1">NO</th>
-                        <th scope="col" class="ps-2">PROYEK & LOKASI</th>
+                        <th scope="col" class="ps-3">PROYEK & LOKASI</th>
                         <th scope="col">KLIEN</th>
                         <th scope="col" class="text-end text-success pe-2">PEMASUKAN</th>
                         <th scope="col" class="text-end text-danger pe-2">PENGELUARAN</th>
@@ -399,46 +416,58 @@
                         @endphp
                         <tr class="{{ ($item['pending_count'] ?? 0) > 0 ? 'row-has-pending' : '' }}">
                             <td class="text-center text-muted small px-1">{{ $index + 1 }}</td>
-                            <td class="ps-2">
-                                <div class="d-flex align-items-center gap-1.5 flex-wrap">
-                                    <span class="fw-bold text-dark text-truncate" style="max-width: 150px; font-size: 0.84rem;">{{ $project->nama_proyek }}</span>
+                            <td class="ps-3">
+                                <div class="d-flex align-items-center gap-2 mb-1 flex-nowrap">
+                                    <span class="fw-bold text-dark text-truncate" style="font-size: 0.84rem; letter-spacing: -0.1px;" title="{{ $project->nama_proyek }}">
+                                        {{ $project->nama_proyek }}
+                                    </span>
                                     @if($project->status === 'selesai')
-                                        <span class="badge-soft-success py-0 px-1" style="font-size: 0.65rem;">Selesai</span>
+                                        <span class="badge-soft-success flex-shrink-0" style="font-size: 0.65rem; padding: 2px 7px; border-radius: 4px;">Selesai</span>
                                     @elseif($project->status === 'aktif')
-                                        <span class="badge-soft-primary py-0 px-1" style="font-size: 0.65rem;">Aktif</span>
+                                        <span class="badge-soft-primary flex-shrink-0" style="font-size: 0.65rem; padding: 2px 7px; border-radius: 4px;">Aktif</span>
                                     @else
-                                        <span class="badge-soft-neutral py-0 px-1" style="font-size: 0.65rem;">{{ ucfirst($project->status) }}</span>
+                                        <span class="badge-soft-neutral flex-shrink-0" style="font-size: 0.65rem; padding: 2px 7px; border-radius: 4px;">{{ ucfirst($project->status) }}</span>
                                     @endif
                                 </div>
-                                <div class="small text-muted text-truncate" style="max-width: 190px; font-size: 0.72rem;">
-                                    <i class="fas fa-map-marker-alt text-secondary opacity-75 me-0.5"></i>{{ strip_tags((string) $project->alamat_proyek) ?: 'Lokasi belum diisi' }}
+                                <div class="small text-muted text-truncate d-flex align-items-center gap-1" style="font-size: 0.73rem;" title="{{ strip_tags((string) $project->alamat_proyek) ?: 'Lokasi belum diisi' }}">
+                                    <i class="fas fa-map-marker-alt text-secondary opacity-75 flex-shrink-0" style="font-size: 0.68rem;"></i>
+                                    <span class="text-truncate">{{ strip_tags((string) $project->alamat_proyek) ?: 'Lokasi belum diisi' }}</span>
                                 </div>
                             </td>
                             <td>
-                                <div class="d-flex align-items-center gap-1.5">
-                                    <div class="client-avatar-circle" style="width: 24px; height: 24px; font-size: 0.68rem;" title="{{ $clientName }}">
+                                <div class="d-flex align-items-center gap-2.5">
+                                    <div class="client-avatar-circle" title="{{ $clientName }}">
                                         {{ strtoupper($clientInitials) }}
                                     </div>
-                                    <div class="text-truncate" style="max-width: 120px;">
-                                        <div class="text-dark small fw-semibold text-truncate" style="font-size: 0.78rem;">{{ $clientName }}</div>
+                                    <div class="min-w-0 flex-grow-1">
+                                        <div class="text-dark fw-semibold text-truncate" style="font-size: 0.83rem; line-height: 1.35;" title="{{ $clientName }}">
+                                            {{ $clientName }}
+                                        </div>
                                         @php
                                             $rawPhone = $project->user?->phone;
                                             $cleanWa = null;
                                             if ($rawPhone) {
                                                 $digits = preg_replace('/[^0-9]/', '', (string)$rawPhone);
-                                                $cleanWa = str_starts_with($digits, '0') ? '62' . substr($digits, 1) : $digits;
+                                                if (str_starts_with($digits, '0')) {
+                                                    $cleanWa = '62' . substr($digits, 1);
+                                                } elseif (str_starts_with($digits, '62')) {
+                                                    $cleanWa = $digits;
+                                                } else {
+                                                    $cleanWa = '62' . $digits;
+                                                }
                                             }
                                         @endphp
                                         @if($rawPhone && $cleanWa)
                                             <a href="https://wa.me/{{ $cleanWa }}?text={{ urlencode('Halo ' . $clientName . ', kami dari Bagian Keuangan PT Indo Berkah Konstruksi...') }}" 
                                                target="_blank" 
-                                               class="small text-success text-decoration-none d-inline-flex align-items-center gap-1 text-truncate" 
-                                               style="font-size: 0.7rem;"
+                                               class="text-success text-decoration-none d-inline-flex align-items-center gap-1 text-truncate" 
+                                               style="font-size: 0.73rem; line-height: 1.35;"
                                                title="Chat WhatsApp: {{ $rawPhone }}">
-                                                <i class="fab fa-whatsapp"></i> {{ $rawPhone }}
+                                                <i class="fab fa-whatsapp" style="font-size: 0.78rem;"></i>
+                                                <span class="font-monospace">{{ $rawPhone }}</span>
                                             </a>
                                         @else
-                                            <small class="text-muted d-block text-truncate" style="font-size: 0.7rem;">{{ $project->user->email ?? '-' }}</small>
+                                            <small class="text-muted d-block text-truncate" style="font-size: 0.72rem; line-height: 1.35;" title="{{ $project->user->email ?? '-' }}">{{ $project->user->email ?? '-' }}</small>
                                         @endif
                                     </div>
                                 </div>
