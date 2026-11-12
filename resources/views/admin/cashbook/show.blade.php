@@ -429,10 +429,10 @@
                         </div>
 
                         {{-- Mode Rentang Tanggal (Lengkap) --}}
-                        <div class="d-inline-flex align-items-center gap-1 d-none" id="filter-col-dates">
-                            <input type="date" id="filter-show-start-date" name="start_date" value="{{ $startDate ? (is_string($startDate) ? $startDate : $startDate->format('Y-m-d')) : '' }}" class="form-control form-control-sm" style="width: 135px; min-width: 130px;" disabled title="Tanggal Mulai">
-                            <span class="small text-muted text-nowrap px-1">s/d</span>
-                            <input type="date" id="filter-show-end-date" name="end_date" value="{{ $endDate ? (is_string($endDate) ? $endDate : $endDate->format('Y-m-d')) : '' }}" class="form-control form-control-sm" style="width: 135px; min-width: 130px;" disabled title="Tanggal Akhir">
+                        <div class="d-inline-flex align-items-center gap-1.5 d-none flex-nowrap" id="filter-col-dates">
+                            <input type="date" id="filter-show-start-date" name="start_date" value="{{ $startDate ? (is_string($startDate) ? $startDate : $startDate->format('Y-m-d')) : '' }}" class="form-control form-control-sm" style="width: 135px; min-width: 130px; flex-shrink: 0;" disabled title="Tanggal Mulai">
+                            <span class="small text-muted text-nowrap px-1" style="flex-shrink: 0; white-space: nowrap;">s/d</span>
+                            <input type="date" id="filter-show-end-date" name="end_date" value="{{ $endDate ? (is_string($endDate) ? $endDate : $endDate->format('Y-m-d')) : '' }}" class="form-control form-control-sm" style="width: 135px; min-width: 130px; flex-shrink: 0;" disabled title="Tanggal Akhir">
                         </div>
                     </div>
 
@@ -450,7 +450,7 @@
                         <select id="filter-status" name="status" class="form-select form-select-sm" style="min-width: 135px;" onchange="document.getElementById('cashbook-filter-form').submit()">
                             <option value="">Semua Status</option>
                             <option value="lunas" @selected(($statusFilter ?? '') === 'lunas')>Lunas</option>
-                            <option value="pending" @selected(($statusFilter ?? '') === 'pending')>Pending</option>
+                            <option value="pending" @selected(($statusFilter ?? '') === 'pending')>Piutang</option>
                             <option value="ditolak" @selected(($statusFilter ?? '') === 'ditolak')>Ditolak</option>
                         </select>
                     </div>
@@ -567,12 +567,12 @@
             <div class="d-flex align-items-center gap-2">
                 <i class="fas fa-hourglass-half text-warning fs-5"></i>
                 <div>
-                    <span class="fw-bold text-dark small">Perhatian: Terdapat {{ $pendingTxCount }} transaksi kas berstatus Menunggu Persetujuan (Pending).</span>
-                    <div class="text-muted" style="font-size: 0.75rem;">Transaksi pending belum memotong/menambah saldo kas riil sampai disetujui oleh Manager/Super Admin.</div>
+                    <span class="fw-bold text-dark small">Perhatian: Terdapat {{ $pendingTxCount }} transaksi kas berstatus Piutang / Menunggu Persetujuan.</span>
+                    <div class="text-muted" style="font-size: 0.75rem;">Transaksi piutang belum memotong/menambah saldo kas riil sampai disetujui oleh Manager/Super Admin.</div>
                 </div>
             </div>
             <button type="button" class="btn btn-xs btn-outline-warning text-dark fw-bold" onclick="document.getElementById('filter-status').value='pending'; if(typeof applyTableFilters === 'function') applyTableFilters();" style="border-radius: 6px;">
-                <i class="fas fa-filter me-1"></i> Tampilkan Transaksi Pending
+                <i class="fas fa-filter me-1"></i> Tampilkan Transaksi Piutang
             </button>
         </div>
     @endif
@@ -642,7 +642,7 @@
                                     'notes' => $transaction->notes,
                                     'status' => $transaction->status ?? 'lunas',
                                     'status_label' => match($transaction->status ?? 'lunas') {
-                                        'pending' => 'Menunggu Persetujuan',
+                                        'pending' => 'Piutang (Menunggu Persetujuan)',
                                         'ditolak' => 'Ditolak',
                                         default => 'Lunas (Diverifikasi)',
                                     },
@@ -735,8 +735,8 @@
                                 <!-- STATUS -->
                                 <td class="text-nowrap">
                                     @if(($transaction->status ?? 'lunas') === 'pending')
-                                        <span class="badge-soft-warning" title="Menunggu verifikasi Manager / Super Admin">
-                                            <i class="fas fa-clock" style="font-size: 0.65rem;"></i> Menunggu
+                                        <span class="badge-soft-warning" title="Status Piutang / Menunggu verifikasi Manager">
+                                            <i class="fas fa-clock" style="font-size: 0.65rem;"></i> Piutang
                                         </span>
                                     @elseif(($transaction->status ?? 'lunas') === 'ditolak')
                                         <span class="badge-soft-danger" title="Transaksi ditolak / dibatalkan">
@@ -993,12 +993,12 @@
                             <label for="cashbook-status" class="form-label">Status Verifikasi <span aria-hidden="true">*</span></label>
                             <select id="cashbook-status" name="status" class="form-select @error('status') is-invalid @enderror">
                                 <option value="lunas">Lunas (Diverifikasi)</option>
-                                <option value="pending" {{ auth()->user()?->role === 'accounting' ? 'selected' : '' }}>Pending (Menunggu Persetujuan Manager)</option>
+                                <option value="pending" {{ auth()->user()?->role === 'accounting' ? 'selected' : '' }}>Piutang (Menunggu Persetujuan Manager)</option>
                                 @if(auth()->user()?->role === 'admin')
                                     <option value="ditolak">Ditolak (Dibatalkan)</option>
                                 @endif
                             </select>
-                            <div class="form-text">Status 'Pending' tidak mengurangi/menambah saldo kas sebelum disetujui Manager.</div>
+                            <div class="form-text">Status 'Piutang' tidak mengurangi/menambah saldo kas sebelum disetujui Manager.</div>
                             <div class="invalid-feedback">@error('status'){{ $message }}@enderror</div>
                         </div>
                         <div class="col-md-6">
@@ -1600,7 +1600,7 @@
                     const statusEl = document.getElementById('detail-status');
                     if (statusEl) {
                         statusEl.innerHTML = tx.status === 'pending'
-                            ? '<span class="badge-soft-warning"><i class="fas fa-clock me-1"></i>Menunggu Persetujuan Manager</span>'
+                            ? '<span class="badge-soft-warning"><i class="fas fa-clock me-1"></i>Piutang (Menunggu Persetujuan Manager)</span>'
                             : (tx.status === 'ditolak'
                                 ? '<span class="badge-soft-danger"><i class="fas fa-times-circle me-1"></i>Ditolak</span>'
                                 : '<span class="badge-soft-success"><i class="fas fa-check me-1"></i>Lunas (Diverifikasi)</span>');

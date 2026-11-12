@@ -102,7 +102,7 @@
                     <i class="fas fa-clock small"></i>
                 </div>
                 <div class="small text-dark">
-                    <strong>Persetujuan Transaksi Diperlukan:</strong> Terdapat <strong>{{ $totalPendingCount }} transaksi</strong> kas berstatus <strong>Pending</strong> yang menunggu verifikasi.
+                    <strong>Persetujuan Transaksi Diperlukan:</strong> Terdapat <strong>{{ $totalPendingCount }} transaksi</strong> kas berstatus <strong>Piutang</strong> yang menunggu verifikasi.
                 </div>
             </div>
             <div>
@@ -145,10 +145,10 @@
             </div>
 
             {{-- Dynamic Inputs Rentang Tanggal (Lengkap) --}}
-            <div class="col-auto d-flex align-items-center gap-1.5 d-none" id="filter-col-dates">
-                <input type="date" id="filter-start-date" name="start_date" value="{{ $startDate ? (is_string($startDate) ? $startDate : $startDate->format('Y-m-d')) : '' }}" class="form-control form-control-sm" style="width: 140px;" disabled title="Tanggal Mulai">
-                <span class="small text-muted">s/d</span>
-                <input type="date" id="filter-end-date" name="end_date" value="{{ $endDate ? (is_string($endDate) ? $endDate : $endDate->format('Y-m-d')) : '' }}" class="form-control form-control-sm" style="width: 140px;" disabled title="Tanggal Akhir">
+            <div class="col-auto d-flex align-items-center gap-1.5 d-none flex-nowrap" id="filter-col-dates">
+                <input type="date" id="filter-start-date" name="start_date" value="{{ $startDate ? (is_string($startDate) ? $startDate : $startDate->format('Y-m-d')) : '' }}" class="form-control form-control-sm" style="width: 140px; flex-shrink: 0;" disabled title="Tanggal Mulai">
+                <span class="small text-muted text-nowrap px-1" style="flex-shrink: 0; white-space: nowrap;">s/d</span>
+                <input type="date" id="filter-end-date" name="end_date" value="{{ $endDate ? (is_string($endDate) ? $endDate : $endDate->format('Y-m-d')) : '' }}" class="form-control form-control-sm" style="width: 140px; flex-shrink: 0;" disabled title="Tanggal Akhir">
             </div>
 
             <div class="col-12 col-md-auto ms-auto d-flex align-items-center gap-1.5 justify-content-end">
