@@ -97,42 +97,44 @@
         }
 
         /* Client Biodata & Metadata Styles (Spacious, Clean, No Dangling Dividers) */
-        .project-meta-strip {
+        .project-contact-list {
             display: flex;
             align-items: center;
             flex-wrap: wrap;
-            gap: 8px 20px;
+            gap: 0.5rem 1.25rem;
             font-size: 0.8125rem;
-            line-height: 1.4;
             color: #64748b;
         }
-        .project-meta-item {
+        .project-contact-item {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 0.4rem;
             white-space: nowrap;
         }
-        .project-meta-item.meta-address {
+        .project-contact-item.project-contact-address {
             white-space: normal;
+            word-break: break-word;
         }
-        .project-meta-icon {
+        .project-contact-item i {
             color: #94a3b8;
             font-size: 0.825rem;
             flex-shrink: 0;
         }
-        .project-meta-label {
+        .project-contact-label {
             color: #64748b;
         }
-        .project-meta-value {
+        .project-contact-item strong {
             color: #0f172a;
             font-weight: 600;
         }
-        .project-meta-link {
+        .project-contact-email a,
+        .project-contact-phone {
             color: #475569;
             text-decoration: none;
             transition: color 0.15s ease;
         }
-        .project-meta-link:hover {
+        .project-contact-email a:hover,
+        .project-contact-phone:hover {
             color: #2563eb;
             text-decoration: underline;
         }
@@ -401,53 +403,39 @@
                             }
                         @endphp
 
-                        <div class="d-flex align-items-center flex-wrap gap-x-3 gap-y-1 text-muted" style="font-size: 0.8125rem;">
-                            {{-- Klien --}}
-                            <span class="d-inline-flex align-items-center gap-1.5">
-                                <i class="fas fa-user-circle text-secondary" style="font-size: 0.825rem;"></i>
-                                <span class="text-secondary">Klien:</span>
-                                <strong class="text-dark">{{ $project->user->name ?? 'Klien tidak tersedia' }}</strong>
-                            </span>
-
-                            {{-- Email --}}
+                        <div class="project-contact-list">
+                            <div class="project-contact-item">
+                                <i class="fas fa-user-circle" aria-hidden="true"></i>
+                                <span class="project-contact-label">Klien</span>
+                                <strong>{{ $project->user->name ?? 'Klien tidak tersedia' }}</strong>
+                            </div>
                             @if($project->user?->email)
-                                <span class="text-muted opacity-50 d-none d-sm-inline">•</span>
-                                <span class="d-inline-flex align-items-center gap-1.5">
-                                    <i class="fas fa-envelope text-secondary" style="font-size: 0.8rem;"></i>
-                                    <a href="mailto:{{ $project->user->email }}" class="text-secondary text-decoration-none hover-primary">
-                                        {{ $project->user->email }}
-                                    </a>
-                                </span>
+                                <div class="project-contact-item project-contact-email">
+                                    <i class="fas fa-envelope" aria-hidden="true"></i>
+                                    <a href="mailto:{{ $project->user->email }}">{{ $project->user->email }}</a>
+                                </div>
                             @endif
-
-                            {{-- Telepon & WA --}}
                             @if($rawPhone)
-                                <span class="text-muted opacity-50 d-none d-sm-inline">•</span>
-                                <span class="d-inline-flex align-items-center gap-1.5">
-                                    <i class="fas fa-phone text-secondary" style="font-size: 0.8rem;"></i>
-                                    <span class="text-dark fw-medium">{{ $rawPhone }}</span>
+                                <div class="project-contact-item">
+                                    <i class="fas fa-phone" aria-hidden="true"></i>
+                                    <a class="project-contact-phone" href="tel:{{ preg_replace('/[^0-9+]/', '', (string) $rawPhone) }}">{{ $rawPhone }}</a>
                                     @if($cleanWa)
                                         <a href="https://wa.me/{{ $cleanWa }}?text={{ urlencode('Halo ' . ($project->user->name ?? 'Bpk/Ibu') . ', kami dari Bagian Keuangan PT Indo Berkah Konstruksi terkait proyek ' . $project->nama_proyek . '...') }}"
-                                           target="_blank"
-                                           class="project-meta-wa-pill"
-                                           title="Chat Klien via WhatsApp">
-                                            <i class="fab fa-whatsapp"></i>
+                                           target="_blank" rel="noopener noreferrer"
+                                           class="project-meta-wa-pill" title="Chat Klien via WhatsApp">
+                                            <i class="fab fa-whatsapp" aria-hidden="true"></i>
                                             <span>Chat WA</span>
                                         </a>
                                     @endif
-                                </span>
+                                </div>
+                            @endif
+                            @if($project->alamat_proyek)
+                                <div class="project-contact-item project-contact-address">
+                                    <i class="fas fa-location-dot" aria-hidden="true"></i>
+                                    <span title="{{ strip_tags((string) $project->alamat_proyek) }}">{{ strip_tags((string) $project->alamat_proyek) }}</span>
+                                </div>
                             @endif
                         </div>
-
-                        {{-- Row 3: Alamat Proyek --}}
-                        @if($project->alamat_proyek)
-                            <div class="d-flex align-items-center gap-1.5 mt-1 text-secondary" style="font-size: 0.8125rem;">
-                                <i class="fas fa-location-dot text-secondary" style="font-size: 0.8rem; flex-shrink: 0;"></i>
-                                <span class="text-truncate" style="max-width: 520px;" title="{{ strip_tags((string) $project->alamat_proyek) }}">
-                                    {{ strip_tags((string) $project->alamat_proyek) }}
-                                </span>
-                            </div>
-                        @endif
                     </div>
                 </div>
 
