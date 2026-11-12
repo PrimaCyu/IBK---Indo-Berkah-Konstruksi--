@@ -361,6 +361,39 @@
                                 </div>
                             @endif
 
+                            @php
+                                $rawPhone = $project->user?->phone;
+                                $cleanWa = null;
+                                if ($rawPhone) {
+                                    $digits = preg_replace('/[^0-9]/', '', (string)$rawPhone);
+                                    if (str_starts_with($digits, '0')) {
+                                        $cleanWa = '62' . substr($digits, 1);
+                                    } elseif (str_starts_with($digits, '62')) {
+                                        $cleanWa = $digits;
+                                    } else {
+                                        $cleanWa = '62' . $digits;
+                                    }
+                                }
+                            @endphp
+
+                            @if($rawPhone)
+                                <span class="bio-divider d-none d-sm-inline-block"></span>
+                                <div class="client-bio-item">
+                                    <i class="fas fa-phone bio-icon"></i>
+                                    <span class="bio-value">{{ $rawPhone }}</span>
+                                    @if($cleanWa)
+                                        <a href="https://wa.me/{{ $cleanWa }}?text={{ urlencode('Halo ' . ($project->user->name ?? 'Bpk/Ibu') . ', kami dari Bagian Keuangan PT Indo Berkah Konstruksi terkait proyek ' . $project->nama_proyek . '...') }}"
+                                           target="_blank"
+                                           class="btn btn-xs btn-outline-success d-inline-flex align-items-center gap-1 ms-1 px-1.5 py-0.5 text-decoration-none"
+                                           style="font-size: 0.72rem; border-radius: 4px; border-color: #22c55e; color: #15803d;"
+                                           title="Chat Klien via WhatsApp">
+                                            <i class="fab fa-whatsapp text-success"></i>
+                                            <span>Chat WA</span>
+                                        </a>
+                                    @endif
+                                </div>
+                            @endif
+
                             @if($project->alamat_proyek)
                                 <span class="bio-divider d-none d-md-inline-block"></span>
                                 <div class="client-bio-item bio-address">

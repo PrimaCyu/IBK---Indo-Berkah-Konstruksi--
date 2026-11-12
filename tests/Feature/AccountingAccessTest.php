@@ -113,6 +113,42 @@ class AccountingAccessTest extends TestCase
         $this->assertDatabaseHas('project_cashflows', ['id' => $cashflow->id]);
     }
 
+    public function test_accounting_can_access_and_add_client_contacts(): void
+    {
+        $accountant = User::factory()->create(['role' => 'accounting']);
+        $owner = User::factory()->create([
+            'role' => 'owner',
+            'name' => 'Bpk. Klien Contoh',
+            'phone' => '081234567890',
+        ]);
+        $this->project($owner);
+
+        $this->actingAs($accountant);
+
+        // Can view client contacts list
+        $response = $this->get(route('admin.cashbook.clients.index'));
+        $response->assertOk()
+            ->assertSee('Buku Kontak Klien')
+            ->assertSee('Bpk. Klien Contoh')
+            ->assertSee('081234567890');
+
+        // Can store new client contact (role owner)
+        $storeResponse = $this->post(route('admin.cashbook.clients.store'), [
+            'name' => 'Ibu Siti Rahma',
+            'email' => 'siti.rahma@test.com',
+            'phone' => '089876543210',
+            'password' => 'secret123',
+        ]);
+
+        $storeResponse->assertRedirect()->assertSessionHas('success');
+        $this->assertDatabaseHas('users', [
+            'name' => 'Ibu Siti Rahma',
+            'email' => 'siti.rahma@test.com',
+            'phone' => '089876543210',
+            'role' => 'owner',
+        ]);
+    }
+
     private function project(User $owner): Project
     {
         return Project::create([

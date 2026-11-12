@@ -41,9 +41,17 @@
 @endphp
 
 @section('page-actions')
-    <span class="badge-soft-primary px-3 py-1.5 font-monospace">
-        <i class="fas fa-calendar-alt me-1" aria-hidden="true"></i> {{ $periodTitle }}
-    </span>
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+        <span class="badge-soft-primary px-3 py-1.5 font-monospace">
+            <i class="fas fa-calendar-alt me-1" aria-hidden="true"></i> {{ $periodTitle }}
+        </span>
+        <a href="{{ route('admin.cashbook.index') }}" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1.5 py-1 px-2.5 shadow-none" style="border-radius: 6px; font-size: 0.8rem;">
+            <i class="fas fa-wallet"></i> Keuangan Proyek
+        </a>
+        <a href="{{ route('admin.cashbook.clients.index') }}" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1.5 py-1 px-2.5 shadow-none" style="border-radius: 6px; font-size: 0.8rem;">
+            <i class="fas fa-address-book"></i> Kontak Klien
+        </a>
+    </div>
 @endsection
 
 @section('content')

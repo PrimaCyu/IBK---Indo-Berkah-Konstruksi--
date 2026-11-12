@@ -318,9 +318,26 @@
                                     <div class="client-avatar-circle" title="{{ $clientName }}">
                                         {{ strtoupper($clientInitials) }}
                                     </div>
-                                    <div class="text-truncate" style="max-width: 140px;">
+                                    <div class="text-truncate" style="max-width: 160px;">
                                         <div class="text-dark small fw-semibold text-truncate">{{ $clientName }}</div>
-                                        <small class="text-muted d-block text-truncate">{{ $project->user->email ?? '-' }}</small>
+                                        @php
+                                            $rawPhone = $project->user?->phone;
+                                            $cleanWa = null;
+                                            if ($rawPhone) {
+                                                $digits = preg_replace('/[^0-9]/', '', (string)$rawPhone);
+                                                $cleanWa = str_starts_with($digits, '0') ? '62' . substr($digits, 1) : $digits;
+                                            }
+                                        @endphp
+                                        @if($rawPhone && $cleanWa)
+                                            <a href="https://wa.me/{{ $cleanWa }}?text={{ urlencode('Halo ' . $clientName . ', kami dari Bagian Keuangan PT Indo Berkah Konstruksi...') }}" 
+                                               target="_blank" 
+                                               class="small text-success text-decoration-none d-inline-flex align-items-center gap-1 text-truncate" 
+                                               title="Chat WhatsApp: {{ $rawPhone }}">
+                                                <i class="fab fa-whatsapp"></i> {{ $rawPhone }}
+                                            </a>
+                                        @else
+                                            <small class="text-muted d-block text-truncate">{{ $project->user->email ?? '-' }}</small>
+                                        @endif
                                     </div>
                                 </div>
                             </td>

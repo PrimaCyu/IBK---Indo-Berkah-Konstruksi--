@@ -30,6 +30,7 @@ use App\Http\Controllers\Admin\AdminTeamController;
 use App\Http\Controllers\Admin\AdminSettingController;
 use App\Http\Controllers\Admin\AdminUserFileController;
 use App\Http\Controllers\Admin\ProjectCashflowController;
+use App\Http\Controllers\Admin\AdminClientContactController;
 
 Route::get('/layanan/{slug}', [LayananController::class, 'show'])->name('layanan.show');
 
@@ -108,6 +109,8 @@ Route::post('/logout', [AuthController::class, 'logout']);
 Route::middleware(['auth', 'accounting'])->prefix('admin')->name('admin.cashbook.')->scopeBindings()->group(function () {
     Route::get('/keuangan-umum', [ProjectCashflowController::class, 'general'])->name('general');
     Route::get('/keuangan-proyek', [ProjectCashflowController::class, 'index'])->name('index');
+    Route::get('/kontak-klien', [AdminClientContactController::class, 'index'])->name('clients.index');
+    Route::post('/kontak-klien', [AdminClientContactController::class, 'store'])->name('clients.store');
     Route::get('/projects/{project}/buku-kas/export', [ProjectCashflowController::class, 'export'])->name('export');
     Route::get('/projects/{project}/buku-kas', [ProjectCashflowController::class, 'show'])->name('show');
     Route::post('/projects/{project}/buku-kas/options', [ProjectCashflowController::class, 'storeOption'])->name('options.store');

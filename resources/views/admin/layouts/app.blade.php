@@ -958,6 +958,15 @@
                         </a>
                     </li>
 
+                    <li class="nav-item">
+                        <a href="{{ route('admin.cashbook.clients.index') }}" class="nav-link {{ request()->routeIs('admin.cashbook.clients.*') ? 'active' : '' }}">
+                            <div class="nav-left">
+                                <i class="fas fa-address-book" aria-hidden="true"></i>
+                                <span>Kontak Klien</span>
+                            </div>
+                        </a>
+                    </li>
+
                     @if($isAdmin)
                     <!-- PENJUALAN & KLIEN -->
                     <li class="nav-header">Penjualan & Klien</li>
