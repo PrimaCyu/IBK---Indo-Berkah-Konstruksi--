@@ -693,19 +693,31 @@
         </div>
         <div class="card-body p-0">
             <div class="table-responsive" tabindex="0" role="region" aria-label="Transaksi buku kas proyek" style="overflow-x: auto; width: 100%;">
-                <table class="table table-hover align-middle mb-0" id="cashbook-trans-table" style="min-width: 1020px;">
+                <table class="table table-hover align-middle mb-0" id="cashbook-trans-table" style="table-layout: fixed; width: 100%; min-width: 950px;">
+                    <colgroup>
+                        <col style="width: 90px;">
+                        <col style="width: 75px;">
+                        <col style="width: 75px;">
+                        <col style="width: 24%;">
+                        <col style="width: 80px;">
+                        <col style="width: 75px;">
+                        <col style="width: 105px;">
+                        <col style="width: 85px;">
+                        <col style="width: 65px;">
+                        <col style="width: 95px;">
+                    </colgroup>
                     <thead>
                         <tr>
-                            <th scope="col" style="width: 105px;">KODE</th>
-                            <th scope="col" style="width: 85px;">TANGGAL</th>
-                            <th scope="col" style="width: 85px;">TRANSAKSI</th>
-                            <th scope="col" style="min-width: 180px;">DESKRIPSI</th>
-                            <th scope="col" style="width: 100px;">VOL & SATUAN</th>
-                            <th scope="col" style="width: 90px;">PROGRAM</th>
-                            <th scope="col" class="text-end" style="width: 120px;">NOMINAL</th>
-                            <th scope="col" style="width: 95px;">METODE</th>
-                            <th scope="col" class="text-center" style="width: 80px;">STATUS</th>
-                            <th scope="col" class="text-end pe-3" style="width: 110px;">AKSI</th>
+                            <th scope="col" class="ps-2">KODE</th>
+                            <th scope="col">TANGGAL</th>
+                            <th scope="col">TRANSAKSI</th>
+                            <th scope="col">DESKRIPSI</th>
+                            <th scope="col">VOL & SATUAN</th>
+                            <th scope="col">PROGRAM</th>
+                            <th scope="col" class="text-end">NOMINAL</th>
+                            <th scope="col">METODE</th>
+                            <th scope="col" class="text-center">STATUS</th>
+                            <th scope="col" class="text-end pe-2">AKSI</th>
                         </tr>
                     </thead>
                     <tbody>
