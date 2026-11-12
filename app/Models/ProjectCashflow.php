@@ -116,7 +116,7 @@ class ProjectCashflow extends Model
                     $expense = $expense->plus($total);
                     $balance = $balance->minus($total);
                 }
-            } elseif ($status === 'pending') {
+            } elseif (in_array($status, ['pending', 'piutang'], true)) {
                 $pendingCount++;
                 if ($transaction->type === 'penerimaan') {
                     $pendingIncome = $pendingIncome->plus($total);

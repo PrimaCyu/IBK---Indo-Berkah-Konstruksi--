@@ -24,7 +24,7 @@ class ProjectController extends Controller
         $user = Auth::user();
 
         // Klien wajib melalui alur penawaran terlebih dahulu
-        if ($user->role !== 'admin') {
+        if (! $user->isAdmin()) {
             \App\Models\Penawaran::create([
                 'nama'      => $user->name,
                 'telepon'   => $user->phone ?: '08xxxxxxxxxx',
@@ -57,7 +57,7 @@ class ProjectController extends Controller
         $user = Auth::user();
 
         // Ensure user can only see their own projects, unless admin
-        abort_if($user->role !== 'admin' && $project->user_id !== $user->id, 403, 'Anda tidak memiliki akses ke proyek ini.');
+        abort_if(! $user->isAdmin() && $project->user_id !== $user->id, 403, 'Anda tidak memiliki akses ke proyek ini.');
 
         $designFiles = $project->files()->designs()->latest()->get();
         $progressFiles = $project->files()->progress()->latest()->get();

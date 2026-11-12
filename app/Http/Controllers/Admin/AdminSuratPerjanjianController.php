@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\SuratPerjanjian;
 use App\Models\Project;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class AdminSuratPerjanjianController extends Controller
 {
@@ -94,6 +95,10 @@ class AdminSuratPerjanjianController extends Controller
 
     public function destroy(SuratPerjanjian $suratPerjanjian)
     {
+        if ($suratPerjanjian->file_surat && Storage::disk('public')->exists($suratPerjanjian->file_surat)) {
+            Storage::disk('public')->delete($suratPerjanjian->file_surat);
+        }
+
         $suratPerjanjian->delete();
         return back()->with('success', 'Surat perjanjian berhasil dihapus.');
     }

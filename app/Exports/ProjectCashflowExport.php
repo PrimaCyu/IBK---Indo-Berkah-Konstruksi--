@@ -63,7 +63,7 @@ class ProjectCashflowExport
             $writer->addRow(new Row([]));
             $writer->addRow(new Row(array_map(
                 fn (string $value): StringCell => new StringCell($value, $text),
-                ['Tanggal', 'Jenis', 'Kode', 'Uraian', 'Satuan', 'Jumlah', 'Harga Satuan', 'Total', 'Saldo', 'Keterangan'],
+                ['Tanggal', 'Jenis', 'Kode', 'Uraian', 'Satuan', 'Jumlah', 'Harga Satuan', 'Total', 'Saldo', 'Status', 'Keterangan'],
             ), $header));
 
             foreach ($ledger['transactions'] as $transaction) {
@@ -77,6 +77,7 @@ class ProjectCashflowExport
                     $this->numberCell($transaction->unit_price, $money, $text),
                     $this->numberCell($transaction->total, $money, $text),
                     $this->numberCell($transaction->running_balance, $money, $text),
+                    new StringCell(ucfirst($transaction->status ?? 'lunas'), $text),
                     new StringCell($transaction->notes ?? '', $text),
                 ]));
             }

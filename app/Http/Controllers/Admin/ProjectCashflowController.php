@@ -618,7 +618,7 @@ class ProjectCashflowController extends Controller
             $validated['category_id'] = $this->resolveCategoryId($validated['code'] ?? null, $validated['type']);
         }
         $validated['status'] = $validated['status'] ?? (auth()->user()?->role === 'accounting' ? 'pending' : 'lunas');
-        if ($validated['status'] === 'lunas' && auth()->user()?->role === 'admin') {
+        if ($validated['status'] === 'lunas' && in_array(auth()->user()?->role, ['superadmin', 'admin'], true)) {
             $validated['approved_by'] = auth()->id();
             $validated['approved_at'] = now();
         }
@@ -701,7 +701,7 @@ class ProjectCashflowController extends Controller
 
     public function approve(Project $project, ProjectCashflow $cashflow): RedirectResponse
     {
-        abort_unless(auth()->user()?->role === 'admin', 403, 'Hanya Super Admin / Manager yang dapat menyetujui transaksi.');
+        abort_unless(in_array(auth()->user()?->role, ['superadmin', 'admin'], true), 403, 'Hanya Super Admin / Manager yang dapat menyetujui transaksi.');
         abort_unless((string) $cashflow->project_id === (string) $project->getKey(), 404);
 
         $cashflow->update([
@@ -715,7 +715,7 @@ class ProjectCashflowController extends Controller
 
     public function reject(Project $project, ProjectCashflow $cashflow): RedirectResponse
     {
-        abort_unless(auth()->user()?->role === 'admin', 403, 'Hanya Super Admin / Manager yang dapat menolak transaksi.');
+        abort_unless(in_array(auth()->user()?->role, ['superadmin', 'admin'], true), 403, 'Hanya Super Admin / Manager yang dapat menolak transaksi.');
         abort_unless((string) $cashflow->project_id === (string) $project->getKey(), 404);
 
         $cashflow->update([

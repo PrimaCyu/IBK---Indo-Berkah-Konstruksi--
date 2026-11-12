@@ -82,6 +82,7 @@ class AuthController extends Controller
                     'superadmin', 'admin' => $path === '/admin' || str_starts_with($path, '/admin/'),
                     'accounting' => $path === '/admin/keuangan-proyek' || str_starts_with($path, '/admin/keuangan-proyek/')
                         || $path === '/admin/keuangan-umum' || str_starts_with($path, '/admin/keuangan-umum/')
+                        || $path === '/admin/kontak-klien' || str_starts_with($path, '/admin/kontak-klien/')
                         || str_starts_with($path, '/admin/projects/'),
                     default => $path === '/dashbord' || str_starts_with($path, '/dashbord/'),
                 };
