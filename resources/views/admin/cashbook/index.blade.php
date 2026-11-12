@@ -130,6 +130,86 @@
     </div>
 @endif
 
+{{-- 5 Summary KPI Cards: Total Proyek, Pemasukan, Pengeluaran, Piutang, Selisih (Selisih di Paling Kanan) --}}
+<div class="row g-2 mb-3">
+    <div class="col-6 col-lg">
+        <div class="card h-100 mb-0 shadow-sm border">
+            <div class="card-body p-3">
+                <div class="d-flex align-items-center justify-content-between mb-1.5">
+                    <span class="small fw-bold text-muted text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">TOTAL PROYEK</span>
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 28px; height: 28px; background-color: #F1F5F9; color: #475569;">
+                        <i class="fas fa-building small"></i>
+                    </div>
+                </div>
+                <div class="fs-5 fw-bold text-dark cashbook-number mb-0.5">{{ count($projectsData) }}</div>
+                <small class="text-muted" style="font-size: 0.72rem;">Proyek Terdata</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg">
+        <div class="card h-100 mb-0 shadow-sm border">
+            <div class="card-body p-3">
+                <div class="d-flex align-items-center justify-content-between mb-1.5">
+                    <span class="small fw-bold text-muted text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">PEMASUKAN</span>
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 28px; height: 28px; background-color: #ECFDF5; color: #10B981;">
+                        <i class="fas fa-arrow-down small"></i>
+                    </div>
+                </div>
+                <div class="fs-5 fw-bold text-success cashbook-number mb-0.5">+ {{ $formatRupiah($grandPeriodIncome) }}</div>
+                <small class="text-muted" style="font-size: 0.72rem;">Penerimaan Lunas</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg">
+        <div class="card h-100 mb-0 shadow-sm border">
+            <div class="card-body p-3">
+                <div class="d-flex align-items-center justify-content-between mb-1.5">
+                    <span class="small fw-bold text-muted text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">PENGELUARAN</span>
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 28px; height: 28px; background-color: #FEF2F2; color: #EF4444;">
+                        <i class="fas fa-arrow-up small"></i>
+                    </div>
+                </div>
+                <div class="fs-5 fw-bold text-danger cashbook-number mb-0.5">− {{ $formatRupiah($grandPeriodExpense) }}</div>
+                <small class="text-muted" style="font-size: 0.72rem;">Beban Kas</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg">
+        <div class="card h-100 mb-0 shadow-sm border">
+            <div class="card-body p-3">
+                <div class="d-flex align-items-center justify-content-between mb-1.5">
+                    <span class="small fw-bold text-muted text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">PIUTANG</span>
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 28px; height: 28px; background-color: #FEF3C7; color: #D97706;">
+                        <i class="fas fa-clock small"></i>
+                    </div>
+                </div>
+                <div class="fs-5 fw-bold text-warning cashbook-number mb-0.5">{{ $formatRupiah($grandPeriodReceivable) }}</div>
+                <small class="text-muted" style="font-size: 0.72rem;">Menunggu Pembayaran</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg">
+        <div class="card h-100 mb-0 shadow-sm border">
+            <div class="card-body p-3">
+                <div class="d-flex align-items-center justify-content-between mb-1.5">
+                    <span class="small fw-bold text-muted text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">SELISIH</span>
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 28px; height: 28px; background-color: #EFF6FF; color: #2563EB;">
+                        <i class="fas fa-wallet small"></i>
+                    </div>
+                </div>
+                <div class="fs-5 fw-bold text-dark cashbook-number mb-0.5">{{ $formatRupiah($grandPeriodBalance) }}</div>
+                <small class="text-muted" style="font-size: 0.72rem;">
+                    @if($grandMargin !== null)
+                        Margin: <strong class="{{ $grandMargin >= 0 ? 'text-success' : 'text-danger' }}">{{ $grandMargin >= 0 ? '+' : '' }}{{ $grandMargin }}%</strong>
+                    @else
+                        Saldo Bersih
+                    @endif
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
 {{-- Filter Bar: Periode, Status Proyek, dan Pencarian Cepat --}}
 <div class="card mb-3 shadow-sm">
     <div class="card-body p-3">
@@ -178,11 +258,11 @@
                 </select>
             </div>
 
-            {{-- Cari Proyek / Klien --}}
+            {{-- Cari Proyek / Klien (Search) --}}
             <div class="col-12 col-md">
                 <div class="input-group input-group-sm">
                     <span class="input-group-text bg-light border-end-0 text-muted"><i class="fas fa-search"></i></span>
-                    <input type="search" id="cashbook-search" name="search" value="{{ $search }}" class="form-control form-control-sm border-start-0" placeholder="Cari nama proyek, lokasi, atau klien...">
+                    <input type="search" id="cashbook-search" name="search" value="{{ $search }}" class="form-control form-control-sm border-start-0" placeholder="Search nama proyek, lokasi, atau klien...">
                 </div>
             </div>
 
@@ -281,19 +361,30 @@
         </div>
     </div>
     <div class="card-body p-0">
-        <div class="table-responsive" tabindex="0" role="region" aria-label="Daftar proyek dan rincian kas">
-            <table class="table table-hover align-middle mb-0">
+        <div class="table-responsive p-0" tabindex="0" role="region" aria-label="Daftar proyek dan rincian kas">
+            <table class="table table-hover align-middle mb-0" style="table-layout: fixed; width: 100%;">
+                <colgroup>
+                    <col style="width: 35px;">
+                    <col style="width: 19%;">
+                    <col style="width: 12%;">
+                    <col style="width: 12%;">
+                    <col style="width: 12%;">
+                    <col style="width: 9%;">
+                    <col style="width: 11%;">
+                    <col style="width: 65px;">
+                    <col style="width: 85px;">
+                </colgroup>
                 <thead class="table-light">
                     <tr>
-                        <th scope="col" style="width: 45px;" class="text-center">NO</th>
-                        <th scope="col" style="min-width: 200px;">PROYEK & LOKASI</th>
-                        <th scope="col" style="min-width: 150px;">KLIEN</th>
-                        <th scope="col" class="text-center" style="width: 110px;">STATUS PROYEK</th>
-                        <th scope="col" class="text-end text-success" style="min-width: 130px;">PENERIMAAN</th>
-                        <th scope="col" class="text-end text-danger" style="min-width: 130px;">PENGELUARAN</th>
-                        <th scope="col" class="text-end text-primary" style="min-width: 140px;">TOTAL SALDO</th>
-                        <th scope="col" class="text-center" style="width: 130px;">VERIFIKASI KAS</th>
-                        <th scope="col" class="text-end" style="width: 110px;">AKSI</th>
+                        <th scope="col" class="text-center px-1">NO</th>
+                        <th scope="col" class="ps-2">PROYEK & LOKASI</th>
+                        <th scope="col">KLIEN</th>
+                        <th scope="col" class="text-end text-success pe-2">PEMASUKAN</th>
+                        <th scope="col" class="text-end text-danger pe-2">PENGELUARAN</th>
+                        <th scope="col" class="text-end text-warning pe-2">PIUTANG</th>
+                        <th scope="col" class="text-end text-primary pe-2">SELISIH</th>
+                        <th scope="col" class="text-center px-1">STATUS</th>
+                        <th scope="col" class="text-center px-1">AKSI</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -302,24 +393,34 @@
                             $project = $item['project'];
                             $hasIncome = $item['period_income'] !== '0.00' && $item['period_income'] !== '0';
                             $hasExpense = $item['period_expense'] !== '0.00' && $item['period_expense'] !== '0';
+                            $hasReceivable = ($item['period_receivable'] ?? '0.00') !== '0.00' && ($item['period_receivable'] ?? '0.00') !== '0';
                             $clientName = $project->user->name ?? 'Klien';
                             $clientInitials = collect(explode(' ', $clientName))->map(fn ($part) => mb_substr($part, 0, 1))->take(2)->implode('');
                         @endphp
-                        <tr class="@if(($item['pending_count'] ?? 0) > 0) row-has-pending @endif">
-                            <td class="text-center text-muted small">{{ $index + 1 }}</td>
-                            <td>
-                                <div class="fw-bold text-dark text-truncate" style="max-width: 260px; font-size: 0.875rem;">{{ $project->nama_proyek }}</div>
-                                <div class="small text-muted text-truncate" style="max-width: 260px;">
-                                    <i class="fas fa-map-marker-alt text-secondary opacity-75 me-1"></i>{{ strip_tags((string) $project->alamat_proyek) ?: 'Lokasi belum diisi' }}
+                        <tr>
+                            <td class="text-center text-muted small px-1">{{ $index + 1 }}</td>
+                            <td class="ps-2">
+                                <div class="d-flex align-items-center gap-1.5 flex-wrap">
+                                    <span class="fw-bold text-dark text-truncate" style="max-width: 150px; font-size: 0.84rem;">{{ $project->nama_proyek }}</span>
+                                    @if($project->status === 'selesai')
+                                        <span class="badge-soft-success py-0 px-1" style="font-size: 0.65rem;">Selesai</span>
+                                    @elseif($project->status === 'aktif')
+                                        <span class="badge-soft-primary py-0 px-1" style="font-size: 0.65rem;">Aktif</span>
+                                    @else
+                                        <span class="badge-soft-neutral py-0 px-1" style="font-size: 0.65rem;">{{ ucfirst($project->status) }}</span>
+                                    @endif
+                                </div>
+                                <div class="small text-muted text-truncate" style="max-width: 190px; font-size: 0.72rem;">
+                                    <i class="fas fa-map-marker-alt text-secondary opacity-75 me-0.5"></i>{{ strip_tags((string) $project->alamat_proyek) ?: 'Lokasi belum diisi' }}
                                 </div>
                             </td>
                             <td>
-                                <div class="d-flex align-items-center gap-2">
-                                    <div class="client-avatar-circle" title="{{ $clientName }}">
+                                <div class="d-flex align-items-center gap-1.5">
+                                    <div class="client-avatar-circle" style="width: 24px; height: 24px; font-size: 0.68rem;" title="{{ $clientName }}">
                                         {{ strtoupper($clientInitials) }}
                                     </div>
-                                    <div class="text-truncate" style="max-width: 160px;">
-                                        <div class="text-dark small fw-semibold text-truncate">{{ $clientName }}</div>
+                                    <div class="text-truncate" style="max-width: 120px;">
+                                        <div class="text-dark small fw-semibold text-truncate" style="font-size: 0.78rem;">{{ $clientName }}</div>
                                         @php
                                             $rawPhone = $project->user?->phone;
                                             $cleanWa = null;
@@ -332,61 +433,60 @@
                                             <a href="https://wa.me/{{ $cleanWa }}?text={{ urlencode('Halo ' . $clientName . ', kami dari Bagian Keuangan PT Indo Berkah Konstruksi...') }}" 
                                                target="_blank" 
                                                class="small text-success text-decoration-none d-inline-flex align-items-center gap-1 text-truncate" 
+                                               style="font-size: 0.7rem;"
                                                title="Chat WhatsApp: {{ $rawPhone }}">
                                                 <i class="fab fa-whatsapp"></i> {{ $rawPhone }}
                                             </a>
                                         @else
-                                            <small class="text-muted d-block text-truncate">{{ $project->user->email ?? '-' }}</small>
+                                            <small class="text-muted d-block text-truncate" style="font-size: 0.7rem;">{{ $project->user->email ?? '-' }}</small>
                                         @endif
                                     </div>
                                 </div>
                             </td>
-                            <td class="text-center">
-                                @if($project->status === 'selesai')
-                                    <span class="badge-soft-success">Selesai</span>
-                                @elseif($project->status === 'aktif')
-                                    <span class="badge-soft-primary">Aktif</span>
-                                @else
-                                    <span class="badge-soft-neutral">{{ ucfirst($project->status) }}</span>
-                                @endif
-                            </td>
-                            <td class="text-end">
+                            <td class="text-end pe-2">
                                 @if($hasIncome)
-                                    <span class="fw-semibold text-success font-monospace" style="font-size: 0.85rem;">+ {{ $formatRupiah($item['period_income']) }}</span>
+                                    <span class="fw-semibold text-success font-monospace" style="font-size: 0.8rem;">+ {{ $formatRupiah($item['period_income']) }}</span>
                                 @else
                                     <span class="text-muted small">-</span>
                                 @endif
                             </td>
-                            <td class="text-end">
+                            <td class="text-end pe-2">
                                 @if($hasExpense)
-                                    <span class="fw-semibold text-danger font-monospace" style="font-size: 0.85rem;">− {{ $formatRupiah($item['period_expense']) }}</span>
+                                    <span class="fw-semibold text-danger font-monospace" style="font-size: 0.8rem;">− {{ $formatRupiah($item['period_expense']) }}</span>
                                 @else
                                     <span class="text-muted small">-</span>
                                 @endif
                             </td>
-                            <td class="text-end">
-                                <div class="fw-bold text-dark font-monospace" style="font-size: 0.875rem;">
+                            <td class="text-end pe-2">
+                                @if($hasReceivable)
+                                    <span class="fw-semibold text-warning font-monospace" style="font-size: 0.8rem;">{{ $formatRupiah($item['period_receivable']) }}</span>
+                                @else
+                                    <span class="text-muted small">-</span>
+                                @endif
+                            </td>
+                            <td class="text-end pe-2">
+                                <div class="fw-bold text-dark font-monospace" style="font-size: 0.82rem;">
                                     {{ $formatRupiah($item['lifetime_balance']) }}
                                 </div>
                                 @if($item['lifetime_margin'] !== null)
-                                    <div class="font-monospace {{ $item['lifetime_margin'] >= 0 ? 'text-success' : 'text-danger' }}" style="font-size: 0.72rem; font-weight: 600;" title="Margin Profit: {{ $item['lifetime_margin'] }}%">
-                                        <i class="fas {{ $item['lifetime_margin'] >= 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down' }} me-0.5" style="font-size: 0.65rem;"></i>{{ $item['lifetime_margin'] >= 0 ? '+' : '' }}{{ $item['lifetime_margin'] }}% Laba
+                                    <div class="font-monospace {{ $item['lifetime_margin'] >= 0 ? 'text-success' : 'text-danger' }}" style="font-size: 0.68rem; font-weight: 600;" title="Margin Profit: {{ $item['lifetime_margin'] }}%">
+                                        <i class="fas {{ $item['lifetime_margin'] >= 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down' }} me-0.5" style="font-size: 0.6rem;"></i>{{ $item['lifetime_margin'] >= 0 ? '+' : '' }}{{ $item['lifetime_margin'] }}% Laba
                                     </div>
                                 @endif
                             </td>
-                            <td class="text-center">
+                            <td class="text-center px-1">
                                 @if(($item['pending_count'] ?? 0) > 0)
-                                    <span class="badge-soft-warning font-monospace" title="{{ $item['pending_count'] }} transaksi kas berstatus piutang / menunggu persetujuan">
-                                        <i class="fas fa-clock me-1 text-warning"></i>{{ $item['pending_count'] }} Piutang
+                                    <span class="badge-soft-warning font-monospace py-0.5 px-1" style="font-size: 0.7rem;" title="{{ $item['pending_count'] }} transaksi kas piutang / pending">
+                                        <i class="fas fa-clock me-0.5 text-warning"></i>Piutang
                                     </span>
                                 @else
-                                    <span class="badge-soft-success font-monospace" title="Semua transaksi kas telah diverifikasi lunas">
-                                        <i class="fas fa-check-circle me-1 text-success"></i>Lunas
+                                    <span class="badge-soft-success font-monospace py-0.5 px-1" style="font-size: 0.7rem;" title="Semua transaksi kas telah lunas">
+                                        <i class="fas fa-check-circle me-0.5 text-success"></i>Lunas
                                     </span>
                                 @endif
                             </td>
-                            <td class="text-end">
-                                <a href="{{ route('admin.cashbook.show', $project) }}" class="btn btn-sm btn-outline-primary text-nowrap py-1 px-2.5" style="font-size: 0.8rem;" aria-label="Buka buku kas {{ $project->nama_proyek }}">
+                            <td class="text-center px-1">
+                                <a href="{{ route('admin.cashbook.show', $project) }}" class="btn btn-xs btn-outline-primary text-nowrap py-1 px-1.5" style="font-size: 0.72rem;" aria-label="Buka buku kas {{ $project->nama_proyek }}">
                                     <i class="fas fa-book-open me-1" aria-hidden="true"></i> Buku Kas
                                 </a>
                             </td>

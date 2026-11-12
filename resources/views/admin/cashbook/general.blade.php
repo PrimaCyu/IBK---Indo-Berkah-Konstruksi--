@@ -305,7 +305,7 @@
         <div class="card h-100 mb-0 shadow-sm">
             <div class="card-body p-3.5">
                 <div class="d-flex align-items-center justify-content-between mb-2">
-                    <span class="form-label mb-0 fw-bold text-muted small">SELISIH KAS / SALDO BERSIH</span>
+                    <span class="form-label mb-0 fw-bold text-muted small">SELISIH</span>
                     <div class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 34px; height: 34px; background-color: #EFF6FF; color: #2563EB;">
                         <i class="fas fa-wallet small"></i>
                     </div>

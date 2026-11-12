@@ -138,7 +138,7 @@
 
                         <!-- Deskripsi -->
                         <div class="col-12">
-                            <label class="form-label text-muted small fw-bold">DESKRIPSI & RUANG LINGKUP</label>
+                            <label class="form-label text-muted small fw-bold">DESKRIPSI</label>
                             <textarea name="deskripsi" class="form-control @error('deskripsi') is-invalid @enderror" rows="4">{{ old('deskripsi', $project->deskripsi) }}</textarea>
                             @error('deskripsi')
                                 <div class="invalid-feedback">{{ $message }}</div>

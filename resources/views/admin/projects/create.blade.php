@@ -117,10 +117,10 @@
                             </div>
                         </div>
 
-                        <!-- Deskripsi Proyek -->
+                        <!-- Deskripsi -->
                         <div class="col-12">
-                            <label class="form-label text-muted small fw-bold">DESKRIPSI & RUANG LINGKUP PENGERJAAN</label>
-                            <textarea name="deskripsi" class="form-control @error('deskripsi') is-invalid @enderror" rows="4" placeholder="Jelaskan spesifikasi bangunan, material utama, atau catatan penting proyek...">{{ old('deskripsi') }}</textarea>
+                            <label class="form-label text-muted small fw-bold">DESKRIPSI</label>
+                            <textarea name="deskripsi" class="form-control @error('deskripsi') is-invalid @enderror" rows="4" placeholder="Jelaskan spesifikasi proyek atau catatan penting...">{{ old('deskripsi') }}</textarea>
                             @error('deskripsi')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror

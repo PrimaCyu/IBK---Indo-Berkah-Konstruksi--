@@ -432,11 +432,77 @@
         </div>
     </div>
 
+    <!-- 4 KPI Cards: Pemasukan, Pengeluaran, Piutang, Selisih (Selisih di Paling Kanan) -->
+    <div class="row g-2 mb-3">
+        <div class="col-6 col-lg-3">
+            <div class="card h-100 mb-0 shadow-2xs border">
+                <div class="card-body p-3">
+                    <div class="d-flex align-items-center justify-content-between mb-1.5">
+                        <span class="small fw-bold text-muted text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">PEMASUKAN</span>
+                        <div class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 28px; height: 28px; background-color: #ECFDF5; color: #10B981;">
+                            <i class="fas fa-arrow-down small"></i>
+                        </div>
+                    </div>
+                    <div class="fs-5 fw-bold text-success cashbook-number mb-0.5">+ {{ $formatRupiah($income) }}</div>
+                    <small class="text-muted" style="font-size: 0.72rem;">Kas Masuk Lunas</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="card h-100 mb-0 shadow-2xs border">
+                <div class="card-body p-3">
+                    <div class="d-flex align-items-center justify-content-between mb-1.5">
+                        <span class="small fw-bold text-muted text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">PENGELUARAN</span>
+                        <div class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 28px; height: 28px; background-color: #FEF2F2; color: #EF4444;">
+                            <i class="fas fa-arrow-up small"></i>
+                        </div>
+                    </div>
+                    <div class="fs-5 fw-bold text-danger cashbook-number mb-0.5">− {{ $formatRupiah($expense) }}</div>
+                    <small class="text-muted" style="font-size: 0.72rem;">Beban Kas Lunas</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="card h-100 mb-0 shadow-2xs border">
+                <div class="card-body p-3">
+                    <div class="d-flex align-items-center justify-content-between mb-1.5">
+                        <span class="small fw-bold text-muted text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">PIUTANG</span>
+                        <div class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 28px; height: 28px; background-color: #FEF3C7; color: #D97706;">
+                            <i class="fas fa-clock small"></i>
+                        </div>
+                    </div>
+                    <div class="fs-5 fw-bold text-warning cashbook-number mb-0.5">{{ $formatRupiah($receivable ?? '0.00') }}</div>
+                    <small class="text-muted" style="font-size: 0.72rem;">Menunggu Pembayaran</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="card h-100 mb-0 shadow-2xs border">
+                <div class="card-body p-3">
+                    <div class="d-flex align-items-center justify-content-between mb-1.5">
+                        <span class="small fw-bold text-muted text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">SELISIH</span>
+                        <div class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 28px; height: 28px; background-color: #EFF6FF; color: #2563EB;">
+                            <i class="fas fa-wallet small"></i>
+                        </div>
+                    </div>
+                    <div class="fs-5 fw-bold text-dark cashbook-number mb-0.5">{{ $formatRupiah($balance) }}</div>
+                    <small class="text-muted" style="font-size: 0.72rem;">
+                        @if(($marginPercent ?? null) !== null)
+                            Margin Laba: <strong class="{{ $marginPercent >= 0 ? 'text-success' : 'text-danger' }}">{{ $marginPercent >= 0 ? '+' : '' }}{{ $marginPercent }}%</strong>
+                        @else
+                            Saldo Kas Bersih
+                        @endif
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Filter Card: 2 Baris Teratur & Proporsional -->
     <div class="card mb-3">
         <div class="card-body p-3">
             <form id="cashbook-filter-form" method="GET" action="{{ route('admin.cashbook.show', $project) }}">
-                {{-- Baris 1: Filter Waktu, Tipe, & Status --}}
+                {{-- Baris 1: Filter Waktu, Transaksi, & Status --}}
                 <div class="row g-2 align-items-center mb-2">
                     {{-- Waktu: Periode + Bulan/Tahun atau Rentang Tanggal --}}
                     <div class="col-12 col-md-auto d-flex align-items-center gap-1.5 flex-wrap">
@@ -469,33 +535,32 @@
                         </div>
                     </div>
 
-                    {{-- Tipe --}}
+                    {{-- Transaksi (sebelumnya Tipe) --}}
                     <div class="col-6 col-md-auto ms-md-auto">
                         <select id="filter-type" class="form-select form-select-sm" style="min-width: 135px;">
-                            <option value="">Semua Tipe</option>
+                            <option value="">Semua Transaksi</option>
                             <option value="penerimaan">Penerimaan (Masuk)</option>
                             <option value="pengeluaran">Pengeluaran (Keluar)</option>
                         </select>
                     </div>
 
-                    {{-- Status --}}
+                    {{-- Status: Lunas & Piutang Saja --}}
                     <div class="col-6 col-md-auto">
                         <select id="filter-status" name="status" class="form-select form-select-sm" style="min-width: 135px;" onchange="document.getElementById('cashbook-filter-form').submit()">
                             <option value="">Semua Status</option>
                             <option value="lunas" @selected(($statusFilter ?? '') === 'lunas')>Lunas</option>
-                            <option value="pending" @selected(($statusFilter ?? '') === 'pending')>Piutang</option>
-                            <option value="ditolak" @selected(($statusFilter ?? '') === 'ditolak')>Ditolak</option>
+                            <option value="piutang" @selected(($statusFilter ?? '') === 'piutang')>Piutang</option>
                         </select>
                     </div>
                 </div>
 
-                {{-- Baris 2: Pencarian Cepat, Program / Kategori, & Tombol Aksi --}}
+                {{-- Baris 2: Pencarian Cepat (Search), Program / Kategori, & Tombol Aksi --}}
                 <div class="row g-2 align-items-center">
-                    {{-- Cari Transaksi --}}
+                    {{-- Search Transaksi --}}
                     <div class="col-12 col-md-5 col-lg-6">
                         <div class="input-group input-group-sm">
                             <span class="input-group-text bg-light border-end-0 text-muted"><i class="fas fa-search"></i></span>
-                            <input type="text" id="filter-search-input" class="form-control form-control-sm border-start-0" placeholder="Cari uraian, kode TRX, catatan, atau penerima...">
+                            <input type="text" id="filter-search-input" class="form-control form-control-sm border-start-0" placeholder="Search...">
                         </div>
                     </div>
 
@@ -614,11 +679,11 @@
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
             <div class="d-flex align-items-center gap-2">
-                <h2 class="h6 fw-bold mb-0 text-dark">Daftar Transaksi</h2>
+                <h2 class="h6 fw-bold mb-0 text-dark">Riwayat Transaksi</h2>
                 <span class="text-muted small" id="trans-count-label">{{ $transactions->count() }} transaksi ditemukan</span>
             </div>
             <div class="small text-muted font-monospace d-flex align-items-center gap-1 flex-wrap">
-                <span>Saldo Kas: <strong class="text-dark">{{ $formatRupiah($balance) }}</strong></span>
+                <span>Selisih: <strong class="text-dark">{{ $formatRupiah($balance) }}</strong></span>
                 @if(($marginPercent ?? null) !== null)
                     <span class="{{ $marginPercent >= 0 ? 'text-success' : 'text-danger' }} fw-semibold ms-1" style="font-size: 0.8rem;" title="Margin Keuntungan Kas Proyek">
                         ({{ $marginPercent >= 0 ? '+' : '' }}{{ $marginPercent }}% {{ $marginPercent >= 0 ? 'Laba' : 'Defisit' }})
@@ -633,12 +698,13 @@
                         <tr>
                             <th scope="col" style="width: 130px;">KODE</th>
                             <th scope="col" style="width: 110px;">TANGGAL</th>
-                            <th scope="col" style="width: 100px;">TIPE</th>
-                            <th scope="col" style="min-width: 230px;">JUDUL / PENERIMA</th>
-                            <th scope="col" style="min-width: 140px;">PROGRAM</th>
-                            <th scope="col" class="text-end" style="width: 140px;">NOMINAL</th>
-                            <th scope="col" style="width: 120px;">METODE</th>
-                            <th scope="col" style="width: 100px;">STATUS</th>
+                            <th scope="col" style="width: 100px;">TRANSAKSI</th>
+                            <th scope="col" style="min-width: 210px;">DESKRIPSI</th>
+                            <th scope="col" style="width: 115px;">VOL & SATUAN</th>
+                            <th scope="col" style="min-width: 130px;">PROGRAM</th>
+                            <th scope="col" class="text-end" style="width: 135px;">NOMINAL</th>
+                            <th scope="col" style="width: 110px;">METODE</th>
+                            <th scope="col" style="width: 95px;">STATUS</th>
                             <th scope="col" class="text-end" style="min-width: 145px;">AKSI</th>
                         </tr>
                     </thead>
@@ -673,12 +739,8 @@
                                     'total_display' => $formattedTotal,
                                     'running_balance_display' => $formattedRunningBalance,
                                     'notes' => $transaction->notes,
-                                    'status' => $transaction->status ?? 'lunas',
-                                    'status_label' => match($transaction->status ?? 'lunas') {
-                                        'pending' => 'Piutang (Menunggu Persetujuan)',
-                                        'ditolak' => 'Ditolak',
-                                        default => 'Lunas (Diverifikasi)',
-                                    },
+                                    'status' => ($transaction->status ?? 'lunas') === 'lunas' ? 'lunas' : 'piutang',
+                                    'status_label' => ($transaction->status ?? 'lunas') === 'lunas' ? 'Lunas' : 'Piutang',
                                     'attachment' => $attachment ? [
                                         'id' => $attachment->id,
                                         'url' => $attachment->url,
@@ -690,7 +752,7 @@
                                 // Standardized code display matching TRX-YYYYMM-XXXX style or custom code
                                 $displayCode = $transaction->code ?: ('TRX-' . $transaction->transaction_date->format('Ym') . '-' . str_pad($transaction->id, 4, '0', STR_PAD_LEFT));
                             @endphp
-                            <tr class="cashbook-row" data-type="{{ $transaction->type }}" data-status="{{ $transaction->status ?? 'lunas' }}" data-code="{{ strtolower($transaction->code ?? '') }}" data-text="{{ strtolower($transaction->description . ' ' . $transaction->code . ' ' . $transaction->notes . ' ' . $displayCode) }}">
+                            <tr class="cashbook-row" data-type="{{ $transaction->type }}" data-status="{{ ($transaction->status ?? 'lunas') === 'lunas' ? 'lunas' : 'piutang' }}" data-code="{{ strtolower($transaction->code ?? '') }}" data-text="{{ strtolower($transaction->description . ' ' . $transaction->code . ' ' . $transaction->notes . ' ' . $displayCode) }}">
                                 <!-- KODE (Crimson Bold Monospace matching reference) -->
                                 <td class="text-nowrap">
                                     <span style="color: #b91c1c; font-weight: 700; font-family: ui-monospace, monospace; font-size: 0.8rem; letter-spacing: -0.2px;">
@@ -713,7 +775,7 @@
                                     @endif
                                 </td>
 
-                                <!-- TIPE (Soft Badges) -->
+                                <!-- TRANSAKSI (Soft Badges) -->
                                 <td class="text-nowrap">
                                     @if($isIncome)
                                         <span class="badge-soft-success">
@@ -726,24 +788,26 @@
                                     @endif
                                 </td>
 
-                                <!-- JUDUL / PENERIMA -->
+                                <!-- DESKRIPSI -->
                                 <td>
                                     <div class="fw-bold text-dark">{{ $transaction->description }}</div>
-                                    <div class="d-flex align-items-center gap-2 flex-wrap mt-0.5">
-                                        @if($transaction->notes)
-                                            <span class="text-muted small" style="font-size: 0.76rem;">{{ $transaction->notes }}</span>
-                                        @endif
-                                        @if($attachment)
+                                    @if($transaction->notes)
+                                        <div class="text-muted small" style="font-size: 0.76rem;">{{ $transaction->notes }}</div>
+                                    @endif
+                                    @if($attachment)
+                                        <div class="mt-1">
                                             <button type="button" class="btn btn-xs btn-outline-primary d-inline-flex align-items-center gap-1 py-0 px-1.5" style="font-size: 0.7rem;" data-bs-toggle="modal" data-bs-target="#cashbook-photo-modal" data-photo-url="{{ $attachment->url }}" data-photo-title="Foto bukti: {{ $transaction->description }}" data-photo-caption="{{ $attachment->original_name }} ({{ $attachment->formattedSize() }})">
                                                 <i class="fas fa-image" aria-hidden="true"></i> Foto bukti
                                             </button>
-                                        @endif
-                                        @if($transaction->unit || $cleanQty != '1')
-                                            <span class="badge bg-light text-muted border py-0 px-1" style="font-size: 0.7rem;">
-                                                {{ $formatQuantityDisplay($transaction->quantity) }} {{ $transaction->unit }}
-                                            </span>
-                                        @endif
-                                    </div>
+                                        </div>
+                                    @endif
+                                </td>
+
+                                <!-- VOL & SATUAN -->
+                                <td class="text-nowrap">
+                                    <span class="badge bg-light text-dark border font-monospace py-1 px-1.5" style="font-size: 0.75rem;">
+                                        {{ $formatQuantityDisplay($transaction->quantity) }} {{ $transaction->unit ?: '—' }}
+                                    </span>
                                 </td>
 
                                 <!-- PROGRAM / KODE -->
@@ -765,19 +829,15 @@
                                     <span class="text-secondary small">Transfer Bank</span>
                                 </td>
 
-                                <!-- STATUS -->
+                                <!-- STATUS (Lunas dan Piutang Saja) -->
                                 <td class="text-nowrap">
-                                    @if(($transaction->status ?? 'lunas') === 'pending')
-                                        <span class="badge-soft-warning" title="Status Piutang / Menunggu verifikasi Manager">
-                                            <i class="fas fa-clock" style="font-size: 0.65rem;"></i> Piutang
-                                        </span>
-                                    @elseif(($transaction->status ?? 'lunas') === 'ditolak')
-                                        <span class="badge-soft-danger" title="Transaksi ditolak / dibatalkan">
-                                            <i class="fas fa-times-circle" style="font-size: 0.65rem;"></i> Ditolak
+                                    @if(($transaction->status ?? 'lunas') === 'lunas')
+                                        <span class="badge-soft-success" title="Lunas">
+                                            <i class="fas fa-check" style="font-size: 0.65rem;"></i> Lunas
                                         </span>
                                     @else
-                                        <span class="badge-soft-success" title="Transaksi telah diverifikasi (Lunas)">
-                                            <i class="fas fa-check" style="font-size: 0.65rem;"></i> Lunas
+                                        <span class="badge-soft-warning" title="Piutang">
+                                            <i class="fas fa-clock" style="font-size: 0.65rem;"></i> Piutang
                                         </span>
                                     @endif
                                 </td>
@@ -840,13 +900,13 @@
                         <dt class="col-5 text-secondary">Tanggal transaksi</dt>
                         <dd class="col-7 fw-semibold text-dark mb-1" id="detail-date">-</dd>
 
-                        <dt class="col-5 text-secondary">Jenis transaksi</dt>
+                        <dt class="col-5 text-secondary">Transaksi</dt>
                         <dd class="col-7 fw-semibold text-dark mb-1" id="detail-type">-</dd>
 
                         <dt class="col-5 text-secondary">Kode transaksi</dt>
                         <dd class="col-7 text-dark mb-1" id="detail-code">-</dd>
 
-                        <dt class="col-5 text-secondary">Uraian transaksi</dt>
+                        <dt class="col-5 text-secondary">Deskripsi</dt>
                         <dd class="col-7 text-dark mb-1 text-break" id="detail-description">-</dd>
 
                         <dt class="col-5 text-secondary">Satuan</dt>
@@ -938,7 +998,7 @@
                             <div class="invalid-feedback" id="cashbook-date-error">@error('transaction_date'){{ $message }}@enderror</div>
                         </div>
                         <div class="col-md-6">
-                            <label for="cashbook-type" class="form-label">Jenis transaksi <span aria-hidden="true">*</span></label>
+                            <label for="cashbook-type" class="form-label">Transaksi <span aria-hidden="true">*</span></label>
                             <select id="cashbook-type" name="type" class="form-select @error('type') is-invalid @enderror" required aria-describedby="cashbook-type-error" @error('type') aria-invalid="true" @enderror>
                                 <option value="penerimaan" @selected(old('type', 'penerimaan') === 'penerimaan')>Penerimaan</option>
                                 <option value="pengeluaran" @selected(old('type') === 'pengeluaran')>Pengeluaran</option>
@@ -1000,7 +1060,7 @@
                         </div>
 
                         <div class="col-12">
-                            <label for="cashbook-description" class="form-label">Uraian transaksi <span aria-hidden="true">*</span></label>
+                            <label for="cashbook-description" class="form-label">Deskripsi <span aria-hidden="true">*</span></label>
                             <textarea id="cashbook-description" name="description" class="form-control @error('description') is-invalid @enderror" rows="2" required aria-describedby="cashbook-description-error" @error('description') aria-invalid="true" @enderror>{{ old('description') }}</textarea>
                             <div class="invalid-feedback" id="cashbook-description-error">@error('description'){{ $message }}@enderror</div>
                         </div>
@@ -1025,14 +1085,11 @@
                         <div class="col-md-6">
                             <label for="cashbook-status" class="form-label">Status Verifikasi <span aria-hidden="true">*</span></label>
                             <select id="cashbook-status" name="status" class="form-select @error('status') is-invalid @enderror">
-                                <option value="lunas">Lunas (Diverifikasi)</option>
-                                <option value="pending" {{ auth()->user()?->role === 'accounting' ? 'selected' : '' }}>Piutang (Menunggu Persetujuan Manager)</option>
-                                @if(auth()->user()?->role === 'admin')
-                                    <option value="ditolak">Ditolak (Dibatalkan)</option>
-                                @endif
+                                <option value="lunas">Lunas</option>
+                                <option value="pending" {{ auth()->user()?->role === 'accounting' ? 'selected' : '' }}>Piutang</option>
                             </select>
-                            <div class="form-text">Status 'Piutang' tidak mengurangi/menambah saldo kas sebelum disetujui Manager.</div>
-                            <div class="invalid-feedback">@error('status'){{ $message }}@enderror</div>
+                            <div class="form-text" id="cashbook-status-help">Pilih <strong>Lunas</strong> untuk transaksi selesai atau <strong>Piutang</strong> untuk pembayaran bertahap/tertunda.</div>
+                            <div class="invalid-feedback d-block" id="cashbook-status-error">@error('status'){{ $message }}@enderror</div>
                         </div>
                         <div class="col-md-6">
                             <label for="cashbook-notes" class="form-label">Catatan</label>
@@ -1632,11 +1689,9 @@
                     document.getElementById('detail-balance').textContent = tx.running_balance_display || '-';
                     const statusEl = document.getElementById('detail-status');
                     if (statusEl) {
-                        statusEl.innerHTML = tx.status === 'pending'
-                            ? '<span class="badge-soft-warning"><i class="fas fa-clock me-1"></i>Piutang (Menunggu Persetujuan Manager)</span>'
-                            : (tx.status === 'ditolak'
-                                ? '<span class="badge-soft-danger"><i class="fas fa-times-circle me-1"></i>Ditolak</span>'
-                                : '<span class="badge-soft-success"><i class="fas fa-check me-1"></i>Lunas (Diverifikasi)</span>');
+                        statusEl.innerHTML = (tx.status === 'piutang' || tx.status === 'pending')
+                            ? '<span class="badge-soft-warning"><i class="fas fa-clock me-1"></i>Piutang</span>'
+                            : '<span class="badge-soft-success"><i class="fas fa-check me-1"></i>Lunas</span>';
                     }
                     document.getElementById('detail-notes').textContent = tx.notes || '-';
                     document.getElementById('detail-last-edited').textContent = tx.last_edited_at_display || 'Belum pernah diedit';
