@@ -100,7 +100,7 @@
             <p class="text-muted small mb-0" style="font-size: 0.8rem;">Data kontak WhatsApp & email pemilik proyek untuk penagihan termin dan kuitansi.</p>
         </div>
         <div>
-            <button type="button" class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1.5 shadow-xs" data-bs-toggle="modal" data-bs-target="#addClientModal" style="border-radius: 6px; padding: 6px 14px; font-weight: 600; font-size: 0.8rem;">
+            <button type="button" class="btn btn-sm btn-primary d-inline-flex align-items-center gap-2 shadow-xs" data-bs-toggle="modal" data-bs-target="#addClientModal" style="border-radius: 6px; padding: 6px 14px; font-weight: 600; font-size: 0.8rem;">
                 <i class="fas fa-plus" style="font-size: 0.72rem;"></i>
                 <span>Tambah Kontak Klien</span>
             </button>
@@ -111,7 +111,7 @@
     <div class="card border shadow-xs" style="border-radius: 10px; border-color: #E2E8F0;">
         {{-- Toolbar: Search, Filter, & Total Counter --}}
         <div class="card-header bg-white border-bottom py-2.5 px-3.5">
-            <form method="GET" action="{{ route('admin.cashbook.clients.index') }}" class="d-flex align-items-center justify-content-between flex-wrap gap-2.5">
+            <form method="GET" action="{{ route('admin.cashbook.clients.index') }}" class="d-flex align-items-center justify-content-between flex-wrap gap-2">
                 {{-- Search & Filter Group --}}
                 <div class="d-flex align-items-center gap-2 flex-grow-1" style="max-width: 480px;">
                     <div class="input-group input-group-sm flex-grow-1 shadow-none">
@@ -120,7 +120,7 @@
                         </span>
                         <input type="text" name="search" value="{{ request('search') }}" class="form-control form-control-sm border-start-0 ps-1" placeholder="Cari nama, email, atau no. WhatsApp..." style="border-color: #CBD5E1; border-radius: 0 6px 6px 0; font-size: 0.8rem; height: 34px;">
                     </div>
-                    <button type="submit" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1.5 px-3 text-nowrap" style="height: 34px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;">
+                    <button type="submit" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-2 px-3 text-nowrap" style="height: 34px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;">
                         <i class="fas fa-filter" style="font-size: 0.72rem;"></i>
                         <span>Filter</span>
                     </button>
@@ -176,7 +176,7 @@
                                 
                                 {{-- 1. NAMA KLIEN --}}
                                 <td>
-                                    <div class="d-flex align-items-center gap-2.5">
+                                    <div class="d-flex align-items-center gap-2">
                                         <div class="client-avatar-circle" title="{{ $client->name }}">
                                             {{ strtoupper($clientInitials) }}
                                         </div>
@@ -193,7 +193,7 @@
                                 <td>
                                     <div class="d-flex flex-column gap-1">
                                         @if($rawPhone)
-                                            <div class="d-flex align-items-center gap-1.5">
+                                            <div class="d-flex align-items-center gap-2">
                                                 <span class="d-inline-flex align-items-center justify-content-center text-success" style="width: 16px; font-size: 0.85rem;">
                                                     <i class="fab fa-whatsapp"></i>
                                                 </span>
@@ -207,7 +207,7 @@
                                             </div>
                                         @endif
 
-                                        <div class="d-flex align-items-center gap-1.5 text-muted" style="font-size: 0.75rem;">
+                                        <div class="d-flex align-items-center gap-2 text-muted" style="font-size: 0.75rem;">
                                             <span class="d-inline-flex align-items-center justify-content-center text-secondary opacity-75" style="width: 16px; font-size: 0.75rem;">
                                                 <i class="far fa-envelope"></i>
                                             </span>
@@ -221,13 +221,13 @@
                                 {{-- 3. PROYEK TERKAIT --}}
                                 <td>
                                     @if($client->projects->isNotEmpty())
-                                        <div class="d-flex flex-column gap-1.5">
+                                        <div class="d-flex flex-column py-1" style="gap: 8px;">
                                             @foreach($client->projects->take(2) as $proj)
-                                                <div class="d-flex align-items-center gap-2">
-                                                    <span class="badge {{ $proj->status === 'selesai' ? 'badge-soft-success' : ($proj->status === 'aktif' ? 'badge-soft-primary' : 'badge-soft-neutral') }}" style="font-size: 0.68rem; padding: 2px 7px; border-radius: 4px; flex-shrink: 0; font-weight: 500;">
+                                                <div class="d-flex align-items-center" style="gap: 10px;">
+                                                    <span class="badge {{ $proj->status === 'selesai' ? 'badge-soft-success' : ($proj->status === 'aktif' ? 'badge-soft-primary' : 'badge-soft-neutral') }}" style="font-size: 0.68rem; padding: 3px 8px; border-radius: 4px; flex-shrink: 0; font-weight: 500;">
                                                         {{ ucfirst($proj->status) }}
                                                     </span>
-                                                    <a href="{{ route('admin.cashbook.show', $proj) }}" class="text-decoration-none text-dark small fw-medium text-truncate project-link" style="max-width: 190px;" title="{{ $proj->nama_proyek }}">
+                                                    <a href="{{ route('admin.cashbook.show', $proj) }}" class="text-decoration-none text-dark small fw-medium text-truncate project-link" style="max-width: 200px;" title="{{ $proj->nama_proyek }}">
                                                         {{ $proj->nama_proyek }}
                                                     </a>
                                                 </div>
@@ -250,7 +250,7 @@
 
                                 {{-- 5. AKSI --}}
                                 <td class="text-end text-nowrap">
-                                    <div class="d-inline-flex gap-1.5 align-items-center justify-content-end">
+                                    <div class="d-inline-flex gap-2 align-items-center justify-content-end">
                                         @if($cleanWa)
                                             <a href="https://wa.me/{{ $cleanWa }}?text={{ urlencode('Halo ' . $client->name . ', kami dari Bagian Keuangan PT Indo Berkah Konstruksi...') }}" 
                                                target="_blank" 
