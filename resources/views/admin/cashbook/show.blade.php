@@ -692,20 +692,20 @@
             </div>
         </div>
         <div class="card-body p-0">
-            <div class="table-responsive" tabindex="0" role="region" aria-label="Transaksi buku kas proyek">
-                <table class="table table-hover align-middle mb-0" id="cashbook-trans-table">
+            <div class="table-responsive" tabindex="0" role="region" aria-label="Transaksi buku kas proyek" style="overflow-x: auto; width: 100%;">
+                <table class="table table-hover align-middle mb-0" id="cashbook-trans-table" style="min-width: 1020px;">
                     <thead>
                         <tr>
-                            <th scope="col" style="width: 130px;">KODE</th>
-                            <th scope="col" style="width: 110px;">TANGGAL</th>
-                            <th scope="col" style="width: 100px;">TRANSAKSI</th>
-                            <th scope="col" style="min-width: 210px;">DESKRIPSI</th>
-                            <th scope="col" style="width: 115px;">VOL & SATUAN</th>
-                            <th scope="col" style="min-width: 130px;">PROGRAM</th>
-                            <th scope="col" class="text-end" style="width: 135px;">NOMINAL</th>
-                            <th scope="col" style="width: 110px;">METODE</th>
-                            <th scope="col" style="width: 95px;">STATUS</th>
-                            <th scope="col" class="text-end" style="min-width: 145px;">AKSI</th>
+                            <th scope="col" style="width: 105px;">KODE</th>
+                            <th scope="col" style="width: 85px;">TANGGAL</th>
+                            <th scope="col" style="width: 85px;">TRANSAKSI</th>
+                            <th scope="col" style="min-width: 180px;">DESKRIPSI</th>
+                            <th scope="col" style="width: 100px;">VOL & SATUAN</th>
+                            <th scope="col" style="width: 90px;">PROGRAM</th>
+                            <th scope="col" class="text-end" style="width: 120px;">NOMINAL</th>
+                            <th scope="col" style="width: 95px;">METODE</th>
+                            <th scope="col" class="text-center" style="width: 80px;">STATUS</th>
+                            <th scope="col" class="text-end pe-3" style="width: 110px;">AKSI</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -830,7 +830,7 @@
                                 </td>
 
                                 <!-- STATUS (Lunas dan Piutang Saja) -->
-                                <td class="text-nowrap">
+                                <td class="text-center text-nowrap">
                                     @if(($transaction->status ?? 'lunas') === 'lunas')
                                         <span class="badge-soft-success" title="Lunas">
                                             <i class="fas fa-check" style="font-size: 0.65rem;"></i> Lunas
@@ -843,7 +843,7 @@
                                 </td>
 
                                 <!-- AKSI (Square Icon Buttons matching reference) -->
-                                <td class="text-end text-nowrap">
+                                <td class="text-end pe-3 text-nowrap">
                                     <div class="d-inline-flex gap-1 align-items-center">
                                         <!-- Print / Invoice Icon -->
                                         <a href="{{ route('admin.cashbook.invoice', [$project, $transaction]) }}" target="_blank" class="btn-action-icon text-decoration-none" title="Cetak / Download Invoice">
