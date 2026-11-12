@@ -252,6 +252,9 @@
         $incomeByCode = [];
         $expenseByCode = [];
         foreach ($transactions as $t) {
+            if (! in_array($t->status, ['lunas', null], true)) {
+                continue;
+            }
             $codeName = $t->code ?: 'Operasional / Umum';
             $tVal = (float) $t->total;
             if ($t->type === 'penerimaan') {

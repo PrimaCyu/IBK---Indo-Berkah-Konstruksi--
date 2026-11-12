@@ -342,20 +342,24 @@ class ProjectCashflowController extends Controller
                 if ($cf->status === 'ditolak') {
                     continue;
                 }
-                if ($cf->status === 'pending' || $cf->status === 'piutang') {
-                    $totalPendingCount++;
-                    if ($cf->type === 'penerimaan') {
-                        $pReceivable = $pReceivable->plus(BigDecimal::of($cf->total));
-                    }
-                }
-                $isLunas = in_array($cf->status, ['lunas', null], true);
-                if (! $isLunas) {
-                    continue;
-                }
 
                 $cfTotal = BigDecimal::of($cf->total);
                 $date = $cf->transaction_date;
                 $cfDate = $date instanceof CarbonInterface ? $date : Carbon::parse($date);
+                $matchPeriod = ($startDate === null || $cfDate->gte($startDate->startOfDay()))
+                    && ($endDate === null || $cfDate->lte($endDate->endOfDay()));
+
+                if ($cf->status === 'pending' || $cf->status === 'piutang') {
+                    $totalPendingCount++;
+                    if ($matchPeriod) {
+                        $pReceivable = $pReceivable->plus($cfTotal);
+                    }
+                }
+
+                $isLunas = in_array($cf->status, ['lunas', null], true);
+                if (! $isLunas) {
+                    continue;
+                }
 
                 if ($cf->type === 'penerimaan') {
                     $pLifetimeBalance = $pLifetimeBalance->plus($cfTotal);
@@ -363,9 +367,6 @@ class ProjectCashflowController extends Controller
                 } else {
                     $pLifetimeBalance = $pLifetimeBalance->minus($cfTotal);
                 }
-
-                $matchPeriod = ($startDate === null || $cfDate->gte($startDate->startOfDay()))
-                    && ($endDate === null || $cfDate->lte($endDate->endOfDay()));
 
                 if ($matchPeriod) {
                     if ($cf->type === 'penerimaan') {
@@ -399,7 +400,7 @@ class ProjectCashflowController extends Controller
                 'lifetime_balance' => (string) $pLifetimeBalance,
                 'lifetime_margin' => $lifetimeMargin,
                 'period_margin' => $periodMargin,
-                'pending_count' => $cfs->where('status', 'pending')->count(),
+                'pending_count' => $cfs->filter(fn ($c) => in_array($c->status, ['pending', 'piutang'], true))->count(),
                 'has_transactions' => $cfs->isNotEmpty(),
             ];
         }
@@ -517,14 +518,12 @@ class ProjectCashflowController extends Controller
         $income = $expense = $receivable = BigDecimal::of('0.00');
         foreach ($ledger['transactions'] as $transaction) {
             $cfTotal = BigDecimal::of($transaction->total);
-            if ($transaction->type === 'penerimaan') {
-                if (in_array($transaction->status, ['lunas', null], true)) {
+            if (in_array($transaction->status, ['pending', 'piutang'], true)) {
+                $receivable = $receivable->plus($cfTotal);
+            } elseif (in_array($transaction->status, ['lunas', null], true)) {
+                if ($transaction->type === 'penerimaan') {
                     $income = $income->plus($cfTotal);
-                } elseif (in_array($transaction->status, ['pending', 'piutang'], true)) {
-                    $receivable = $receivable->plus($cfTotal);
-                }
-            } else {
-                if (in_array($transaction->status, ['lunas', null], true)) {
+                } else {
                     $expense = $expense->plus($cfTotal);
                 }
             }

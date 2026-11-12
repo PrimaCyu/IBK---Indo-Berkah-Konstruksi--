@@ -397,7 +397,7 @@
                             $clientName = $project->user->name ?? 'Klien';
                             $clientInitials = collect(explode(' ', $clientName))->map(fn ($part) => mb_substr($part, 0, 1))->take(2)->implode('');
                         @endphp
-                        <tr>
+                        <tr class="{{ ($item['pending_count'] ?? 0) > 0 ? 'row-has-pending' : '' }}">
                             <td class="text-center text-muted small px-1">{{ $index + 1 }}</td>
                             <td class="ps-2">
                                 <div class="d-flex align-items-center gap-1.5 flex-wrap">
