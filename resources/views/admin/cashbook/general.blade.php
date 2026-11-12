@@ -91,25 +91,58 @@
         color: #0f172a;
         font-variant-numeric: tabular-nums;
     }
+    .pending-banner {
+        background-color: #FFFDF0;
+        border: 1px solid #FDE68A;
+        border-left: 3.5px solid #F59E0B;
+        border-radius: 8px;
+        box-shadow: 0 1px 2px 0 rgba(245, 158, 11, 0.05);
+    }
+    .btn-pending-action {
+        background-color: #FEF3C7;
+        border: 1px solid #FCD34D;
+        color: #92400E;
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 3px 10px;
+        border-radius: 6px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+    }
+    .btn-pending-action:hover {
+        background-color: #FDE68A;
+        border-color: #F59E0B;
+        color: #78350F;
+        transform: translateY(-0.5px);
+    }
 </style>
 
-{{-- Slim Pending Notification Banner --}}
+{{-- Compact Pending Notification Banner --}}
 @if(($totalPendingCount ?? 0) > 0)
-    <div class="card mb-3 border-0" style="background: linear-gradient(90deg, #FEF3C7 0%, #FFFBEB 100%); border-left: 4px solid #F59E0B !important;">
-        <div class="card-body py-2.5 px-3.5 d-flex align-items-center justify-content-between flex-wrap gap-2">
-            <div class="d-flex align-items-center gap-2.5">
-                <div class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 30px; height: 30px; background-color: #FDE68A; color: #B45309; flex-shrink: 0;">
-                    <i class="fas fa-clock small"></i>
-                </div>
-                <div class="small text-dark">
-                    <strong>Persetujuan Transaksi Diperlukan:</strong> Terdapat <strong>{{ $totalPendingCount }} transaksi</strong> kas berstatus <strong>Piutang</strong> yang menunggu verifikasi.
-                </div>
-            </div>
-            <div>
-                <a href="{{ route('admin.cashbook.index') }}" class="btn btn-xs btn-warning text-dark fw-bold px-3 py-1 shadow-none" style="background-color: #F59E0B; border: none; font-size: 0.775rem;">
-                    <i class="fas fa-arrow-right me-1"></i> Buka Daftar Proyek
-                </a>
-            </div>
+    <div class="pending-banner px-3 py-2 mb-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <span class="d-inline-flex align-items-center justify-content-center text-warning" style="font-size: 0.9rem; color: #D97706 !important;">
+                <i class="fas fa-clock-rotate-left"></i>
+            </span>
+            <span class="fw-semibold text-dark" style="font-size: 0.825rem; letter-spacing: -0.1px;">
+                Persetujuan Transaksi Diperlukan
+            </span>
+            <span class="badge rounded-pill fw-semibold" style="background-color: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; font-size: 0.72rem; padding: 2px 8px;">
+                {{ $totalPendingCount }} Piutang
+            </span>
+            <span class="text-muted d-none d-md-inline" style="opacity: 0.4;">•</span>
+            <span class="text-secondary small d-none d-md-inline" style="font-size: 0.8rem;">
+                Menunggu verifikasi untuk sinkronisasi saldo kas riil.
+            </span>
+        </div>
+        <div>
+            <a href="{{ route('admin.cashbook.index') }}" class="btn-pending-action" title="Buka daftar proyek untuk meninjau transaksi piutang">
+                <span>Lihat Transaksi</span>
+                <i class="fas fa-arrow-right" style="font-size: 0.65rem;"></i>
+            </a>
         </div>
     </div>
 @endif
