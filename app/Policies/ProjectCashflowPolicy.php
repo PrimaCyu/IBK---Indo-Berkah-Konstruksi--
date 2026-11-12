@@ -49,6 +49,6 @@ class ProjectCashflowPolicy
 
     private function isFinanceStaff(User $user): bool
     {
-        return in_array($user->role, ['admin', 'accounting'], true);
+        return in_array($user->role, ['superadmin', 'admin', 'accounting'], true);
     }
 }

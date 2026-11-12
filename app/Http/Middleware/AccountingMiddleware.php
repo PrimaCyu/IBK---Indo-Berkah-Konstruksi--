@@ -10,7 +10,7 @@ class AccountingMiddleware
 {
     public function handle(Request $request, Closure $next): Response
     {
-        abort_unless(in_array($request->user()?->role, ['admin', 'accounting'], true), 403, 'Buku kas hanya dapat diakses administrator dan accounting.');
+        abort_unless(in_array($request->user()?->role, ['superadmin', 'admin', 'accounting'], true), 403, 'Buku kas hanya dapat diakses administrator dan accounting.');
 
         return $next($request);
     }

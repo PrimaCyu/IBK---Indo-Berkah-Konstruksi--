@@ -35,9 +35,10 @@
                 <label for="filter-role" class="form-label">HAK AKSES (ROLE)</label>
                 <select id="filter-role" name="role" class="form-select">
                     <option value="">Semua Hak Akses</option>
-                    <option value="admin" {{ request('role') === 'admin' ? 'selected' : '' }}>Administrator</option>
-                    <option value="owner" {{ request('role') === 'owner' ? 'selected' : '' }}>Klien</option>
+                    <option value="superadmin" {{ request('role') === 'superadmin' ? 'selected' : '' }}>Super Admin</option>
+                    <option value="admin" {{ request('role') === 'admin' ? 'selected' : '' }}>Admin Operasional</option>
                     <option value="accounting" {{ request('role') === 'accounting' ? 'selected' : '' }}>Accounting</option>
+                    <option value="owner" {{ request('role') === 'owner' ? 'selected' : '' }}>Klien</option>
                 </select>
             </div>
             <div class="col-md-3 d-flex gap-2">
@@ -103,8 +104,10 @@
                                 @endif
                             </td>
                             <td>
-                                @if($u->role === 'admin')
-                                    <span class="badge-soft-primary font-monospace">ADMINISTRATOR</span>
+                                @if($u->role === 'superadmin')
+                                    <span class="badge-soft-danger font-monospace">SUPER ADMIN</span>
+                                @elseif($u->role === 'admin')
+                                    <span class="badge-soft-primary font-monospace">ADMIN OPERASIONAL</span>
                                 @elseif($u->role === 'accounting')
                                     <span class="badge-soft-warning font-monospace">ACCOUNTING</span>
                                 @else
@@ -175,9 +178,10 @@
                     <div class="mb-3">
                         <label class="form-label">Hak Akses (Role) <span class="text-danger">*</span></label>
                         <select name="role" class="form-select form-select-sm" required>
-                            <option value="owner" selected>Klien</option>
-                            <option value="admin">Administrator (Akses Penuh Backend)</option>
-                            <option value="accounting">Accounting (Buku Kas Proyek)</option>
+                            <option value="owner" selected>Klien (Pemilik Proyek)</option>
+                            <option value="admin">Admin Biasa (Operasional & Konten)</option>
+                            <option value="accounting">Accounting (Staf Keuangan)</option>
+                            <option value="superadmin">Super Admin (Akses Penuh)</option>
                         </select>
                     </div>
                     <div class="mb-3">

@@ -118,8 +118,8 @@ Route::middleware(['auth', 'accounting'])->prefix('admin')->name('admin.cashbook
     Route::put('/projects/{project}/buku-kas/{cashflow}', [ProjectCashflowController::class, 'update'])->name('update');
     Route::get('/projects/{project}/buku-kas/{cashflow}/invoice', [ProjectCashflowController::class, 'invoice'])->name('invoice');
     Route::delete('/projects/{project}/buku-kas/{cashflow}', [ProjectCashflowController::class, 'destroy'])->name('destroy');
-    Route::patch('/projects/{project}/buku-kas/{cashflow}/approve', [ProjectCashflowController::class, 'approve'])->name('approve');
-    Route::patch('/projects/{project}/buku-kas/{cashflow}/reject', [ProjectCashflowController::class, 'reject'])->name('reject');
+    Route::patch('/projects/{project}/buku-kas/{cashflow}/approve', [ProjectCashflowController::class, 'approve'])->middleware('superadmin')->name('approve');
+    Route::patch('/projects/{project}/buku-kas/{cashflow}/reject', [ProjectCashflowController::class, 'reject'])->middleware('superadmin')->name('reject');
 });
 
 // AdminLTE Backend Panel Routes
@@ -132,7 +132,6 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/projects', [AdminProjectController::class, 'store'])->name('projects.store');
     Route::get('/projects/{project}/edit', [AdminProjectController::class, 'edit'])->name('projects.edit');
     Route::put('/projects/{project}', [AdminProjectController::class, 'update'])->name('projects.update');
-    Route::delete('/projects/{project}', [AdminProjectController::class, 'destroy'])->name('projects.destroy');
 
     // Penawaran (RFQ Leads)
     Route::get('/penawaran', [AdminPenawaranController::class, 'index'])->name('penawaran.index');
@@ -155,11 +154,6 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/reviews', [AdminReviewController::class, 'index'])->name('reviews.index');
     Route::patch('/reviews/{review}/toggle', [AdminReviewController::class, 'toggleApprove'])->name('reviews.toggle');
     Route::delete('/reviews/{review}', [AdminReviewController::class, 'destroy'])->name('reviews.destroy');
-
-    // Users
-    Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
-    Route::post('/users', [AdminUserController::class, 'store'])->name('users.store');
-    Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
 
     // User Files & Designs
     Route::get('/user-files', [AdminUserFileController::class, 'index'])->name('user-files.index');
@@ -185,9 +179,17 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::patch('/team/{teamMember}/visibility', [AdminTeamController::class, 'toggleVisibility'])->name('team.visibility');
     Route::delete('/team/{teamMember}', [AdminTeamController::class, 'destroy'])->name('team.destroy');
 
-    // Site Settings
-    Route::get('/settings', [AdminSettingController::class, 'index'])->name('settings.index');
-    Route::put('/settings', [AdminSettingController::class, 'update'])->name('settings.update');
+    // Khusus Super Admin: Kelola Admin/User, Pengaturan Website, Hapus Proyek
+    Route::middleware(['superadmin'])->group(function () {
+        Route::delete('/projects/{project}', [AdminProjectController::class, 'destroy'])->name('projects.destroy');
+
+        Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
+        Route::post('/users', [AdminUserController::class, 'store'])->name('users.store');
+        Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
+
+        Route::get('/settings', [AdminSettingController::class, 'index'])->name('settings.index');
+        Route::put('/settings', [AdminSettingController::class, 'update'])->name('settings.update');
+    });
 });
 
 Route::get('/', function () {

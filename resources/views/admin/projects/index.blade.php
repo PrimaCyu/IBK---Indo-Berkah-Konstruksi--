@@ -143,6 +143,7 @@
                                     <a href="/admin/projects/{{ $project->id }}/edit" class="btn-action-icon" title="Edit Proyek">
                                         <i class="fas fa-pen"></i>
                                     </a>
+                                    @if(auth()->user()->role === 'superadmin')
                                     <form action="/admin/projects/{{ $project->id }}" method="POST" class="d-inline m-0" onsubmit="return confirm('Hapus proyek ini secara permanen?')">
                                         @csrf
                                         @method('DELETE')
@@ -150,6 +151,7 @@
                                             <i class="fas fa-trash-alt"></i>
                                         </button>
                                     </form>
+                                    @endif
                                 </div>
                             </td>
                         </tr>

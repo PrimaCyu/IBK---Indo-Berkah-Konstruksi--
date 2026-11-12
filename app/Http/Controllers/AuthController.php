@@ -48,7 +48,7 @@ class AuthController extends Controller
         $user = $users->first();
         if ($user && Hash::check($validated['password'], $user->password)) {
             $destination = match ($user->role) {
-                'admin' => '/admin',
+                'superadmin', 'admin' => '/admin',
                 'accounting' => '/admin/keuangan-proyek',
                 'owner', 'user', 'client' => '/dashbord',
                 default => null,
@@ -79,7 +79,7 @@ class AuthController extends Controller
                             && ($parts['port'] ?? null) === ($base['port'] ?? null))
                         : ! isset($parts['scheme']));
                 $allowed = match ($user->role) {
-                    'admin' => $path === '/admin' || str_starts_with($path, '/admin/'),
+                    'superadmin', 'admin' => $path === '/admin' || str_starts_with($path, '/admin/'),
                     'accounting' => $path === '/admin/keuangan-proyek' || str_starts_with($path, '/admin/keuangan-proyek/')
                         || $path === '/admin/keuangan-umum' || str_starts_with($path, '/admin/keuangan-umum/')
                         || str_starts_with($path, '/admin/projects/'),

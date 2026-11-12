@@ -753,9 +753,17 @@
 </head>
 <body>
     @php
-        $isAdmin = auth()->user()->role === 'admin';
+        $userRole = auth()->user()->role;
+        $isSuperAdmin = $userRole === 'superadmin';
+        $isAdmin = in_array($userRole, ['superadmin', 'admin'], true);
+        $isAccounting = $userRole === 'accounting';
         $panelHome = $isAdmin ? route('admin.dashboard') : route('admin.cashbook.index');
-        $panelRole = $isAdmin ? 'Super Admin' : 'Accounting';
+        $panelRole = match($userRole) {
+            'superadmin' => 'Super Admin',
+            'admin' => 'Admin Operasional',
+            'accounting' => 'Accounting',
+            default => 'Staff'
+        };
     @endphp
     <div class="app-wrapper">
 
@@ -834,13 +842,13 @@
                             <div class="p-3 border-bottom bg-light rounded-top">
                                 <div class="fw-bold text-dark text-truncate small">{{ auth()->user()->name ?? 'Admin' }}</div>
                                 <div class="text-muted text-truncate" style="font-size: 0.72rem;">{{ auth()->user()->email ?? '-' }}</div>
-                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle mt-1 font-monospace" style="font-size: 0.65rem;">{{ $isAdmin ? 'ADMINISTRATOR' : 'ACCOUNTING' }}</span>
+                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle mt-1 font-monospace" style="font-size: 0.65rem;">{{ strtoupper($panelRole) }}</span>
                             </div>
                             <div class="p-1">
-                                @if($isAdmin)
+                                @if($isSuperAdmin)
                                 <a href="/admin/settings" class="custom-dropdown-item">
                                     <i class="fas fa-sliders-h text-muted" style="width: 16px;"></i>
-                                    <span>Pengaturan Website</span>
+                                    <span>Pengaturan</span>
                                 </a>
                                 @endif
                                 <a href="/" target="_blank" class="custom-dropdown-item">
@@ -995,15 +1003,6 @@
                         </a>
                     </li>
 
-                    <li class="nav-item">
-                        <a href="/admin/users" class="nav-link {{ request()->is('admin/users*') ? 'active' : '' }}">
-                            <div class="nav-left">
-                                <i class="fas fa-users"></i>
-                                <span>Data Klien</span>
-                            </div>
-                        </a>
-                    </li>
-
                     <!-- KONTEN PUBLIK -->
                     <li class="nav-header">Konten Website Publik</li>
 
@@ -1047,8 +1046,18 @@
                         </a>
                     </li>
 
-                    <!-- SISTEM -->
-                    <li class="nav-header">Sistem & Tools</li>
+                    @if($isSuperAdmin)
+                    <!-- SISTEM & AKSES (KHUSUS SUPER ADMIN) -->
+                    <li class="nav-header">Sistem & Akses</li>
+
+                    <li class="nav-item">
+                        <a href="/admin/users" class="nav-link {{ request()->is('admin/users*') ? 'active' : '' }}">
+                            <div class="nav-left">
+                                <i class="fas fa-users-cog"></i>
+                                <span>Kelola Pengguna</span>
+                            </div>
+                        </a>
+                    </li>
 
                     <li class="nav-item">
                         <a href="/admin/settings" class="nav-link {{ request()->is('admin/settings*') ? 'active' : '' }}">
@@ -1058,6 +1067,7 @@
                             </div>
                         </a>
                     </li>
+                    @endif
                     @endif
                 </ul>
             </div>
