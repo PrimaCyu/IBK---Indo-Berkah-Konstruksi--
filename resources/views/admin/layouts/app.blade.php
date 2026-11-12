@@ -94,25 +94,41 @@
         /* Sidebar Mini User Profile */
         .sidebar-user {
             flex-shrink: 0;
-            padding: 0.85rem 1rem;
-            border-bottom: 1px solid #2d3238;
+            padding: 0.9rem 1.1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             display: flex;
             align-items: center;
             gap: 12px;
-            background-color: rgba(0, 0, 0, 0.15);
+            background-color: rgba(0, 0, 0, 0.22);
+            transition: background-color 0.2s ease;
+        }
+        .sidebar-user-avatar-wrap {
+            position: relative;
+            flex-shrink: 0;
         }
         .sidebar-user-avatar {
-            width: 34px;
-            height: 34px;
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
-            background-color: #3b424a;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
             color: #ffffff;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.85rem;
+            font-size: 0.95rem;
             font-weight: 700;
-            flex-shrink: 0;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
+        }
+        .sidebar-user-status-dot {
+            position: absolute;
+            bottom: -1px;
+            right: -1px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #10b981;
+            border: 2px solid #212529;
         }
         .sidebar-user-info {
             line-height: 1.25;
@@ -120,12 +136,49 @@
             flex: 1;
         }
         .sidebar-user-name {
-            color: #f8fafc;
-            font-size: 0.85rem;
+            color: #ffffff;
+            font-size: 0.875rem;
             font-weight: 600;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            letter-spacing: -0.1px;
+        }
+        .sidebar-user-email {
+            color: #94a3b8;
+            font-size: 0.72rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;
+            margin-top: 1px;
+        }
+        .sidebar-user-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.675rem;
+            font-weight: 600;
+            padding: 1.5px 7px;
+            border-radius: 4px;
+            margin-top: 4px;
+            letter-spacing: 0.2px;
+            line-height: 1.2;
+        }
+        .sidebar-user-badge-accounting {
+            background-color: rgba(14, 165, 233, 0.18);
+            color: #38bdf8;
+            border: 1px solid rgba(56, 189, 248, 0.35);
+        }
+        .sidebar-user-badge-admin {
+            background-color: rgba(99, 102, 241, 0.18);
+            color: #a5b4fc;
+            border: 1px solid rgba(165, 180, 252, 0.35);
+        }
+        .sidebar-user-badge-superadmin {
+            background-color: rgba(245, 158, 11, 0.18);
+            color: #fbbf24;
+            border: 1px solid rgba(251, 191, 36, 0.35);
         }
         /* Scrollable Sidebar Nav */
         .sidebar-wrapper {
@@ -884,12 +937,36 @@
 
             <!-- Mini User Profile -->
             <div class="sidebar-user">
-                <div class="sidebar-user-avatar">
-                    {{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 1)) }}
+                <div class="sidebar-user-avatar-wrap">
+                    <div class="sidebar-user-avatar" title="{{ auth()->user()->name ?? 'Administrator' }}">
+                        {{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 1)) }}
+                    </div>
+                    <span class="sidebar-user-status-dot" title="Online / Aktif"></span>
                 </div>
                 <div class="sidebar-user-info">
-                    <div class="sidebar-user-name">{{ auth()->user()->name ?? 'Administrator' }}</div>
-                    <small class="text-muted d-block" style="font-size: 0.72rem;">{{ $panelRole }}</small>
+                    <div class="sidebar-user-name" title="{{ auth()->user()->name ?? 'Administrator' }}">
+                        {{ auth()->user()->name ?? 'Administrator' }}
+                    </div>
+                    @if(auth()->user()->email)
+                        <span class="sidebar-user-email" title="{{ auth()->user()->email }}">
+                            {{ auth()->user()->email }}
+                        </span>
+                    @endif
+                    <div>
+                        @if($isSuperAdmin)
+                            <span class="sidebar-user-badge sidebar-user-badge-superadmin">
+                                <i class="fas fa-crown" style="font-size: 0.58rem;"></i> Super Admin
+                            </span>
+                        @elseif($isAccounting)
+                            <span class="sidebar-user-badge sidebar-user-badge-accounting">
+                                <i class="fas fa-wallet" style="font-size: 0.58rem;"></i> Staf Keuangan (Accounting)
+                            </span>
+                        @else
+                            <span class="sidebar-user-badge sidebar-user-badge-admin">
+                                <i class="fas fa-shield-alt" style="font-size: 0.58rem;"></i> Admin Operasional
+                            </span>
+                        @endif
+                    </div>
                 </div>
             </div>
 
