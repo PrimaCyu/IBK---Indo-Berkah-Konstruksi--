@@ -156,30 +156,28 @@
         .sidebar-user-badge {
             display: inline-flex;
             align-items: center;
-            gap: 3.5px;
+            gap: 4.5px;
             font-size: 11px;
-            font-weight: 600;
-            padding: 1.5px 5px;
-            border-radius: 4px;
-            margin-top: 3px;
-            letter-spacing: -0.1px;
+            font-weight: 500;
+            padding: 2px 10px;
+            border-radius: 9999px;
+            margin-top: 4px;
+            letter-spacing: 0.1px;
             line-height: 1.25;
             white-space: nowrap;
+            border: none;
         }
         .sidebar-user-badge-accounting {
-            background-color: rgba(14, 165, 233, 0.18);
-            color: #38bdf8;
-            border: 1px solid rgba(56, 189, 248, 0.35);
+            background-color: rgba(59, 130, 246, 0.12);
+            color: #60a5fa;
         }
         .sidebar-user-badge-admin {
-            background-color: rgba(99, 102, 241, 0.18);
+            background-color: rgba(99, 102, 241, 0.12);
             color: #a5b4fc;
-            border: 1px solid rgba(165, 180, 252, 0.35);
         }
         .sidebar-user-badge-superadmin {
-            background-color: rgba(245, 158, 11, 0.18);
+            background-color: rgba(245, 158, 11, 0.12);
             color: #fbbf24;
-            border: 1px solid rgba(251, 191, 36, 0.35);
         }
         /* Scrollable Sidebar Nav */
         .sidebar-wrapper {
@@ -959,8 +957,8 @@
                                 <i class="fas fa-crown" style="font-size: 0.58rem;"></i> Super Admin
                             </span>
                         @elseif($isAccounting)
-                            <span class="sidebar-user-badge sidebar-user-badge-accounting text-nowrap">
-                                <i class="fas fa-wallet" style="font-size: 0.58rem;"></i> Staf Keuangan (Accounting)
+                            <span class="sidebar-user-badge sidebar-user-badge-accounting text-nowrap" title="Accounting">
+                                <i class="fas fa-wallet" style="font-size: 0.58rem;"></i> Staf Keuangan
                             </span>
                         @else
                             <span class="sidebar-user-badge sidebar-user-badge-admin text-nowrap">
