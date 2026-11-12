@@ -630,7 +630,7 @@ class ProjectCashflowController extends Controller
                 'disk' => 'public',
                 'file_path' => $path,
                 'original_name' => $attachment->getClientOriginalName(),
-                'mime_type' => $attachment->getClientMimeType() ?: ($attachment->getMimeType() ?? 'image/jpeg'),
+                'mime_type' => $attachment->getClientMimeType() ?: ($attachment->getMimeType() ?? 'application/octet-stream'),
                 'file_size' => $attachment->getSize(),
                 'uploaded_by' => auth()->id(),
             ]);
@@ -677,7 +677,7 @@ class ProjectCashflowController extends Controller
                 'disk' => 'public',
                 'file_path' => $path,
                 'original_name' => $attachment->getClientOriginalName(),
-                'mime_type' => $attachment->getClientMimeType() ?: ($attachment->getMimeType() ?? 'image/jpeg'),
+                'mime_type' => $attachment->getClientMimeType() ?: ($attachment->getMimeType() ?? 'application/octet-stream'),
                 'file_size' => $attachment->getSize(),
                 'uploaded_by' => auth()->id(),
             ]);
@@ -764,7 +764,7 @@ class ProjectCashflowController extends Controller
             'unit_price' => ['bail', 'required', 'string', 'max:32', 'regex:/\A[0-9]+(?:\.[0-9]{1,2})?\z/', $positiveDecimal(ProjectCashflow::MAX_UNIT_PRICE)],
             'notes' => ['nullable', 'string', 'max:2000'],
             'status' => ['nullable', 'in:pending,lunas,ditolak'],
-            'attachment' => ['nullable', 'file', 'image', 'max:10240'],
+            'attachment' => ['nullable', 'file', 'mimes:jpeg,png,jpg,webp,pdf', 'max:10240'],
             'remove_attachment' => ['nullable', 'boolean'],
         ]);
 

@@ -455,6 +455,42 @@ class ProjectCashflowTest extends TestCase
         Storage::disk('public')->assertMissing($newAttachment->file_path);
     }
 
+    public function test_staff_can_store_and_view_cashflow_with_pdf_attachment(): void
+    {
+        Storage::fake('public');
+
+        /** @var User $accountant */
+        $accountant = User::factory()->create(['role' => 'accounting', 'name' => 'Staf Keuangan']);
+        /** @var User $owner */
+        $owner = User::factory()->create(['role' => 'owner']);
+        $project = $this->project($owner, 'Proyek Invoice PDF');
+
+        $fakePdf = UploadedFile::fake()->create('invoice-pembayaran.pdf', 500, 'application/pdf');
+
+        $this->actingAs($accountant)->post(route('admin.cashbook.store', $project), [
+            'transaction_date' => '2026-11-10',
+            'type' => 'penerimaan',
+            'description' => 'Pembayaran Termin 1 Klien',
+            'quantity' => '1',
+            'unit_price' => '50000000',
+            'notes' => 'Invoice nomor INV-001',
+            'attachment' => $fakePdf,
+        ])->assertRedirect(route('admin.cashbook.show', $project))->assertSessionHas('success');
+
+        $cashflow = $project->cashflows()->firstOrFail();
+        $this->assertCount(1, $cashflow->attachments);
+
+        $attachment = $cashflow->attachments->first();
+        $this->assertSame('invoice-pembayaran.pdf', $attachment->original_name);
+        $this->assertTrue($attachment->isPdf());
+        Storage::disk('public')->assertExists($attachment->file_path);
+
+        $response = $this->get(route('admin.cashbook.show', $project));
+        $response->assertOk()
+            ->assertSee('Bukti PDF')
+            ->assertSee($attachment->url);
+    }
+
     public function test_cashbook_general_displays_monthly_income_recap_matrix_for_all_projects(): void
     {
         /** @var User $accountant */
