@@ -62,3 +62,4 @@ class AdminClientContactController extends Controller
         return back()->with('success', 'Kontak klien "' . $validated['name'] . '" berhasil ditambahkan.');
     }
 }
+
