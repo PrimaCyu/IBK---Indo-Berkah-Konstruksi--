@@ -488,15 +488,21 @@ class ProjectCashflowController extends Controller
             $endDate = null;
             $selectedMonth = null;
             $periodTitle = 'Semua Periode';
-        } elseif ($request->has('month') && $selectedMonth) {
+        } elseif ($request->filled('month') && $selectedMonth) {
             $activeMode = 'bulan';
             $startDate = Carbon::create($selectedYear, $selectedMonth, 1)->startOfMonth();
             $endDate = Carbon::create($selectedYear, $selectedMonth, 1)->endOfMonth();
             $periodTitle = ($monthNames[$selectedMonth] ?? 'Bulan ' . $selectedMonth) . ' ' . $selectedYear;
+        } elseif ($request->filled('year') && $request->has('period_mode')) {
+            $activeMode = 'bulan';
+            $selectedMonth = null;
+            $startDate = Carbon::create($selectedYear, 1, 1)->startOfYear();
+            $endDate = Carbon::create($selectedYear, 12, 31)->endOfYear();
+            $periodTitle = 'Tahun ' . $selectedYear . ' (Semua Bulan)';
         } else {
             // Unfiltered initial state: tampilkan seluruh data buku kas
             $activeMode = 'bulan';
-            $selectedMonth = (int) now()->month;
+            $selectedMonth = null;
             $startDate = null;
             $endDate = null;
             $periodTitle = 'Semua Transaksi';
@@ -557,6 +563,7 @@ class ProjectCashflowController extends Controller
             'codeOptions' => CashflowOption::optionsFor('code'),
             'unitOptions' => CashflowOption::optionsFor('unit'),
             'years' => $years,
+            'months' => $monthNames,
             'filters' => $filters,
             'preset' => $preset,
             'activeMode' => $activeMode,

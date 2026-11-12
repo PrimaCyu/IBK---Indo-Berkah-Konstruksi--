@@ -307,9 +307,9 @@
         $maxIncomeVal = !empty($incomeByCode) ? max($incomeByCode) : 1;
         $maxExpenseVal = !empty($expenseByCode) ? max($expenseByCode) : 1;
 
-        $months = [1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'];
-        $selectedMonth = (string) ($filters['month'] ?? '');
-        $selectedYear = (string) ($filters['year'] ?? '');
+        $months = $months ?? [1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'];
+        $selectedMonth = isset($selectedMonth) && $selectedMonth !== null ? (string) $selectedMonth : (string) ($filters['month'] ?? '');
+        $selectedYear = isset($selectedYear) && $selectedYear !== null ? (string) $selectedYear : (string) ($filters['year'] ?? (string) now()->year);
         $yearOptions = collect($years ?? [])->push(now()->year)->when($selectedYear !== '', fn ($c) => $c->push((int) $selectedYear))->unique()->sortDesc()->values();
     @endphp
 
@@ -560,13 +560,14 @@
                         {{-- Mode Bulan & Tahun --}}
                         <div class="d-inline-flex align-items-center gap-1.5 {{ ($activeMode ?? 'bulan') === 'lengkap' ? 'd-none' : '' }}" id="filter-col-month-year">
                             <select id="filter-month" name="month" class="form-select form-select-sm {{ ($activeMode ?? 'bulan') === 'tahun' ? 'd-none' : '' }}" style="width: 130px; min-width: 120px;" {{ ($activeMode ?? 'bulan') === 'tahun' ? 'disabled' : '' }}>
+                                <option value="" @selected(empty($selectedMonth))>Semua Bulan</option>
                                 @foreach($months as $num => $name)
-                                    <option value="{{ $num }}" @selected((int)($selectedMonth ?? 0) === (int)$num)>{{ $name }}</option>
+                                    <option value="{{ $num }}" @selected((string)($selectedMonth ?? '') === (string)$num)>{{ $name }}</option>
                                 @endforeach
                             </select>
                             <select id="filter-year" name="year" class="form-select form-select-sm" style="width: 90px; min-width: 85px;">
                                 @foreach($yearOptions as $yr)
-                                    <option value="{{ $yr }}" @selected((int)($selectedYear ?? 0) === (int)$yr)>{{ $yr }}</option>
+                                    <option value="{{ $yr }}" @selected((int)($selectedYear ?? now()->year) === (int)$yr)>{{ $yr }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -938,11 +939,24 @@
                         @empty
                             <tr>
                                 <td colspan="9" class="text-center py-5 px-3">
-                                    <p class="fw-semibold mb-1 text-dark">Belum ada transaksi kas untuk proyek ini.</p>
-                                    <p class="small text-secondary mb-3">Tambahkan penerimaan atau pengeluaran pertama untuk mulai mencatat saldo.</p>
-                                    <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#cashbook-modal">
-                                        <i class="fas fa-plus me-1"></i> Tambah Transaksi Kas
-                                    </button>
+                                    @if(request()->hasAny(['month', 'year', 'status', 'start_date', 'end_date', 'period_mode', 'type', 'code', 'search']))
+                                        <div class="py-2">
+                                            <div class="mb-2 text-muted" style="font-size: 1.8rem; opacity: 0.4;">
+                                                <i class="fas fa-filter-circle-xmark"></i>
+                                            </div>
+                                            <p class="fw-semibold mb-1 text-dark">Tidak ada transaksi yang sesuai dengan filter yang dipilih.</p>
+                                            <p class="small text-secondary mb-3">Kombinasi filter yang Anda pilih tidak menemukan data. Coba sesuaikan pilihan filter atau reset.</p>
+                                            <a href="{{ route('admin.cashbook.show', $project) }}" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1.5">
+                                                <i class="fas fa-rotate-left"></i> Reset Filter
+                                            </a>
+                                        </div>
+                                    @else
+                                        <p class="fw-semibold mb-1 text-dark">Belum ada transaksi kas untuk proyek ini.</p>
+                                        <p class="small text-secondary mb-3">Tambahkan penerimaan atau pengeluaran pertama untuk mulai mencatat saldo.</p>
+                                        <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#cashbook-modal">
+                                            <i class="fas fa-plus me-1"></i> Tambah Transaksi Kas
+                                        </button>
+                                    @endif
                                 </td>
                             </tr>
                         @endforelse
