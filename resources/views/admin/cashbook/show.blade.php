@@ -21,16 +21,16 @@
         .project-header-eyebrow {
             background-color: #f8fafc;
             border-bottom: 1px solid #f1f5f9 !important;
-            padding: 0.5rem 1.25rem;
+            padding: 0.55rem 1.25rem;
         }
         @media (min-width: 768px) {
             .project-header-eyebrow {
-                padding: 0.5rem 1.5rem;
+                padding: 0.55rem 1.5rem;
             }
         }
         .project-header-back-btn {
-            width: 36px;
-            height: 36px;
+            width: 38px;
+            height: 38px;
             border-radius: 8px;
             border: 1px solid #e2e8f0;
             background-color: #ffffff;
@@ -159,9 +159,9 @@
             text-decoration: none;
         }
         .project-btn-primary {
-            height: 36px;
-            padding: 0 14px;
-            font-size: 0.8125rem;
+            height: 38px;
+            padding: 0 16px;
+            font-size: 0.825rem;
             font-weight: 600;
             border-radius: 8px;
             background-color: #2563eb;
@@ -169,6 +169,9 @@
             color: #ffffff;
             box-shadow: 0 1px 2px rgba(37, 99, 235, 0.2);
             transition: all 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
         .project-btn-primary:hover {
             background-color: #1d4ed8;
@@ -178,9 +181,9 @@
             transform: translateY(-0.5px);
         }
         .project-btn-secondary {
-            height: 36px;
-            padding: 0 13px;
-            font-size: 0.8125rem;
+            height: 38px;
+            padding: 0 14px;
+            font-size: 0.825rem;
             font-weight: 500;
             border-radius: 8px;
             background-color: #ffffff;
@@ -188,6 +191,9 @@
             color: #334155;
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
             transition: all 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
         .project-btn-secondary:hover {
             background-color: #f8fafc;
@@ -307,7 +313,7 @@
         $yearOptions = collect($years ?? [])->push(now()->year)->when($selectedYear !== '', fn ($c) => $c->push((int) $selectedYear))->unique()->sortDesc()->values();
     @endphp
 
-    {{-- Project Header Card (Modern Professional SaaS Design) --}}
+    {{-- Project Header Card (Clean & Compact Professional Design) --}}
     <div class="card border mb-3 project-header-card">
         {{-- Card Eyebrow Bar: Integrated Breadcrumbs & Context --}}
         <div class="project-header-eyebrow d-flex align-items-center justify-content-between">
@@ -324,144 +330,148 @@
                     <li class="breadcrumb-item active text-dark fw-semibold" aria-current="page">Buku Kas</li>
                 </ol>
             </nav>
-            <div class="d-none d-md-inline-flex align-items-center">
-                <span class="badge bg-white text-secondary border fw-medium px-2 py-1 d-inline-flex align-items-center gap-1.5 shadow-2xs" style="font-size: 0.72rem; border-color: #e2e8f0 !important;">
-                    <i class="fas fa-book-open text-primary" style="font-size: 0.72rem;"></i>
-                    <span>Buku Kas Proyek</span>
-                </span>
+            <div class="d-none d-md-inline-flex align-items-center gap-1.5 text-muted" style="font-size: 0.75rem;">
+                <i class="fas fa-wallet text-primary"></i>
+                <span class="fw-medium">Buku Kas Proyek</span>
             </div>
         </div>
 
-        {{-- Card Body: Two-Tier Balanced Layout (Identity & Actions, then Metadata Strip) --}}
+        {{-- Card Body: Unified, Cohesive Side-by-Side Layout --}}
         <div class="card-body p-3.5 p-md-4">
-            {{-- Tier 1: Identity & Action Bar --}}
-            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
-                {{-- Left: Back Navigation, Title & Status Badge --}}
-                <div class="d-flex align-items-center gap-2.5 min-w-0">
+            <div class="d-flex justify-content-between align-items-start align-items-md-center flex-column flex-md-row gap-3">
+                
+                {{-- Left: Back Button + Project Identity & Contextual Details --}}
+                <div class="d-flex align-items-start gap-3 min-w-0">
                     <a href="{{ route('admin.cashbook.index') }}" 
-                       class="btn project-header-back-btn" 
+                       class="btn project-header-back-btn mt-0.5" 
                        title="Kembali ke Keuangan Proyek" 
                        aria-label="Kembali ke Keuangan Proyek">
                         <i class="fas fa-arrow-left"></i>
                     </a>
 
-                    <div class="d-flex align-items-center gap-2 flex-wrap min-w-0">
-                        <h1 class="project-header-title text-break mb-0">
-                            {{ $project->nama_proyek }}
-                        </h1>
+                    <div class="min-w-0">
+                        {{-- Row 1: Title with Status Badge --}}
+                        <div class="d-flex align-items-center gap-2 flex-wrap mb-1.5">
+                            <h1 class="h5 fw-bold text-dark text-break mb-0 project-header-title">
+                                {{ $project->nama_proyek }}
+                            </h1>
+                            @php
+                                $statusConfig = match($project->status ?? 'perencanaan') {
+                                    'selesai' => [
+                                        'class' => 'badge-status-selesai',
+                                        'dot' => '#10b981',
+                                        'label' => 'Selesai'
+                                    ],
+                                    'dalam_pengerjaan' => [
+                                        'class' => 'badge-status-pengerjaan',
+                                        'dot' => '#3b82f6',
+                                        'label' => 'Dalam Pengerjaan'
+                                    ],
+                                    'dibatalkan' => [
+                                        'class' => 'badge-status-batal',
+                                        'dot' => '#ef4444',
+                                        'label' => 'Dibatalkan'
+                                    ],
+                                    default => [
+                                        'class' => 'badge-status-perencanaan',
+                                        'dot' => '#64748b',
+                                        'label' => 'Perencanaan'
+                                    ],
+                                };
+                            @endphp
+                            <span class="project-status-badge {{ $statusConfig['class'] }}">
+                                <span class="badge-dot" style="background-color: {{ $statusConfig['dot'] }};"></span>
+                                {{ $statusConfig['label'] }}
+                            </span>
+                        </div>
+
+                        {{-- Row 2: Client & Contact Metadata --}}
                         @php
-                            $statusConfig = match($project->status ?? 'perencanaan') {
-                                'selesai' => [
-                                    'class' => 'badge-status-selesai',
-                                    'dot' => '#10b981',
-                                    'label' => 'Selesai'
-                                ],
-                                'dalam_pengerjaan' => [
-                                    'class' => 'badge-status-pengerjaan',
-                                    'dot' => '#3b82f6',
-                                    'label' => 'Dalam Pengerjaan'
-                                ],
-                                'dibatalkan' => [
-                                    'class' => 'badge-status-batal',
-                                    'dot' => '#ef4444',
-                                    'label' => 'Dibatalkan'
-                                ],
-                                default => [
-                                    'class' => 'badge-status-perencanaan',
-                                    'dot' => '#64748b',
-                                    'label' => 'Perencanaan'
-                                ],
-                            };
+                            $rawPhone = $project->user?->phone;
+                            $cleanWa = null;
+                            if ($rawPhone) {
+                                $digits = preg_replace('/[^0-9]/', '', (string)$rawPhone);
+                                if (str_starts_with($digits, '0')) {
+                                    $cleanWa = '62' . substr($digits, 1);
+                                } elseif (str_starts_with($digits, '62')) {
+                                    $cleanWa = $digits;
+                                } else {
+                                    $cleanWa = '62' . $digits;
+                                }
+                            }
                         @endphp
-                        <span class="project-status-badge {{ $statusConfig['class'] }}">
-                            <span class="badge-dot" style="background-color: {{ $statusConfig['dot'] }};"></span>
-                            {{ $statusConfig['label'] }}
-                        </span>
+
+                        <div class="d-flex align-items-center flex-wrap gap-x-3 gap-y-1 text-muted" style="font-size: 0.8125rem;">
+                            {{-- Klien --}}
+                            <span class="d-inline-flex align-items-center gap-1.5">
+                                <i class="fas fa-user-circle text-secondary" style="font-size: 0.825rem;"></i>
+                                <span class="text-secondary">Klien:</span>
+                                <strong class="text-dark">{{ $project->user->name ?? 'Klien tidak tersedia' }}</strong>
+                            </span>
+
+                            {{-- Email --}}
+                            @if($project->user?->email)
+                                <span class="text-muted opacity-50 d-none d-sm-inline">•</span>
+                                <span class="d-inline-flex align-items-center gap-1.5">
+                                    <i class="fas fa-envelope text-secondary" style="font-size: 0.8rem;"></i>
+                                    <a href="mailto:{{ $project->user->email }}" class="text-secondary text-decoration-none hover-primary">
+                                        {{ $project->user->email }}
+                                    </a>
+                                </span>
+                            @endif
+
+                            {{-- Telepon & WA --}}
+                            @if($rawPhone)
+                                <span class="text-muted opacity-50 d-none d-sm-inline">•</span>
+                                <span class="d-inline-flex align-items-center gap-1.5">
+                                    <i class="fas fa-phone text-secondary" style="font-size: 0.8rem;"></i>
+                                    <span class="text-dark fw-medium">{{ $rawPhone }}</span>
+                                    @if($cleanWa)
+                                        <a href="https://wa.me/{{ $cleanWa }}?text={{ urlencode('Halo ' . ($project->user->name ?? 'Bpk/Ibu') . ', kami dari Bagian Keuangan PT Indo Berkah Konstruksi terkait proyek ' . $project->nama_proyek . '...') }}"
+                                           target="_blank"
+                                           class="project-meta-wa-pill"
+                                           title="Chat Klien via WhatsApp">
+                                            <i class="fab fa-whatsapp"></i>
+                                            <span>Chat WA</span>
+                                        </a>
+                                    @endif
+                                </span>
+                            @endif
+                        </div>
+
+                        {{-- Row 3: Alamat Proyek --}}
+                        @if($project->alamat_proyek)
+                            <div class="d-flex align-items-center gap-1.5 mt-1 text-secondary" style="font-size: 0.8125rem;">
+                                <i class="fas fa-location-dot text-secondary" style="font-size: 0.8rem; flex-shrink: 0;"></i>
+                                <span class="text-truncate" style="max-width: 520px;" title="{{ strip_tags((string) $project->alamat_proyek) }}">
+                                    {{ strip_tags((string) $project->alamat_proyek) }}
+                                </span>
+                            </div>
+                        @endif
                     </div>
                 </div>
 
                 {{-- Right: Quick Action Buttons --}}
-                <div class="d-flex align-items-center gap-2 ms-auto flex-wrap flex-sm-nowrap">
+                <div class="d-flex align-items-center gap-2 flex-wrap flex-sm-nowrap w-100 w-md-auto justify-content-start justify-content-md-end mt-2 mt-md-0">
                     {{-- Secondary Action: Export XLSX --}}
                     <a href="{{ route('admin.cashbook.export', $project) }}" 
-                       class="btn btn-sm project-btn-secondary d-inline-flex align-items-center justify-content-center gap-1.5" 
+                       class="btn btn-sm project-btn-secondary d-inline-flex align-items-center justify-content-center gap-2" 
                        title="Unduh rekap kas (.xlsx)">
-                        <i class="fas fa-file-excel text-success" style="font-size: 0.85rem;"></i>
+                        <i class="fas fa-file-excel text-success" style="font-size: 0.875rem;"></i>
                         <span>Unduh (.xlsx)</span>
                     </a>
 
                     {{-- Primary Action: Add Cashflow --}}
                     <button type="button" 
                             id="cashbook-add" 
-                            class="btn btn-sm btn-primary project-btn-primary d-inline-flex align-items-center justify-content-center gap-1.5" 
+                            class="btn btn-sm btn-primary project-btn-primary d-inline-flex align-items-center justify-content-center gap-2" 
                             data-bs-toggle="modal" 
                             data-bs-target="#cashbook-modal">
                         <i class="fas fa-plus" style="font-size: 0.75rem;"></i>
                         <span>Tambah Transaksi Kas</span>
                     </button>
                 </div>
-            </div>
 
-            {{-- Tier 2: Metadata Strip (Klien, WA, Email, Alamat) --}}
-            @php
-                $rawPhone = $project->user?->phone;
-                $cleanWa = null;
-                if ($rawPhone) {
-                    $digits = preg_replace('/[^0-9]/', '', (string)$rawPhone);
-                    if (str_starts_with($digits, '0')) {
-                        $cleanWa = '62' . substr($digits, 1);
-                    } elseif (str_starts_with($digits, '62')) {
-                        $cleanWa = $digits;
-                    } else {
-                        $cleanWa = '62' . $digits;
-                    }
-                }
-            @endphp
-
-            <div class="project-meta-strip mt-3 pt-3 border-top" style="border-color: #f1f5f9 !important;">
-                {{-- Klien --}}
-                <div class="project-meta-item">
-                    <i class="fas fa-user-circle project-meta-icon"></i>
-                    <span class="project-meta-label">Klien:</span>
-                    <span class="project-meta-value">{{ $project->user->name ?? 'Klien tidak tersedia' }}</span>
-                </div>
-
-                {{-- Telepon & WA --}}
-                @if($rawPhone)
-                    <div class="project-meta-item">
-                        <i class="fas fa-phone project-meta-icon"></i>
-                        <span class="project-meta-value">{{ $rawPhone }}</span>
-                        @if($cleanWa)
-                            <a href="https://wa.me/{{ $cleanWa }}?text={{ urlencode('Halo ' . ($project->user->name ?? 'Bpk/Ibu') . ', kami dari Bagian Keuangan PT Indo Berkah Konstruksi terkait proyek ' . $project->nama_proyek . '...') }}"
-                               target="_blank"
-                               class="project-meta-wa-pill"
-                               title="Chat Klien via WhatsApp">
-                                <i class="fab fa-whatsapp"></i>
-                                <span>Chat WA</span>
-                            </a>
-                        @endif
-                    </div>
-                @endif
-
-                {{-- Email --}}
-                @if($project->user?->email)
-                    <div class="project-meta-item">
-                        <i class="fas fa-envelope project-meta-icon"></i>
-                        <a href="mailto:{{ $project->user->email }}" class="project-meta-link">
-                            {{ $project->user->email }}
-                        </a>
-                    </div>
-                @endif
-
-                {{-- Alamat Proyek --}}
-                @if($project->alamat_proyek)
-                    <div class="project-meta-item meta-address">
-                        <i class="fas fa-location-dot project-meta-icon"></i>
-                        <span class="text-secondary" title="{{ strip_tags((string) $project->alamat_proyek) }}">
-                            {{ strip_tags((string) $project->alamat_proyek) }}
-                        </span>
-                    </div>
-                @endif
             </div>
         </div>
     </div>
