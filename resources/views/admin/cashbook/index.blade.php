@@ -45,8 +45,8 @@
 
 <style>
     .client-avatar-circle {
-        width: 32px;
-        height: 32px;
+        width: 30px;
+        height: 30px;
         border-radius: 50%;
         background-color: #EFF6FF;
         color: #2563EB;
@@ -55,24 +55,28 @@
         align-items: center;
         justify-content: center;
         font-weight: 700;
-        font-size: 0.75rem;
+        font-size: 0.72rem;
         flex-shrink: 0;
     }
     #proyek-table-card .table th {
-        font-size: 0.72rem;
+        font-size: 0.7rem;
         letter-spacing: 0.5px;
         text-transform: uppercase;
         font-weight: 700;
         color: #64748B;
-        padding-top: 10px;
-        padding-bottom: 10px;
+        padding: 9px 8px;
         vertical-align: middle;
         white-space: nowrap;
+        background-color: #F8FAFC;
+        border-bottom: 1px solid #E2E8F0;
     }
     #proyek-table-card .table td {
         vertical-align: middle;
-        padding-top: 10px;
-        padding-bottom: 10px;
+        padding: 10px 8px;
+        border-bottom: 1px solid #F1F5F9;
+    }
+    #proyek-table-card .table tbody tr:hover {
+        background-color: #F8FAFC;
     }
     .pending-banner {
         background-color: #FFFDF0;
@@ -150,71 +154,71 @@
 {{-- 5 Summary KPI Cards: Total Proyek, Pemasukan, Pengeluaran, Piutang, Selisih (Selisih di Paling Kanan) --}}
 <div class="row g-2 mb-3">
     <div class="col-6 col-lg">
-        <div class="card h-100 mb-0 shadow-sm border">
+        <div class="card h-100 mb-0 shadow-sm border" style="border-radius: 10px; border-color: #E2E8F0;">
             <div class="card-body p-3">
                 <div class="d-flex align-items-center justify-content-between mb-1.5">
-                    <span class="small fw-bold text-muted text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">TOTAL PROYEK</span>
+                    <span class="small fw-bold text-muted text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">TOTAL PROYEK</span>
                     <div class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 28px; height: 28px; background-color: #F1F5F9; color: #475569;">
                         <i class="fas fa-building small"></i>
                     </div>
                 </div>
-                <div class="fs-5 fw-bold text-dark cashbook-number mb-0.5">{{ count($projectsData) }}</div>
+                <div class="fs-5 fw-bold text-dark cashbook-number mb-0.5 text-nowrap" style="font-size: 1.15rem; line-height: 1.25;">{{ count($projectsData) }}</div>
                 <small class="text-muted" style="font-size: 0.72rem;">Proyek Terdata</small>
             </div>
         </div>
     </div>
     <div class="col-6 col-lg">
-        <div class="card h-100 mb-0 shadow-sm border">
+        <div class="card h-100 mb-0 shadow-sm border" style="border-radius: 10px; border-color: #E2E8F0;">
             <div class="card-body p-3">
                 <div class="d-flex align-items-center justify-content-between mb-1.5">
-                    <span class="small fw-bold text-muted text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">PEMASUKAN</span>
+                    <span class="small fw-bold text-muted text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">PEMASUKAN</span>
                     <div class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 28px; height: 28px; background-color: #ECFDF5; color: #10B981;">
                         <i class="fas fa-arrow-down small"></i>
                     </div>
                 </div>
-                <div class="fs-5 fw-bold text-success cashbook-number mb-0.5">+ {{ $formatRupiah($grandPeriodIncome) }}</div>
+                <div class="fs-5 fw-bold text-success cashbook-number mb-0.5 text-nowrap" style="font-size: 1.15rem; line-height: 1.25;">+ {{ $formatRupiah($grandPeriodIncome) }}</div>
                 <small class="text-muted" style="font-size: 0.72rem;">Penerimaan Lunas</small>
             </div>
         </div>
     </div>
     <div class="col-6 col-lg">
-        <div class="card h-100 mb-0 shadow-sm border">
+        <div class="card h-100 mb-0 shadow-sm border" style="border-radius: 10px; border-color: #E2E8F0;">
             <div class="card-body p-3">
                 <div class="d-flex align-items-center justify-content-between mb-1.5">
-                    <span class="small fw-bold text-muted text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">PENGELUARAN</span>
+                    <span class="small fw-bold text-muted text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">PENGELUARAN</span>
                     <div class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 28px; height: 28px; background-color: #FEF2F2; color: #EF4444;">
                         <i class="fas fa-arrow-up small"></i>
                     </div>
                 </div>
-                <div class="fs-5 fw-bold text-danger cashbook-number mb-0.5">− {{ $formatRupiah($grandPeriodExpense) }}</div>
+                <div class="fs-5 fw-bold text-danger cashbook-number mb-0.5 text-nowrap" style="font-size: 1.15rem; line-height: 1.25;">− {{ $formatRupiah($grandPeriodExpense) }}</div>
                 <small class="text-muted" style="font-size: 0.72rem;">Beban Kas</small>
             </div>
         </div>
     </div>
     <div class="col-6 col-lg">
-        <div class="card h-100 mb-0 shadow-sm border">
+        <div class="card h-100 mb-0 shadow-sm border" style="border-radius: 10px; border-color: #E2E8F0;">
             <div class="card-body p-3">
                 <div class="d-flex align-items-center justify-content-between mb-1.5">
-                    <span class="small fw-bold text-muted text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">PIUTANG</span>
+                    <span class="small fw-bold text-muted text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">PIUTANG</span>
                     <div class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 28px; height: 28px; background-color: #FEF3C7; color: #D97706;">
                         <i class="fas fa-clock small"></i>
                     </div>
                 </div>
-                <div class="fs-5 fw-bold text-warning cashbook-number mb-0.5">{{ $formatRupiah($grandPeriodReceivable) }}</div>
+                <div class="fs-5 fw-bold text-warning cashbook-number mb-0.5 text-nowrap" style="font-size: 1.15rem; line-height: 1.25; color: #D97706 !important;">{{ $formatRupiah($grandPeriodReceivable) }}</div>
                 <small class="text-muted" style="font-size: 0.72rem;">Menunggu Pembayaran</small>
             </div>
         </div>
     </div>
     <div class="col-6 col-lg">
-        <div class="card h-100 mb-0 shadow-sm border">
+        <div class="card h-100 mb-0 shadow-sm border" style="border-radius: 10px; border-color: #E2E8F0;">
             <div class="card-body p-3">
                 <div class="d-flex align-items-center justify-content-between mb-1.5">
-                    <span class="small fw-bold text-muted text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">SELISIH</span>
+                    <span class="small fw-bold text-muted text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">SELISIH</span>
                     <div class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 28px; height: 28px; background-color: #EFF6FF; color: #2563EB;">
                         <i class="fas fa-wallet small"></i>
                     </div>
                 </div>
-                <div class="fs-5 fw-bold text-dark cashbook-number mb-0.5">{{ $formatRupiah($grandPeriodBalance) }}</div>
+                <div class="fs-5 fw-bold text-dark cashbook-number mb-0.5 text-nowrap" style="font-size: 1.15rem; line-height: 1.25;">{{ $formatRupiah($grandPeriodBalance) }}</div>
                 <small class="text-muted" style="font-size: 0.72rem;">
                     @if($grandMargin !== null)
                         Margin: <strong class="{{ $grandMargin >= 0 ? 'text-success' : 'text-danger' }}">{{ $grandMargin >= 0 ? '+' : '' }}{{ $grandMargin }}%</strong>
@@ -228,13 +232,13 @@
 </div>
 
 {{-- Filter Bar: Periode, Status Proyek, dan Pencarian Cepat --}}
-<div class="card mb-3 shadow-sm">
-    <div class="card-body p-3">
+<div class="card mb-3 shadow-sm border" style="border-radius: 10px; border-color: #E2E8F0;">
+    <div class="card-body py-2.5 px-3">
         <form method="GET" action="{{ route('admin.cashbook.index') }}" id="cashbook-filter-form" class="row g-2 align-items-center">
             {{-- Pilihan Mode Periode (Dropdown: Bulan, Lengkap, Tahun) --}}
             <div class="col-auto d-flex align-items-center gap-1.5">
                 <span class="small fw-bold text-muted text-uppercase d-none d-sm-inline" style="font-size: 0.72rem; letter-spacing: 0.5px;">Periode:</span>
-                <select name="period_mode" id="filter-period-mode" class="form-select form-select-sm fw-medium text-dark bg-white" style="min-width: 105px;" onchange="setPeriodMode(this.value)">
+                <select name="period_mode" id="filter-period-mode" class="form-select form-select-sm fw-medium text-dark bg-white" style="min-width: 105px; height: 32px; font-size: 0.8rem; border-color: #CBD5E1; border-radius: 6px;" onchange="setPeriodMode(this.value)">
                     <option value="bulan" @selected(($activeMode ?? 'bulan') === 'bulan')>Bulan</option>
                     <option value="lengkap" @selected(($activeMode ?? 'bulan') === 'lengkap')>Lengkap</option>
                     <option value="tahun" @selected(($activeMode ?? 'bulan') === 'tahun')>Tahun</option>
@@ -243,14 +247,14 @@
 
             {{-- Dynamic Inputs Bulan & Tahun --}}
             <div class="col-6 col-sm-auto" id="filter-col-month">
-                <select id="filter-month" name="month" class="form-select form-select-sm" style="min-width: 135px;">
+                <select id="filter-month" name="month" class="form-select form-select-sm" style="min-width: 135px; height: 32px; font-size: 0.8rem; border-color: #CBD5E1; border-radius: 6px;">
                     @foreach($months as $num => $name)
                         <option value="{{ $num }}" @selected((int)$selectedMonth === (int)$num)>{{ $name }}</option>
                     @endforeach
                 </select>
             </div>
             <div class="col-6 col-sm-auto" id="filter-col-year">
-                <select id="filter-year" name="year" class="form-select form-select-sm" style="min-width: 95px;">
+                <select id="filter-year" name="year" class="form-select form-select-sm" style="min-width: 95px; height: 32px; font-size: 0.8rem; border-color: #CBD5E1; border-radius: 6px;">
                     @foreach($years as $yr)
                         <option value="{{ $yr }}" @selected((int)$selectedYear === (int)$yr)>{{ $yr }}</option>
                     @endforeach
@@ -259,14 +263,14 @@
 
             {{-- Dynamic Inputs Rentang Tanggal (Lengkap) --}}
             <div class="col-auto d-flex align-items-center gap-1.5 d-none flex-nowrap" id="filter-col-dates">
-                <input type="date" id="filter-start-date" name="start_date" value="{{ $startDate ? (is_string($startDate) ? $startDate : $startDate->format('Y-m-d')) : '' }}" class="form-control form-control-sm" style="width: 140px; flex-shrink: 0;" disabled title="Tanggal Mulai">
+                <input type="date" id="filter-start-date" name="start_date" value="{{ $startDate ? (is_string($startDate) ? $startDate : $startDate->format('Y-m-d')) : '' }}" class="form-control form-control-sm" style="width: 140px; flex-shrink: 0; height: 32px; font-size: 0.8rem; border-color: #CBD5E1; border-radius: 6px;" disabled title="Tanggal Mulai">
                 <span class="small text-muted text-nowrap px-1" style="flex-shrink: 0; white-space: nowrap;">s/d</span>
-                <input type="date" id="filter-end-date" name="end_date" value="{{ $endDate ? (is_string($endDate) ? $endDate : $endDate->format('Y-m-d')) : '' }}" class="form-control form-control-sm" style="width: 140px; flex-shrink: 0;" disabled title="Tanggal Akhir">
+                <input type="date" id="filter-end-date" name="end_date" value="{{ $endDate ? (is_string($endDate) ? $endDate : $endDate->format('Y-m-d')) : '' }}" class="form-control form-control-sm" style="width: 140px; flex-shrink: 0; height: 32px; font-size: 0.8rem; border-color: #CBD5E1; border-radius: 6px;" disabled title="Tanggal Akhir">
             </div>
 
             {{-- Filter Status Proyek --}}
             <div class="col-auto">
-                <select name="status" id="filter-status" class="form-select form-select-sm" style="min-width: 130px;">
+                <select name="status" id="filter-status" class="form-select form-select-sm" style="min-width: 130px; height: 32px; font-size: 0.8rem; border-color: #CBD5E1; border-radius: 6px;">
                     <option value="">Semua Status</option>
                     <option value="aktif" @selected(($statusFilter ?? '') === 'aktif')>Aktif</option>
                     <option value="selesai" @selected(($statusFilter ?? '') === 'selesai')>Selesai</option>
@@ -278,19 +282,19 @@
             {{-- Cari Proyek / Klien (Search) --}}
             <div class="col-12 col-md">
                 <div class="input-group input-group-sm">
-                    <span class="input-group-text bg-light border-end-0 text-muted"><i class="fas fa-search"></i></span>
-                    <input type="search" id="cashbook-search" name="search" value="{{ $search }}" class="form-control form-control-sm border-start-0" placeholder="Search nama proyek, lokasi, atau klien...">
+                    <span class="input-group-text bg-white border-end-0 text-muted" style="border-color: #CBD5E1; border-radius: 6px 0 0 6px; height: 32px;"><i class="fas fa-search" style="font-size: 0.75rem;"></i></span>
+                    <input type="search" id="cashbook-search" name="search" value="{{ $search }}" class="form-control form-control-sm border-start-0" placeholder="Search nama proyek, lokasi, atau klien..." style="border-color: #CBD5E1; border-radius: 0 6px 6px 0; height: 32px; font-size: 0.8rem;">
                 </div>
             </div>
 
             {{-- Tombol Terapkan & Reset --}}
             <div class="col-auto d-flex align-items-center gap-1.5">
-                <button type="submit" class="btn btn-sm btn-primary px-3 text-nowrap d-flex align-items-center gap-1.5" style="height: 31px;">
-                    <i class="fas fa-filter"></i> Terapkan
+                <button type="submit" class="btn btn-sm btn-primary px-3 text-nowrap d-flex align-items-center gap-1.5" style="height: 32px; font-size: 0.8rem; font-weight: 600; border-radius: 6px;">
+                    <i class="fas fa-filter" style="font-size: 0.72rem;"></i> Terapkan
                 </button>
                 @if(request()->hasAny(['month', 'year', 'search', 'start_date', 'end_date', 'period_mode', 'status']))
-                    <a href="{{ route('admin.cashbook.index') }}" class="btn btn-sm btn-outline-secondary d-flex align-items-center justify-content-center" title="Reset filter" style="height: 31px; width: 31px; padding: 0;">
-                        <i class="fas fa-rotate-left"></i>
+                    <a href="{{ route('admin.cashbook.index') }}" class="btn btn-sm btn-outline-secondary d-flex align-items-center justify-content-center" title="Reset filter" style="height: 32px; width: 32px; padding: 0; border-radius: 6px; border-color: #CBD5E1;">
+                        <i class="fas fa-rotate-left" style="font-size: 0.75rem;"></i>
                     </a>
                 @endif
             </div>
@@ -366,29 +370,31 @@
 </script>
 
 {{-- Tabel Utama: Daftar Buku Kas Proyek --}}
-<div class="card shadow-sm" id="proyek-table-card">
+<div class="card shadow-sm border" id="proyek-table-card" style="border-radius: 10px; border-color: #E2E8F0;">
     <div class="card-header py-2.5 px-3.5 d-flex align-items-center justify-content-between flex-wrap gap-2 bg-white border-bottom">
         <div class="d-flex align-items-center gap-2">
-            <i class="fas fa-wallet text-primary"></i>
-            <h2 class="h6 fw-bold mb-0 text-dark">Daftar Buku Kas Proyek</h2>
-            <span class="badge-soft-neutral">{{ count($projectsData) }} Proyek Terdaftar</span>
+            <i class="fas fa-book-bookmark text-primary" style="font-size: 0.9rem;"></i>
+            <h2 class="h6 fw-bold mb-0 text-dark" style="font-size: 0.95rem; letter-spacing: -0.2px;">Daftar Buku Kas Proyek</h2>
+            <span class="badge rounded-pill bg-light text-secondary border font-monospace px-2.5 py-1" style="font-size: 0.72rem; font-weight: 600;">{{ count($projectsData) }} Proyek Terdaftar</span>
         </div>
-        <div class="small text-muted">
-            Periode Kas: <strong>{{ $periodTitle }}</strong>
+        <div class="small text-muted d-flex align-items-center gap-1.5" style="font-size: 0.78rem;">
+            <i class="far fa-calendar-alt text-secondary opacity-75"></i>
+            <span>Periode Kas:</span>
+            <strong class="text-dark">{{ $periodTitle }}</strong>
         </div>
     </div>
     <div class="card-body p-0">
         <div class="table-responsive p-0" tabindex="0" role="region" aria-label="Daftar proyek dan rincian kas">
-            <table class="table table-hover align-middle mb-0" style="table-layout: fixed; width: 100%; min-width: 1080px;">
+            <table class="table table-hover align-middle mb-0" style="table-layout: fixed; width: 100%; min-width: 1120px;">
                 <colgroup>
-                    <col style="width: 45px;">
-                    <col style="width: 25%;">
-                    <col style="width: 19%;">
-                    <col style="width: 11%;">
-                    <col style="width: 11%;">
-                    <col style="width: 10%;">
-                    <col style="width: 11%;">
-                    <col style="width: 80px;">
+                    <col style="width: 44px;">
+                    <col style="width: 21%;">
+                    <col style="width: 15.5%;">
+                    <col style="width: 12.5%;">
+                    <col style="width: 12.5%;">
+                    <col style="width: 11.5%;">
+                    <col style="width: 13%;">
+                    <col style="width: 82px;">
                     <col style="width: 95px;">
                 </colgroup>
                 <thead class="table-light">
@@ -396,10 +402,10 @@
                         <th scope="col" class="text-center px-1">NO</th>
                         <th scope="col" class="ps-3">PROYEK & LOKASI</th>
                         <th scope="col">KLIEN</th>
-                        <th scope="col" class="text-end text-success pe-2">PEMASUKAN</th>
-                        <th scope="col" class="text-end text-danger pe-2">PENGELUARAN</th>
-                        <th scope="col" class="text-end text-warning pe-2">PIUTANG</th>
-                        <th scope="col" class="text-end text-primary pe-2">SELISIH</th>
+                        <th scope="col" class="text-end text-success pe-3">PEMASUKAN</th>
+                        <th scope="col" class="text-end text-danger pe-3">PENGELUARAN</th>
+                        <th scope="col" class="text-end text-warning pe-3">PIUTANG</th>
+                        <th scope="col" class="text-end text-primary pe-3">SELISIH</th>
                         <th scope="col" class="text-center px-1">STATUS</th>
                         <th scope="col" class="text-center px-1">AKSI</th>
                     </tr>
@@ -472,51 +478,52 @@
                                     </div>
                                 </div>
                             </td>
-                            <td class="text-end pe-2">
+                            <td class="text-end pe-3 text-nowrap">
                                 @if($hasIncome)
-                                    <span class="fw-semibold text-success font-monospace" style="font-size: 0.8rem;">+ {{ $formatRupiah($item['period_income']) }}</span>
+                                    <span class="fw-semibold text-success font-monospace text-nowrap" style="font-size: 0.815rem; letter-spacing: -0.2px;">+ {{ $formatRupiah($item['period_income']) }}</span>
                                 @else
                                     <span class="text-muted small">-</span>
                                 @endif
                             </td>
-                            <td class="text-end pe-2">
+                            <td class="text-end pe-3 text-nowrap">
                                 @if($hasExpense)
-                                    <span class="fw-semibold text-danger font-monospace" style="font-size: 0.8rem;">− {{ $formatRupiah($item['period_expense']) }}</span>
+                                    <span class="fw-semibold text-danger font-monospace text-nowrap" style="font-size: 0.815rem; letter-spacing: -0.2px;">− {{ $formatRupiah($item['period_expense']) }}</span>
                                 @else
                                     <span class="text-muted small">-</span>
                                 @endif
                             </td>
-                            <td class="text-end pe-2">
+                            <td class="text-end pe-3 text-nowrap">
                                 @if($hasReceivable)
-                                    <span class="fw-semibold text-warning font-monospace" style="font-size: 0.8rem;">{{ $formatRupiah($item['period_receivable']) }}</span>
+                                    <span class="fw-semibold text-warning font-monospace text-nowrap" style="font-size: 0.815rem; letter-spacing: -0.2px; color: #D97706 !important;">{{ $formatRupiah($item['period_receivable']) }}</span>
                                 @else
                                     <span class="text-muted small">-</span>
                                 @endif
                             </td>
-                            <td class="text-end pe-2">
-                                <div class="fw-bold text-dark font-monospace" style="font-size: 0.82rem;">
+                            <td class="text-end pe-3 text-nowrap">
+                                <div class="fw-bold text-dark font-monospace text-nowrap" style="font-size: 0.825rem; letter-spacing: -0.2px; line-height: 1.25;">
                                     {{ $formatRupiah($item['lifetime_balance']) }}
                                 </div>
                                 @if($item['lifetime_margin'] !== null)
-                                    <div class="font-monospace {{ $item['lifetime_margin'] >= 0 ? 'text-success' : 'text-danger' }}" style="font-size: 0.68rem; font-weight: 600;" title="Margin Profit: {{ $item['lifetime_margin'] }}%">
+                                    <div class="font-monospace text-nowrap {{ $item['lifetime_margin'] >= 0 ? 'text-success' : 'text-danger' }}" style="font-size: 0.68rem; font-weight: 600; line-height: 1.25;" title="Margin Profit: {{ $item['lifetime_margin'] }}%">
                                         <i class="fas {{ $item['lifetime_margin'] >= 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down' }} me-0.5" style="font-size: 0.6rem;"></i>{{ $item['lifetime_margin'] >= 0 ? '+' : '' }}{{ $item['lifetime_margin'] }}% Laba
                                     </div>
                                 @endif
                             </td>
-                            <td class="text-center px-1">
+                            <td class="text-center px-1 text-nowrap">
                                 @if(($item['pending_count'] ?? 0) > 0)
-                                    <span class="badge-soft-warning font-monospace py-0.5 px-1" style="font-size: 0.7rem;" title="{{ $item['pending_count'] }} transaksi kas piutang / pending">
-                                        <i class="fas fa-clock me-0.5 text-warning"></i>Piutang
+                                    <span class="badge rounded-pill fw-semibold" style="background-color: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; font-size: 0.7rem; padding: 3px 8px;" title="{{ $item['pending_count'] }} transaksi kas piutang / pending">
+                                        <i class="fas fa-clock me-1 text-warning"></i>Piutang
                                     </span>
                                 @else
-                                    <span class="badge-soft-success font-monospace py-0.5 px-1" style="font-size: 0.7rem;" title="Semua transaksi kas telah lunas">
-                                        <i class="fas fa-check-circle me-0.5 text-success"></i>Lunas
+                                    <span class="badge rounded-pill fw-semibold" style="background-color: #ECFDF5; color: #065F46; border: 1px solid #A7F3D0; font-size: 0.7rem; padding: 3px 8px;" title="Semua transaksi kas telah lunas">
+                                        <i class="fas fa-check-circle me-1 text-success"></i>Lunas
                                     </span>
                                 @endif
                             </td>
-                            <td class="text-center px-1">
-                                <a href="{{ route('admin.cashbook.show', $project) }}" class="btn btn-xs btn-outline-primary text-nowrap py-1 px-1.5" style="font-size: 0.72rem;" aria-label="Buka buku kas {{ $project->nama_proyek }}">
-                                    <i class="fas fa-book-open me-1" aria-hidden="true"></i> Buku Kas
+                            <td class="text-center px-1 text-nowrap">
+                                <a href="{{ route('admin.cashbook.show', $project) }}" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center justify-content-center gap-1.5 text-nowrap shadow-none" style="font-size: 0.74rem; font-weight: 600; padding: 4px 10px; border-radius: 6px; height: 28px;" aria-label="Buka buku kas {{ $project->nama_proyek }}">
+                                    <i class="fas fa-book-open" style="font-size: 0.7rem;" aria-hidden="true"></i>
+                                    <span>Buku Kas</span>
                                 </a>
                             </td>
                         </tr>
