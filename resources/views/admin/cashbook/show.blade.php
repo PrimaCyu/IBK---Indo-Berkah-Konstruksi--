@@ -558,8 +558,8 @@
                         </select>
 
                         {{-- Mode Bulan & Tahun --}}
-                        <div class="d-inline-flex align-items-center gap-1.5" id="filter-col-month-year">
-                            <select id="filter-month" name="month" class="form-select form-select-sm" style="width: 130px; min-width: 120px;">
+                        <div class="d-inline-flex align-items-center gap-1.5 {{ ($activeMode ?? 'bulan') === 'lengkap' ? 'd-none' : '' }}" id="filter-col-month-year">
+                            <select id="filter-month" name="month" class="form-select form-select-sm {{ ($activeMode ?? 'bulan') === 'tahun' ? 'd-none' : '' }}" style="width: 130px; min-width: 120px;" {{ ($activeMode ?? 'bulan') === 'tahun' ? 'disabled' : '' }}>
                                 @foreach($months as $num => $name)
                                     <option value="{{ $num }}" @selected((int)($selectedMonth ?? 0) === (int)$num)>{{ $name }}</option>
                                 @endforeach
@@ -572,25 +572,25 @@
                         </div>
 
                         {{-- Mode Rentang Tanggal (Lengkap) --}}
-                        <div class="d-inline-flex align-items-center gap-1.5 d-none flex-nowrap" id="filter-col-dates">
-                            <input type="date" id="filter-show-start-date" name="start_date" value="{{ $startDate ? (is_string($startDate) ? $startDate : $startDate->format('Y-m-d')) : '' }}" class="form-control form-control-sm" style="width: 135px; min-width: 130px; flex-shrink: 0;" disabled title="Tanggal Mulai">
+                        <div class="d-inline-flex align-items-center gap-1.5 {{ ($activeMode ?? 'bulan') === 'lengkap' ? '' : 'd-none' }} flex-nowrap" id="filter-col-dates">
+                            <input type="date" id="filter-show-start-date" name="start_date" value="{{ $startDate ? (is_string($startDate) ? $startDate : $startDate->format('Y-m-d')) : '' }}" class="form-control form-control-sm" style="width: 135px; min-width: 130px; flex-shrink: 0;" {{ ($activeMode ?? 'bulan') === 'lengkap' ? '' : 'disabled' }} title="Tanggal Mulai">
                             <span class="small text-muted text-nowrap px-1" style="flex-shrink: 0; white-space: nowrap;">s/d</span>
-                            <input type="date" id="filter-show-end-date" name="end_date" value="{{ $endDate ? (is_string($endDate) ? $endDate : $endDate->format('Y-m-d')) : '' }}" class="form-control form-control-sm" style="width: 135px; min-width: 130px; flex-shrink: 0;" disabled title="Tanggal Akhir">
+                            <input type="date" id="filter-show-end-date" name="end_date" value="{{ $endDate ? (is_string($endDate) ? $endDate : $endDate->format('Y-m-d')) : '' }}" class="form-control form-control-sm" style="width: 135px; min-width: 130px; flex-shrink: 0;" {{ ($activeMode ?? 'bulan') === 'lengkap' ? '' : 'disabled' }} title="Tanggal Akhir">
                         </div>
                     </div>
 
                     {{-- Transaksi (sebelumnya Tipe) --}}
                     <div class="col-6 col-md-auto ms-md-auto">
-                        <select id="filter-type" class="form-select form-select-sm" style="min-width: 135px;">
+                        <select id="filter-type" name="type" class="form-select form-select-sm" style="min-width: 135px;">
                             <option value="">Semua Transaksi</option>
-                            <option value="penerimaan">Penerimaan (Masuk)</option>
-                            <option value="pengeluaran">Pengeluaran (Keluar)</option>
+                            <option value="penerimaan" @selected(($typeFilter ?? '') === 'penerimaan')>Penerimaan (Masuk)</option>
+                            <option value="pengeluaran" @selected(($typeFilter ?? '') === 'pengeluaran')>Pengeluaran (Keluar)</option>
                         </select>
                     </div>
 
                     {{-- Status: Lunas & Piutang Saja --}}
                     <div class="col-6 col-md-auto">
-                        <select id="filter-status" name="status" class="form-select form-select-sm" style="min-width: 135px;" onchange="document.getElementById('cashbook-filter-form').submit()">
+                        <select id="filter-status" name="status" class="form-select form-select-sm" style="min-width: 135px;">
                             <option value="">Semua Status</option>
                             <option value="lunas" @selected(($statusFilter ?? '') === 'lunas')>Lunas</option>
                             <option value="piutang" @selected(in_array(($statusFilter ?? ''), ['piutang', 'pending'], true))>Piutang</option>
@@ -604,16 +604,16 @@
                     <div class="col-12 col-md-5 col-lg-6">
                         <div class="input-group input-group-sm">
                             <span class="input-group-text bg-light border-end-0 text-muted"><i class="fas fa-search"></i></span>
-                            <input type="text" id="filter-search-input" class="form-control form-control-sm border-start-0" placeholder="Search...">
+                            <input type="text" id="filter-search-input" name="search" value="{{ $searchFilter ?? '' }}" class="form-control form-control-sm border-start-0" placeholder="Search...">
                         </div>
                     </div>
 
                     {{-- Program / Kategori --}}
                     <div class="col-12 col-md-4 col-lg">
-                        <select id="filter-code-select" class="form-select form-select-sm">
+                        <select id="filter-code-select" name="code" class="form-select form-select-sm">
                             <option value="">Semua Program / Kategori</option>
                             @foreach($codeOptions as $cOpt)
-                                <option value="{{ $cOpt }}">{{ $cOpt }}</option>
+                                <option value="{{ $cOpt }}" @selected(($codeFilter ?? '') === $cOpt)>{{ $cOpt }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -623,7 +623,7 @@
                         <button type="submit" class="btn btn-sm btn-primary px-3 text-nowrap d-flex align-items-center gap-1.5" style="height: 31px;">
                             <i class="fas fa-filter"></i> Terapkan
                         </button>
-                        @if(request()->hasAny(['month', 'year', 'status', 'start_date', 'end_date', 'period_mode']))
+                        @if(request()->hasAny(['month', 'year', 'status', 'start_date', 'end_date', 'period_mode', 'type', 'code', 'search']))
                             <a href="{{ route('admin.cashbook.show', $project) }}" class="btn btn-sm btn-outline-secondary d-flex align-items-center justify-content-center" title="Reset filter" style="height: 31px; width: 31px; padding: 0;">
                                 <i class="fas fa-rotate-left"></i>
                             </a>
@@ -946,6 +946,11 @@
                                 </td>
                             </tr>
                         @endforelse
+                        <tr id="cashbook-no-filter-match" style="display: none;">
+                            <td colspan="9" class="text-center py-4 text-muted small">
+                                <i class="fas fa-search me-1.5 opacity-50"></i> Tidak ada transaksi yang sesuai dengan filter yang dipilih.
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -1806,6 +1811,7 @@
             const filterSearch = document.getElementById('filter-search-input');
             const transRows = document.querySelectorAll('.cashbook-row');
             const transCounter = document.getElementById('trans-count-label');
+            const noMatchRow = document.getElementById('cashbook-no-filter-match');
 
             function applyTableFilters() {
                 const selectedType = filterType ? filterType.value.toLowerCase() : '';
@@ -1833,6 +1839,10 @@
                     }
                 });
 
+                if (noMatchRow) {
+                    noMatchRow.style.display = (visibleCount === 0 && transRows.length > 0) ? '' : 'none';
+                }
+
                 if (transCounter) {
                     transCounter.textContent = `${visibleCount} transaksi ditemukan`;
                 }
@@ -1841,7 +1851,13 @@
             if (filterType) filterType.addEventListener('change', applyTableFilters);
             if (filterStatus) filterStatus.addEventListener('change', applyTableFilters);
             if (filterCode) filterCode.addEventListener('change', applyTableFilters);
-            if (filterSearch) filterSearch.addEventListener('input', applyTableFilters);
+            if (filterSearch) {
+                filterSearch.addEventListener('input', applyTableFilters);
+                filterSearch.addEventListener('search', applyTableFilters);
+            }
+
+            // Jalankan filter awal untuk sinkronisasi tampilan jika sudah ada filter aktif
+            applyTableFilters();
 
             updatePreview();
             if (form.dataset.reopen === '1') bootstrap.Modal.getOrCreateInstance(modal).show();
@@ -1855,8 +1871,6 @@
             }
 
             const colMonthYear = document.getElementById('filter-col-month-year');
-            const colMonth = document.getElementById('filter-col-month');
-            const colYear = document.getElementById('filter-col-year');
             const colDates = document.getElementById('filter-col-dates');
 
             const inputMonth = document.getElementById('filter-month');
@@ -1874,11 +1888,14 @@
                 if (inputEndDate) inputEndDate.disabled = false;
             } else if (mode === 'tahun') {
                 if (colMonthYear) colMonthYear.classList.remove('d-none');
-                if (colMonth) colMonth.classList.add('d-none');
-                if (inputMonth) inputMonth.disabled = true;
-
-                if (colYear) colYear.classList.remove('d-none');
-                if (inputYear) inputYear.disabled = false;
+                if (inputMonth) {
+                    inputMonth.classList.add('d-none');
+                    inputMonth.disabled = true;
+                }
+                if (inputYear) {
+                    inputYear.classList.remove('d-none');
+                    inputYear.disabled = false;
+                }
 
                 if (colDates) colDates.classList.add('d-none');
                 if (inputStartDate) inputStartDate.disabled = true;
@@ -1886,11 +1903,14 @@
             } else {
                 // Mode 'bulan' (Bulan + Tahun)
                 if (colMonthYear) colMonthYear.classList.remove('d-none');
-                if (colMonth) colMonth.classList.remove('d-none');
-                if (inputMonth) inputMonth.disabled = false;
-
-                if (colYear) colYear.classList.remove('d-none');
-                if (inputYear) inputYear.disabled = false;
+                if (inputMonth) {
+                    inputMonth.classList.remove('d-none');
+                    inputMonth.disabled = false;
+                }
+                if (inputYear) {
+                    inputYear.classList.remove('d-none');
+                    inputYear.disabled = false;
+                }
 
                 if (colDates) colDates.classList.add('d-none');
                 if (inputStartDate) inputStartDate.disabled = true;

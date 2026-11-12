@@ -450,6 +450,9 @@ class ProjectCashflowController extends Controller
             'start_month' => ['nullable', 'integer', 'between:1,12'],
             'end_month' => ['nullable', 'integer', 'between:1,12'],
             'status' => ['nullable', 'string', 'in:all,lunas,piutang,pending,ditolak'],
+            'type' => ['nullable', 'string', 'in:all,penerimaan,pengeluaran'],
+            'code' => ['nullable', 'string', 'max:255'],
+            'search' => ['nullable', 'string', 'max:255'],
         ]);
 
         $periodMode = $request->query('period_mode');
@@ -503,16 +506,28 @@ class ProjectCashflowController extends Controller
         $years = $ledger['transactions']->map(fn ($transaction) => $transaction->transaction_date->year)->unique()->sortDesc()->values();
 
         $statusFilter = $request->query('status');
-        $ledger['transactions'] = $ledger['transactions']->filter(function ($transaction) use ($startDate, $endDate, $statusFilter) {
+        $typeFilter = $request->query('type');
+        $codeFilter = $request->query('code');
+        $searchFilter = is_string($request->query('search')) ? trim($request->query('search')) : '';
+
+        $ledger['transactions'] = $ledger['transactions']->filter(function ($transaction) use ($startDate, $endDate, $statusFilter, $typeFilter, $codeFilter, $searchFilter) {
             $cfDate = $transaction->transaction_date instanceof CarbonInterface ? $transaction->transaction_date : Carbon::parse($transaction->transaction_date);
             $matchDate = ($startDate === null || $cfDate->gte($startDate->startOfDay()))
                 && ($endDate === null || $cfDate->lte($endDate->endOfDay()));
             $matchStatus = $statusFilter === null || $statusFilter === '' || $statusFilter === 'all'
                 || ($statusFilter === 'lunas' && in_array($transaction->status, ['lunas', null], true))
-                || ($statusFilter === 'piutang' && in_array($transaction->status, ['pending', 'piutang'], true))
+                || (in_array($statusFilter, ['piutang', 'pending'], true) && in_array($transaction->status, ['pending', 'piutang'], true))
                 || ($transaction->status === $statusFilter);
+            $matchType = empty($typeFilter) || $typeFilter === 'all' || $transaction->type === $typeFilter;
+            $matchCode = empty($codeFilter) || strcasecmp((string) $transaction->code, $codeFilter) === 0;
+            $trxCode = 'TRX-' . $cfDate->format('Ym') . '-' . str_pad((string) $transaction->id, 4, '0', STR_PAD_LEFT);
+            $matchSearch = empty($searchFilter)
+                || str_contains(strtolower($transaction->description ?? ''), strtolower($searchFilter))
+                || str_contains(strtolower($transaction->code ?? ''), strtolower($searchFilter))
+                || str_contains(strtolower($transaction->notes ?? ''), strtolower($searchFilter))
+                || str_contains(strtolower($trxCode), strtolower($searchFilter));
 
-            return $matchDate && $matchStatus;
+            return $matchDate && $matchStatus && $matchType && $matchCode && $matchSearch;
         });
 
         $income = $expense = $receivable = BigDecimal::of('0.00');
@@ -555,6 +570,9 @@ class ProjectCashflowController extends Controller
             'startMonth' => $request->query('start_month'),
             'endMonth' => $request->query('end_month'),
             'statusFilter' => $statusFilter,
+            'typeFilter' => $typeFilter,
+            'codeFilter' => $codeFilter,
+            'searchFilter' => $searchFilter,
         ] + $ledger);
     }
 
