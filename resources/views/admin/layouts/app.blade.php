@@ -975,7 +975,7 @@
                         <a href="/admin/penawaran" class="nav-link {{ request()->is('admin/penawaran*') ? 'active' : '' }}">
                             <div class="nav-left">
                                 <i class="fas fa-file-invoice-dollar"></i>
-                                <span>Penawaran (RFQ)</span>
+                                <span>Penawaran</span>
                             </div>
                             @if($unreadQuotes > 0)
                                 <span class="badge bg-info text-dark rounded-pill">{{ $unreadQuotes }}</span>
@@ -987,7 +987,7 @@
                         <a href="/admin/surat-perjanjian" class="nav-link {{ request()->is('admin/surat-perjanjian*') ? 'active' : '' }}">
                             <div class="nav-left">
                                 <i class="fas fa-file-contract"></i>
-                                <span>Surat Perjanjian (SPK)</span>
+                                <span>Surat Perjanjian</span>
                             </div>
                             @if($unreadSurat > 0)
                                 <span class="badge bg-warning text-dark rounded-pill">{{ $unreadSurat }}</span>
@@ -999,7 +999,7 @@
                         <a href="/admin/users" class="nav-link {{ request()->is('admin/users*') ? 'active' : '' }}">
                             <div class="nav-left">
                                 <i class="fas fa-users"></i>
-                                <span>Data Klien & User</span>
+                                <span>Data Klien</span>
                             </div>
                         </a>
                     </li>
@@ -1011,7 +1011,7 @@
                         <a href="/admin/portfolios" class="nav-link {{ request()->is('admin/portfolios*') ? 'active' : '' }}">
                             <div class="nav-left">
                                 <i class="fas fa-images"></i>
-                                <span>Portofolio Proyek</span>
+                                <span>Portofolio</span>
                             </div>
                         </a>
                     </li>
@@ -1029,7 +1029,7 @@
                         <a href="/admin/reviews" class="nav-link {{ request()->is('admin/reviews*') ? 'active' : '' }}">
                             <div class="nav-left">
                                 <i class="fas fa-star"></i>
-                                <span>Review & Testimoni</span>
+                                <span>Ulasan & Testimoni</span>
                             </div>
                             @php $pendingRev = \App\Models\Review::where('is_approved', false)->count(); @endphp
                             @if($pendingRev > 0)
@@ -1054,7 +1054,7 @@
                         <a href="/admin/settings" class="nav-link {{ request()->is('admin/settings*') ? 'active' : '' }}">
                             <div class="nav-left">
                                 <i class="fas fa-sliders-h"></i>
-                                <span>Pengaturan Website</span>
+                                <span>Pengaturan</span>
                             </div>
                         </a>
                     </li>
