@@ -94,11 +94,11 @@
         /* Sidebar Mini User Profile */
         .sidebar-user {
             flex-shrink: 0;
-            padding: 0.9rem 1.1rem;
+            padding: 0.85rem 0.85rem;
             border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             background-color: rgba(0, 0, 0, 0.22);
             transition: background-color 0.2s ease;
         }
@@ -107,15 +107,15 @@
             flex-shrink: 0;
         }
         .sidebar-user-avatar {
-            width: 38px;
-            height: 38px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
             color: #ffffff;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             font-weight: 700;
             border: 2px solid rgba(255, 255, 255, 0.15);
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
@@ -124,8 +124,8 @@
             position: absolute;
             bottom: -1px;
             right: -1px;
-            width: 10px;
-            height: 10px;
+            width: 9px;
+            height: 9px;
             border-radius: 50%;
             background-color: #10b981;
             border: 2px solid #212529;
@@ -156,14 +156,15 @@
         .sidebar-user-badge {
             display: inline-flex;
             align-items: center;
-            gap: 4px;
-            font-size: 0.675rem;
+            gap: 3.5px;
+            font-size: 11px;
             font-weight: 600;
-            padding: 1.5px 7px;
+            padding: 1.5px 5px;
             border-radius: 4px;
-            margin-top: 4px;
-            letter-spacing: 0.2px;
-            line-height: 1.2;
+            margin-top: 3px;
+            letter-spacing: -0.1px;
+            line-height: 1.25;
+            white-space: nowrap;
         }
         .sidebar-user-badge-accounting {
             background-color: rgba(14, 165, 233, 0.18);
@@ -952,17 +953,17 @@
                             {{ auth()->user()->email }}
                         </span>
                     @endif
-                    <div>
+                    <div class="mt-1">
                         @if($isSuperAdmin)
-                            <span class="sidebar-user-badge sidebar-user-badge-superadmin">
+                            <span class="sidebar-user-badge sidebar-user-badge-superadmin text-nowrap">
                                 <i class="fas fa-crown" style="font-size: 0.58rem;"></i> Super Admin
                             </span>
                         @elseif($isAccounting)
-                            <span class="sidebar-user-badge sidebar-user-badge-accounting">
+                            <span class="sidebar-user-badge sidebar-user-badge-accounting text-nowrap">
                                 <i class="fas fa-wallet" style="font-size: 0.58rem;"></i> Staf Keuangan (Accounting)
                             </span>
                         @else
-                            <span class="sidebar-user-badge sidebar-user-badge-admin">
+                            <span class="sidebar-user-badge sidebar-user-badge-admin text-nowrap">
                                 <i class="fas fa-shield-alt" style="font-size: 0.58rem;"></i> Admin Operasional
                             </span>
                         @endif
