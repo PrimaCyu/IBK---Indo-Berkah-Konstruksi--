@@ -695,15 +695,14 @@
             <div class="table-responsive" tabindex="0" role="region" aria-label="Transaksi buku kas proyek" style="overflow-x: auto; width: 100%;">
                 <table class="table table-hover align-middle mb-0" id="cashbook-trans-table" style="table-layout: fixed; width: 100%; min-width: 950px;">
                     <colgroup>
-                        <col style="width: 90px;">
-                        <col style="width: 75px;">
-                        <col style="width: 75px;">
-                        <col style="width: 24%;">
-                        <col style="width: 80px;">
-                        <col style="width: 75px;">
-                        <col style="width: 105px;">
+                        <col style="width: 95px;">
                         <col style="width: 85px;">
-                        <col style="width: 65px;">
+                        <col style="width: 80px;">
+                        <col style="width: 27%;">
+                        <col style="width: 105px;">
+                        <col style="width: 130px;">
+                        <col style="width: 95px;">
+                        <col style="width: 75px;">
                         <col style="width: 95px;">
                     </colgroup>
                     <thead>
@@ -713,8 +712,7 @@
                             <th scope="col">TRANSAKSI</th>
                             <th scope="col">DESKRIPSI</th>
                             <th scope="col">VOL & SATUAN</th>
-                            <th scope="col">PROGRAM</th>
-                            <th scope="col" class="text-end">NOMINAL</th>
+                            <th scope="col" class="text-end pe-2">NOMINAL</th>
                             <th scope="col">METODE</th>
                             <th scope="col" class="text-center">STATUS</th>
                             <th scope="col" class="text-end pe-2">AKSI</th>
@@ -817,18 +815,13 @@
 
                                 <!-- VOL & SATUAN -->
                                 <td class="text-nowrap">
-                                    <span class="badge bg-light text-dark border font-monospace py-1 px-1.5" style="font-size: 0.75rem;">
-                                        {{ $formatQuantityDisplay($transaction->quantity) }} {{ $transaction->unit ?: '—' }}
-                                    </span>
-                                </td>
-
-                                <!-- PROGRAM / KODE -->
-                                <td>
-                                    <span class="text-secondary small">{{ $transaction->code ?: '—' }}</span>
+                                     <span class="badge bg-light text-dark border font-monospace py-1 px-1.5" style="font-size: 0.75rem;">
+                                         {{ $formatQuantityDisplay($transaction->quantity) }} {{ $transaction->unit ?: '—' }}
+                                     </span>
                                 </td>
 
                                 <!-- NOMINAL -->
-                                <td class="text-end text-nowrap">
+                                <td class="text-end pe-2 text-nowrap">
                                     @if($isIncome)
                                         <span class="fw-bold text-success cashbook-number">+{{ $formatRupiah($transaction->total) }}</span>
                                     @else
