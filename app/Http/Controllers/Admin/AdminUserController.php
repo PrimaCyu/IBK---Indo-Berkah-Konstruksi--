@@ -57,6 +57,10 @@ class AdminUserController extends Controller
             return back()->with('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
         }
 
+        if ($user->role === 'superadmin' && User::where('role', 'superadmin')->count() <= 1) {
+            return back()->with('error', 'Tidak dapat menghapus satu-satunya akun Super Admin pada sistem.');
+        }
+
         if ($user->projects()->whereHas('cashflows', fn ($query) => $query->withTrashed())->exists()) {
             return back()->with('error', 'Akun memiliki proyek dengan riwayat buku kas dan tidak dapat dihapus.');
         }

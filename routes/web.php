@@ -85,7 +85,7 @@ Route::redirect('/logo-client', '/partner-client');
 Route::middleware(['auth', 'user'])->group(function () {
     Route::get('/dashbord', function () {
         $user = auth()->user();
-        $projects = $user->role === 'admin'
+        $projects = $user->isAdmin()
             ? \App\Models\Project::latest()->get()
             : $user->projects()->latest()->get();
         return view('user.dashbord', compact('projects'));
@@ -118,8 +118,8 @@ Route::middleware(['auth', 'accounting'])->prefix('admin')->name('admin.cashbook
     Route::put('/projects/{project}/buku-kas/{cashflow}', [ProjectCashflowController::class, 'update'])->name('update');
     Route::get('/projects/{project}/buku-kas/{cashflow}/invoice', [ProjectCashflowController::class, 'invoice'])->name('invoice');
     Route::delete('/projects/{project}/buku-kas/{cashflow}', [ProjectCashflowController::class, 'destroy'])->name('destroy');
-    Route::patch('/projects/{project}/buku-kas/{cashflow}/approve', [ProjectCashflowController::class, 'approve'])->middleware('superadmin')->name('approve');
-    Route::patch('/projects/{project}/buku-kas/{cashflow}/reject', [ProjectCashflowController::class, 'reject'])->middleware('superadmin')->name('reject');
+    Route::patch('/projects/{project}/buku-kas/{cashflow}/approve', [ProjectCashflowController::class, 'approve'])->middleware('admin')->name('approve');
+    Route::patch('/projects/{project}/buku-kas/{cashflow}/reject', [ProjectCashflowController::class, 'reject'])->middleware('admin')->name('reject');
 });
 
 // AdminLTE Backend Panel Routes

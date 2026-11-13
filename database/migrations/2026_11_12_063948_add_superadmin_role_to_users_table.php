@@ -9,11 +9,23 @@ return new class extends Migration
 {
     public function up(): void
     {
-        DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM('superadmin', 'admin', 'owner', 'accounting') NOT NULL DEFAULT 'owner'");
+        if (DB::getDriverName() === 'sqlite') {
+            Schema::table('users', function (Blueprint $table) {
+                $table->string('role')->default('owner')->change();
+            });
+        } else {
+            DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM('superadmin', 'admin', 'owner', 'accounting') NOT NULL DEFAULT 'owner'");
+        }
     }
 
     public function down(): void
     {
-        DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM('admin', 'owner', 'accounting') NOT NULL DEFAULT 'owner'");
+        if (DB::getDriverName() === 'sqlite') {
+            Schema::table('users', function (Blueprint $table) {
+                $table->string('role')->default('owner')->change();
+            });
+        } else {
+            DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM('admin', 'owner', 'accounting') NOT NULL DEFAULT 'owner'");
+        }
     }
 };

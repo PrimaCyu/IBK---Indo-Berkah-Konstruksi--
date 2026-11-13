@@ -455,6 +455,42 @@ class ProjectCashflowTest extends TestCase
         Storage::disk('public')->assertMissing($newAttachment->file_path);
     }
 
+    public function test_staff_can_store_and_view_cashflow_with_pdf_attachment(): void
+    {
+        Storage::fake('public');
+
+        /** @var User $accountant */
+        $accountant = User::factory()->create(['role' => 'accounting', 'name' => 'Staf Keuangan']);
+        /** @var User $owner */
+        $owner = User::factory()->create(['role' => 'owner']);
+        $project = $this->project($owner, 'Proyek Invoice PDF');
+
+        $fakePdf = UploadedFile::fake()->create('invoice-pembayaran.pdf', 500, 'application/pdf');
+
+        $this->actingAs($accountant)->post(route('admin.cashbook.store', $project), [
+            'transaction_date' => '2026-11-10',
+            'type' => 'penerimaan',
+            'description' => 'Pembayaran Termin 1 Klien',
+            'quantity' => '1',
+            'unit_price' => '50000000',
+            'notes' => 'Invoice nomor INV-001',
+            'attachment' => $fakePdf,
+        ])->assertRedirect(route('admin.cashbook.show', $project))->assertSessionHas('success');
+
+        $cashflow = $project->cashflows()->firstOrFail();
+        $this->assertCount(1, $cashflow->attachments);
+
+        $attachment = $cashflow->attachments->first();
+        $this->assertSame('invoice-pembayaran.pdf', $attachment->original_name);
+        $this->assertTrue($attachment->isPdf());
+        Storage::disk('public')->assertExists($attachment->file_path);
+
+        $response = $this->get(route('admin.cashbook.show', $project));
+        $response->assertOk()
+            ->assertSee('Bukti PDF')
+            ->assertSee($attachment->url);
+    }
+
     public function test_cashbook_general_displays_monthly_income_recap_matrix_for_all_projects(): void
     {
         /** @var User $accountant */
@@ -503,6 +539,150 @@ class ProjectCashflowTest extends TestCase
             ->assertSee('Rp 30.000.000')
             ->assertSee('Rp 25.000.000')
             ->assertSee('TOTAL PENDAPATAN SEMUA PROYEK:');
+    }
+
+    public function test_superadmin_and_admin_can_approve_and_reject_cashflow(): void
+    {
+        /** @var User $superadmin */
+        $superadmin = User::factory()->create(['role' => 'superadmin']);
+        /** @var User $admin */
+        $admin = User::factory()->create(['role' => 'admin']);
+        /** @var User $accountant */
+        $accountant = User::factory()->create(['role' => 'accounting']);
+        /** @var User $owner */
+        $owner = User::factory()->create(['role' => 'owner']);
+        $project = $this->project($owner);
+
+        // Created by accountant as pending
+        $cashflow1 = $project->cashflows()->create([
+            'transaction_date' => '2026-11-12',
+            'type' => 'pengeluaran',
+            'description' => 'Pembelian semen sak',
+            'quantity_millis' => 10000,
+            'unit_price_cents' => 6500000,
+            'status' => 'pending',
+            'created_by' => $accountant->id,
+        ]);
+
+        $cashflow2 = $project->cashflows()->create([
+            'transaction_date' => '2026-11-12',
+            'type' => 'pengeluaran',
+            'description' => 'Pembelian paku beton',
+            'quantity_millis' => 5000,
+            'unit_price_cents' => 2000000,
+            'status' => 'pending',
+            'created_by' => $accountant->id,
+        ]);
+
+        // Accounting cannot approve (403)
+        $this->actingAs($accountant)->patch(route('admin.cashbook.approve', [$project, $cashflow1]))
+            ->assertForbidden();
+
+        // Super Admin approves cashflow1
+        $this->actingAs($superadmin)->patch(route('admin.cashbook.approve', [$project, $cashflow1]))
+            ->assertRedirect()
+            ->assertSessionHas('success');
+
+        $cashflow1->refresh();
+        $this->assertSame('lunas', $cashflow1->status);
+        $this->assertSame($superadmin->id, $cashflow1->approved_by);
+
+        // Admin rejects cashflow2
+        $this->actingAs($admin)->patch(route('admin.cashbook.reject', [$project, $cashflow2]))
+            ->assertRedirect()
+            ->assertSessionHas('info');
+
+        $cashflow2->refresh();
+        $this->assertSame('ditolak', $cashflow2->status);
+        $this->assertSame($admin->id, $cashflow2->approved_by);
+    }
+
+    public function test_superadmin_can_view_user_project_dashboard(): void
+    {
+        /** @var User $superadmin */
+        $superadmin = User::factory()->create(['role' => 'superadmin']);
+        /** @var User $owner */
+        $owner = User::factory()->create(['role' => 'owner']);
+        $project = $this->project($owner, 'Proyek Superadmin Access Test');
+
+        $this->actingAs($superadmin)->get(route('projects.show', $project))
+            ->assertOk();
+    }
+
+    public function test_cannot_delete_last_remaining_superadmin(): void
+    {
+        /** @var User $superadmin */
+        $superadmin = User::factory()->create(['role' => 'superadmin']);
+        $anotherAdmin = User::factory()->create(['role' => 'superadmin']);
+
+        // Cannot delete self
+        $this->actingAs($superadmin)->delete(route('admin.users.destroy', $superadmin))
+            ->assertRedirect()
+            ->assertSessionHas('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
+
+        // Delete another superadmin
+        $this->actingAs($superadmin)->delete(route('admin.users.destroy', $anotherAdmin))
+            ->assertRedirect()
+            ->assertSessionHas('success');
+
+        // Now test when a user object with role superadmin is passed to destroy while only 1 superadmin exists
+        $otherAdmin = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($otherAdmin);
+        $controller = new \App\Http\Controllers\Admin\AdminUserController();
+        $response = $controller->destroy($superadmin);
+        $this->assertSame('Tidak dapat menghapus satu-satunya akun Super Admin pada sistem.', session('error'));
+    }
+
+    public function test_guest_review_search_by_guest_name_and_email(): void
+    {
+        /** @var User $admin */
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        \App\Models\Review::create([
+            'guest_name' => 'Bambang Sudarmono',
+            'guest_email' => 'bambang@example.com',
+            'rating' => 5,
+            'message' => 'Pengerjaan sangat rapi dan tepat waktu!',
+            'is_approved' => true,
+        ]);
+
+        $response = $this->actingAs($admin)->get(route('admin.reviews.index', ['search' => 'Bambang']));
+        $response->assertOk()
+            ->assertSee('Bambang Sudarmono')
+            ->assertSee('bambang@example.com');
+    }
+
+    public function test_ledger_aggregates_piutang_into_pending_balance(): void
+    {
+        /** @var User $owner */
+        $owner = User::factory()->create(['role' => 'owner']);
+        $project = $this->project($owner);
+
+        // Lunas income: Rp 10.000.000
+        $project->cashflows()->create([
+            'transaction_date' => '2026-11-01',
+            'type' => 'penerimaan',
+            'description' => 'Termin 1 Lunas',
+            'quantity_millis' => 1000,
+            'unit_price_cents' => 1000000000,
+            'status' => 'lunas',
+        ]);
+
+        // Piutang (stored as pending in DB): Rp 5.000.000
+        $project->cashflows()->create([
+            'transaction_date' => '2026-11-05',
+            'type' => 'penerimaan',
+            'description' => 'Termin 2 Piutang',
+            'quantity_millis' => 1000,
+            'unit_price_cents' => 500000000,
+            'status' => 'pending',
+        ]);
+
+        $ledger = ProjectCashflow::ledger($project);
+
+        $this->assertSame('10000000.00', $ledger['income']);
+        $this->assertSame('5000000.00', $ledger['pending_income']);
+        $this->assertSame(1, $ledger['pending_count']);
     }
 
     private function project(User $owner, string $name = 'Proyek Uji', string $location = 'Lokasi Uji'): Project

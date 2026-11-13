@@ -81,6 +81,11 @@
     #proyek-table-card .table tbody tr:hover {
         background-color: #F8FAFC;
     }
+    #proyek-table-card .card-header::after,
+    #proyek-table-card .card-header::before {
+        display: none !important;
+        content: none !important;
+    }
     .pending-banner {
         background-color: #FFFDF0;
         border: 1px solid #FDE68A;
@@ -374,16 +379,16 @@
 
 {{-- Tabel Utama: Daftar Buku Kas Proyek --}}
 <div class="card shadow-sm border" id="proyek-table-card" style="border-radius: 10px; border-color: #E2E8F0;">
-    <div class="card-header py-2.5 px-3.5 d-flex align-items-center justify-content-between flex-wrap gap-2 bg-white border-bottom">
+    <div class="card-header py-2.5 px-3 px-md-3.5 d-flex align-items-center justify-content-between flex-wrap gap-2 bg-white border-bottom">
         <div class="d-flex align-items-center gap-2">
             <i class="fas fa-book-bookmark text-primary" style="font-size: 0.9rem;"></i>
             <h2 class="h6 fw-bold mb-0 text-dark" style="font-size: 0.95rem; letter-spacing: -0.2px;">Daftar Buku Kas Proyek</h2>
             <span class="badge rounded-pill bg-light text-secondary border font-monospace px-2.5 py-1" style="font-size: 0.72rem; font-weight: 600;">{{ count($projectsData) }} Proyek Terdaftar</span>
         </div>
-        <div class="small text-muted d-flex align-items-center gap-1.5" style="font-size: 0.78rem;">
-            <i class="far fa-calendar-alt text-secondary opacity-75"></i>
-            <span>Periode Kas:</span>
-            <strong class="text-dark">{{ $periodTitle }}</strong>
+        <div class="ms-auto d-inline-flex align-items-center text-muted" style="font-size: 0.8rem; gap: 8px;">
+            <i class="far fa-calendar-alt text-secondary opacity-75" style="font-size: 0.85rem;"></i>
+            <span class="text-secondary">Periode Kas:</span>
+            <strong class="text-dark fw-bold ms-1">{{ $periodTitle }}</strong>
         </div>
     </div>
     <div class="card-body p-0">

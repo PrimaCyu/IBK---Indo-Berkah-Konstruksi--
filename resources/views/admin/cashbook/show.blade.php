@@ -309,9 +309,9 @@
         $maxIncomeVal = !empty($incomeByCode) ? max($incomeByCode) : 1;
         $maxExpenseVal = !empty($expenseByCode) ? max($expenseByCode) : 1;
 
-        $months = [1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'];
-        $selectedMonth = (string) ($filters['month'] ?? '');
-        $selectedYear = (string) ($filters['year'] ?? '');
+        $months = $months ?? [1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'];
+        $selectedMonth = isset($selectedMonth) && $selectedMonth !== null ? (string) $selectedMonth : (string) ($filters['month'] ?? '');
+        $selectedYear = isset($selectedYear) && $selectedYear !== null ? (string) $selectedYear : (string) ($filters['year'] ?? (string) now()->year);
         $yearOptions = collect($years ?? [])->push(now()->year)->when($selectedYear !== '', fn ($c) => $c->push((int) $selectedYear))->unique()->sortDesc()->values();
     @endphp
 
@@ -546,39 +546,40 @@
                         </select>
 
                         {{-- Mode Bulan & Tahun --}}
-                        <div class="d-inline-flex align-items-center gap-1.5" id="filter-col-month-year">
-                            <select id="filter-month" name="month" class="form-select form-select-sm" style="width: 130px; min-width: 120px;">
+                        <div class="d-inline-flex align-items-center gap-1.5 {{ ($activeMode ?? 'bulan') === 'lengkap' ? 'd-none' : '' }}" id="filter-col-month-year">
+                            <select id="filter-month" name="month" class="form-select form-select-sm {{ ($activeMode ?? 'bulan') === 'tahun' ? 'd-none' : '' }}" style="width: 130px; min-width: 120px;" {{ ($activeMode ?? 'bulan') === 'tahun' ? 'disabled' : '' }}>
+                                <option value="" @selected(empty($selectedMonth))>Semua Bulan</option>
                                 @foreach($months as $num => $name)
-                                    <option value="{{ $num }}" @selected((int)($selectedMonth ?? 0) === (int)$num)>{{ $name }}</option>
+                                    <option value="{{ $num }}" @selected((string)($selectedMonth ?? '') === (string)$num)>{{ $name }}</option>
                                 @endforeach
                             </select>
                             <select id="filter-year" name="year" class="form-select form-select-sm" style="width: 90px; min-width: 85px;">
                                 @foreach($yearOptions as $yr)
-                                    <option value="{{ $yr }}" @selected((int)($selectedYear ?? 0) === (int)$yr)>{{ $yr }}</option>
+                                    <option value="{{ $yr }}" @selected((int)($selectedYear ?? now()->year) === (int)$yr)>{{ $yr }}</option>
                                 @endforeach
                             </select>
                         </div>
 
                         {{-- Mode Rentang Tanggal (Lengkap) --}}
-                        <div class="d-inline-flex align-items-center gap-1.5 d-none flex-nowrap" id="filter-col-dates">
-                            <input type="date" id="filter-show-start-date" name="start_date" value="{{ $startDate ? (is_string($startDate) ? $startDate : $startDate->format('Y-m-d')) : '' }}" class="form-control form-control-sm" style="width: 135px; min-width: 130px; flex-shrink: 0;" disabled title="Tanggal Mulai">
+                        <div class="d-inline-flex align-items-center gap-1.5 {{ ($activeMode ?? 'bulan') === 'lengkap' ? '' : 'd-none' }} flex-nowrap" id="filter-col-dates">
+                            <input type="date" id="filter-show-start-date" name="start_date" value="{{ $startDate ? (is_string($startDate) ? $startDate : $startDate->format('Y-m-d')) : '' }}" class="form-control form-control-sm" style="width: 135px; min-width: 130px; flex-shrink: 0;" {{ ($activeMode ?? 'bulan') === 'lengkap' ? '' : 'disabled' }} title="Tanggal Mulai">
                             <span class="small text-muted text-nowrap px-1" style="flex-shrink: 0; white-space: nowrap;">s/d</span>
-                            <input type="date" id="filter-show-end-date" name="end_date" value="{{ $endDate ? (is_string($endDate) ? $endDate : $endDate->format('Y-m-d')) : '' }}" class="form-control form-control-sm" style="width: 135px; min-width: 130px; flex-shrink: 0;" disabled title="Tanggal Akhir">
+                            <input type="date" id="filter-show-end-date" name="end_date" value="{{ $endDate ? (is_string($endDate) ? $endDate : $endDate->format('Y-m-d')) : '' }}" class="form-control form-control-sm" style="width: 135px; min-width: 130px; flex-shrink: 0;" {{ ($activeMode ?? 'bulan') === 'lengkap' ? '' : 'disabled' }} title="Tanggal Akhir">
                         </div>
                     </div>
 
                     {{-- Transaksi (sebelumnya Tipe) --}}
                     <div class="col-6 col-md-auto ms-md-auto">
-                        <select id="filter-type" class="form-select form-select-sm" style="min-width: 135px;">
+                        <select id="filter-type" name="type" class="form-select form-select-sm" style="min-width: 135px;">
                             <option value="">Semua Transaksi</option>
-                            <option value="penerimaan">Penerimaan (Masuk)</option>
-                            <option value="pengeluaran">Pengeluaran (Keluar)</option>
+                            <option value="penerimaan" @selected(($typeFilter ?? '') === 'penerimaan')>Penerimaan (Masuk)</option>
+                            <option value="pengeluaran" @selected(($typeFilter ?? '') === 'pengeluaran')>Pengeluaran (Keluar)</option>
                         </select>
                     </div>
 
                     {{-- Status: Lunas & Piutang Saja --}}
                     <div class="col-6 col-md-auto">
-                        <select id="filter-status" name="status" class="form-select form-select-sm" style="min-width: 135px;" onchange="document.getElementById('cashbook-filter-form').submit()">
+                        <select id="filter-status" name="status" class="form-select form-select-sm" style="min-width: 135px;">
                             <option value="">Semua Status</option>
                             <option value="lunas" @selected(($statusFilter ?? '') === 'lunas')>Lunas</option>
                             <option value="piutang" @selected(in_array(($statusFilter ?? ''), ['piutang', 'pending'], true))>Piutang</option>
@@ -592,16 +593,16 @@
                     <div class="col-12 col-md-5 col-lg-6">
                         <div class="input-group input-group-sm">
                             <span class="input-group-text bg-light border-end-0 text-muted"><i class="fas fa-search"></i></span>
-                            <input type="text" id="filter-search-input" class="form-control form-control-sm border-start-0" placeholder="Search...">
+                            <input type="text" id="filter-search-input" name="search" value="{{ $searchFilter ?? '' }}" class="form-control form-control-sm border-start-0" placeholder="Search...">
                         </div>
                     </div>
 
                     {{-- Program / Kategori --}}
                     <div class="col-12 col-md-4 col-lg">
-                        <select id="filter-code-select" class="form-select form-select-sm">
+                        <select id="filter-code-select" name="code" class="form-select form-select-sm">
                             <option value="">Semua Program / Kategori</option>
                             @foreach($codeOptions as $cOpt)
-                                <option value="{{ $cOpt }}">{{ $cOpt }}</option>
+                                <option value="{{ $cOpt }}" @selected(($codeFilter ?? '') === $cOpt)>{{ $cOpt }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -611,7 +612,7 @@
                         <button type="submit" class="btn btn-sm btn-primary px-3 text-nowrap d-flex align-items-center gap-1.5" style="height: 31px;">
                             <i class="fas fa-filter"></i> Terapkan
                         </button>
-                        @if(request()->hasAny(['month', 'year', 'status', 'start_date', 'end_date', 'period_mode']))
+                        @if(request()->hasAny(['month', 'year', 'status', 'start_date', 'end_date', 'period_mode', 'type', 'code', 'search']))
                             <a href="{{ route('admin.cashbook.show', $project) }}" class="btn btn-sm btn-outline-secondary d-flex align-items-center justify-content-center" title="Reset filter" style="height: 31px; width: 31px; padding: 0;">
                                 <i class="fas fa-rotate-left"></i>
                             </a>
@@ -806,6 +807,7 @@
                                         'url' => $attachment->url,
                                         'original_name' => $attachment->original_name,
                                         'formatted_size' => $attachment->formattedSize(),
+                                        'is_pdf' => $attachment->isPdf(),
                                     ] : null,
                                 ];
                                 
@@ -856,9 +858,15 @@
                                     @endif
                                     @if($attachment)
                                         <div class="mt-1">
-                                            <button type="button" class="btn btn-xs btn-outline-primary d-inline-flex align-items-center gap-1 py-0 px-1.5" style="font-size: 0.7rem;" data-bs-toggle="modal" data-bs-target="#cashbook-photo-modal" data-photo-url="{{ $attachment->url }}" data-photo-title="Foto bukti: {{ $transaction->description }}" data-photo-caption="{{ $attachment->original_name }} ({{ $attachment->formattedSize() }})">
-                                                <i class="fas fa-image" aria-hidden="true"></i> Foto bukti
-                                            </button>
+                                            @if($attachment->isPdf())
+                                                <a href="{{ $attachment->url }}" target="_blank" class="btn btn-xs btn-outline-danger d-inline-flex align-items-center gap-1 py-0 px-1.5" style="font-size: 0.7rem;" title="{{ $attachment->original_name }} ({{ $attachment->formattedSize() }})">
+                                                    <i class="fas fa-file-pdf text-danger" aria-hidden="true"></i> Bukti PDF
+                                                </a>
+                                            @else
+                                                <button type="button" class="btn btn-xs btn-outline-primary d-inline-flex align-items-center gap-1 py-0 px-1.5" style="font-size: 0.7rem;" data-bs-toggle="modal" data-bs-target="#cashbook-photo-modal" data-photo-url="{{ $attachment->url }}" data-photo-title="Foto bukti: {{ $transaction->description }}" data-photo-caption="{{ $attachment->original_name }} ({{ $attachment->formattedSize() }})">
+                                                    <i class="fas fa-image" aria-hidden="true"></i> Foto bukti
+                                                </button>
+                                            @endif
                                         </div>
                                     @endif
                                 </td>
@@ -926,14 +934,32 @@
                         @empty
                             <tr>
                                 <td colspan="9" class="text-center py-5 px-3">
-                                    <p class="fw-semibold mb-1 text-dark">Belum ada transaksi kas untuk proyek ini.</p>
-                                    <p class="small text-secondary mb-3">Tambahkan penerimaan atau pengeluaran pertama untuk mulai mencatat saldo.</p>
-                                    <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#cashbook-modal">
-                                        <i class="fas fa-plus me-1"></i> Tambah Transaksi Kas
-                                    </button>
+                                    @if(request()->hasAny(['month', 'year', 'status', 'start_date', 'end_date', 'period_mode', 'type', 'code', 'search']))
+                                        <div class="py-2">
+                                            <div class="mb-2 text-muted" style="font-size: 1.8rem; opacity: 0.4;">
+                                                <i class="fas fa-filter-circle-xmark"></i>
+                                            </div>
+                                            <p class="fw-semibold mb-1 text-dark">Tidak ada transaksi yang sesuai dengan filter yang dipilih.</p>
+                                            <p class="small text-secondary mb-3">Kombinasi filter yang Anda pilih tidak menemukan data. Coba sesuaikan pilihan filter atau reset.</p>
+                                            <a href="{{ route('admin.cashbook.show', $project) }}" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1.5">
+                                                <i class="fas fa-rotate-left"></i> Reset Filter
+                                            </a>
+                                        </div>
+                                    @else
+                                        <p class="fw-semibold mb-1 text-dark">Belum ada transaksi kas untuk proyek ini.</p>
+                                        <p class="small text-secondary mb-3">Tambahkan penerimaan atau pengeluaran pertama untuk mulai mencatat saldo.</p>
+                                        <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#cashbook-modal">
+                                            <i class="fas fa-plus me-1"></i> Tambah Transaksi Kas
+                                        </button>
+                                    @endif
                                 </td>
                             </tr>
                         @endforelse
+                        <tr id="cashbook-no-filter-match" style="display: none;">
+                            <td colspan="9" class="text-center py-4 text-muted small">
+                                <i class="fas fa-search me-1.5 opacity-50"></i> Tidak ada transaksi yang sesuai dengan filter yang dipilih.
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -985,15 +1011,21 @@
                         <dt class="col-5 text-secondary">Catatan</dt>
                         <dd class="col-7 text-dark mb-1 text-break" id="detail-notes">-</dd>
 
-                        <dt class="col-5 text-secondary" id="detail-attachment-dt" hidden>Foto bukti / catatan</dt>
+                        <dt class="col-5 text-secondary" id="detail-attachment-dt" hidden>Bukti transaksi</dt>
                         <dd class="col-7 mb-1" id="detail-attachment-dd" hidden>
-                            <div class="card p-1 border shadow-none bg-light" style="max-width: 200px;">
-                                <a id="detail-attachment-link" href="#" target="_blank" class="d-block text-center position-relative">
-                                    <img id="detail-attachment-img" src="" alt="Foto bukti" class="img-fluid rounded border" style="max-height: 120px; object-fit: contain;">
-                                </a>
+                            <div class="card p-1 border shadow-none bg-light" style="max-width: 220px;">
+                                <div id="detail-attachment-img-wrap">
+                                    <a id="detail-attachment-link" href="#" target="_blank" class="d-block text-center position-relative">
+                                        <img id="detail-attachment-img" src="" alt="Foto bukti" class="img-fluid rounded border" style="max-height: 120px; object-fit: contain;">
+                                    </a>
+                                </div>
+                                <div id="detail-attachment-pdf-wrap" class="d-none text-center p-3 bg-white rounded border border-danger-subtle mb-1">
+                                    <i class="fas fa-file-pdf text-danger fs-1 mb-1"></i>
+                                    <div class="small fw-semibold text-dark text-truncate" id="detail-attachment-pdf-name" style="font-size: 0.75rem;"></div>
+                                </div>
                                 <div class="card-footer p-1 bg-transparent border-0 text-center">
-                                    <a id="detail-attachment-btn" href="#" target="_blank" class="btn btn-xs btn-outline-secondary w-100">
-                                        <i class="fas fa-external-link-alt me-1"></i>Buka foto penuh
+                                    <a id="detail-attachment-btn" href="#" target="_blank" class="btn btn-xs btn-outline-primary w-100">
+                                        <i class="fas fa-external-link-alt me-1"></i>Buka bukti
                                     </a>
                                 </div>
                             </div>
@@ -1157,36 +1189,57 @@
                                 <label class="form-label mb-0 fw-bold text-dark small">
                                     <i class="fas fa-camera text-primary me-1" aria-hidden="true"></i> FOTO BUKTI / NOTA (OPSIONAL)
                                 </label>
-                                <span class="text-muted" style="font-size: 0.72rem;">Maks. 10 MB (JPG, PNG, WEBP)</span>
+                                <span class="text-muted" style="font-size: 0.72rem;">Maks. 10 MB (JPG, PNG, WEBP, PDF)</span>
                             </div>
 
-                            {{-- 1. FOTO SAAT INI (Tampil saat edit transaksi yang memiliki foto) --}}
-                            <div id="cashbook-current-attachment" class="card border p-3 mb-2.5 bg-light d-none" style="border-radius: 12px;">
+                            {{-- 1. FOTO / FILE SAAT INI (Tampil saat edit transaksi yang memiliki attachment) --}}
+                            <div id="cashbook-current-attachment" class="card border p-3 mb-2.5 bg-light d-none" style="border-radius: 12px; border-color: #E2E8F0;">
                                 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
-                                    <div class="d-flex align-items-center gap-2.5 overflow-hidden">
-                                        <img id="cashbook-current-attachment-thumb" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 24 24'%3E%3Cpath fill='%2394a3b8' d='M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z'/%3E%3C/svg%3E" alt="Foto Tersimpan" class="rounded-2 border object-fit-cover shadow-xs" style="width: 48px; height: 48px; background: #fff;">
-                                        <div class="text-truncate">
-                                            <div class="d-flex align-items-center gap-1.5 mb-0.5">
-                                                <span class="badge bg-secondary-subtle text-secondary border py-0.5 px-1.5" style="font-size: 0.65rem;">Tersimpan</span>
-                                                <span class="small fw-bold text-dark text-truncate" id="cashbook-current-attachment-name">-</span>
+                                    {{-- Kiri: Thumbnail Image / Fallback Ikon PDF + Info File dengan Spacing Lega (gap-3) --}}
+                                    <div class="d-flex align-items-center gap-3 overflow-hidden me-2 min-w-0">
+                                        {{-- Thumbnail Gambar --}}
+                                        <img id="cashbook-current-attachment-thumb" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 24 24'%3E%3Cpath fill='%2394a3b8' d='M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z'/%3E%3C/svg%3E" alt="Foto Tersimpan" class="rounded-2 border object-fit-cover shadow-xs" style="width: 48px; height: 48px; background: #fff; flex-shrink: 0;">
+                                        
+                                        {{-- Fallback Ikon PDF Dokumen --}}
+                                        <div id="cashbook-current-attachment-pdf-icon" class="d-none align-items-center justify-content-center rounded-2 border shadow-xs" style="width: 48px; height: 48px; background: #fef2f2; border-color: #fecaca !important; flex-shrink: 0;">
+                                            <i class="fas fa-file-pdf text-danger fs-4"></i>
+                                        </div>
+
+                                        {{-- Hierarki Info File --}}
+                                        <div class="min-w-0">
+                                            {{-- Baris 1: Nama file (semi-bold) diikuti badge 'Tersimpan' hijau lembut --}}
+                                            <div class="d-flex align-items-center gap-2 mb-0.5 flex-wrap">
+                                                <span class="small fw-semibold text-dark text-truncate" id="cashbook-current-attachment-name" style="max-width: 250px;">-</span>
+                                                <span class="badge" style="background-color: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; font-size: 0.68rem; font-weight: 500; border-radius: 9999px; padding: 2px 8px;">Tersimpan</span>
                                             </div>
-                                            <a href="#" id="cashbook-current-attachment-link" target="_blank" class="small text-primary text-decoration-none fw-semibold" style="font-size: 0.75rem;">
-                                                <i class="fas fa-external-link-alt me-1"></i>Lihat foto saat ini
-                                            </a>
+                                            {{-- Baris 2: Ukuran file teks abu-abu kecil --}}
+                                            <div class="text-muted" style="font-size: 0.75rem; color: #64748b;" id="cashbook-current-attachment-size">-</div>
                                         </div>
                                     </div>
-                                    <div class="form-check p-2 bg-white rounded-2 border border-danger-subtle text-nowrap">
-                                        <input class="form-check-input ms-0.5" type="checkbox" name="remove_attachment" id="cashbook-remove-attachment" value="1">
-                                        <label class="form-check-label small text-danger fw-semibold ms-1.5" for="cashbook-remove-attachment" style="cursor: pointer; font-size: 0.76rem;">
-                                            <i class="fas fa-trash-alt me-1"></i>Hapus foto ini
-                                        </label>
+
+                                    {{-- Kanan: Kelompok Tombol Aksi Sejajar (Lihat & Hapus) --}}
+                                    <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                                        {{-- Tombol Lihat (Warna netral/biru muda dengan ikon external-link) --}}
+                                        <a href="#" id="cashbook-current-attachment-link" target="_blank" class="btn btn-sm d-inline-flex align-items-center gap-1.5 px-2.5 py-1" style="font-size: 0.75rem; border-radius: 6px; font-weight: 500; background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe;" title="Lihat file saat ini">
+                                            <i class="fas fa-external-link-alt" style="font-size: 0.72rem;"></i>
+                                            <span>Lihat</span>
+                                        </a>
+
+                                        {{-- Hidden Checkbox remove_attachment (menghilangkan kotak kecil nyasar) --}}
+                                        <input class="d-none" type="checkbox" name="remove_attachment" id="cashbook-remove-attachment" value="1">
+
+                                        {{-- Tombol Hapus (Warna merah lembut dengan ikon tempat sampah) --}}
+                                        <button type="button" id="cashbook-btn-toggle-remove" class="btn btn-sm d-inline-flex align-items-center gap-1.5 px-2.5 py-1" style="font-size: 0.75rem; border-radius: 6px; font-weight: 500; background: #fef2f2; color: #dc2626; border: 1px solid #fecaca;" title="Hapus foto ini">
+                                            <i class="fas fa-trash-alt" style="font-size: 0.72rem;"></i>
+                                            <span id="cashbook-btn-remove-text">Hapus</span>
+                                        </button>
                                     </div>
                                 </div>
                             </div>
 
                             {{-- 2. UPLOAD DROPZONE / FILE SELECTOR --}}
                             <div id="cashbook-upload-zone" class="border border-2 border-dashed rounded-3 p-3 text-center bg-white position-relative" style="cursor: pointer; border-color: #cbd5e1 !important; transition: all 0.2s ease;">
-                                <input type="file" id="cashbook-attachment" name="attachment" class="position-absolute top-0 start-0 w-100 h-100 opacity-0 @error('attachment') is-invalid @enderror" accept="image/jpeg,image/png,image/jpg,image/webp" style="cursor: pointer; z-index: 2;" aria-describedby="cashbook-attachment-help cashbook-attachment-error">
+                                <input type="file" id="cashbook-attachment" name="attachment" class="position-absolute top-0 start-0 w-100 h-100 opacity-0 @error('attachment') is-invalid @enderror" accept="image/jpeg,image/png,image/jpg,image/webp,application/pdf" style="cursor: pointer; z-index: 2;" aria-describedby="cashbook-attachment-help cashbook-attachment-error">
 
                                 {{-- Idle State --}}
                                 <div id="cashbook-upload-idle" class="py-1">
@@ -1194,27 +1247,33 @@
                                         <i class="fas fa-cloud-arrow-up fs-5"></i>
                                     </div>
                                     <div class="fw-semibold text-dark small mb-0.5">
-                                        <span class="text-primary text-decoration-underline">Pilih file foto</span> atau seret foto bukti ke sini
+                                        <span class="text-primary text-decoration-underline">Pilih file foto atau invoice PDF</span> atau seret file ke sini
                                     </div>
                                     <div class="text-muted" style="font-size: 0.72rem;" id="cashbook-attachment-help">
-                                        Pilih foto bukti/nota (JPG, PNG, WEBP, maks 10 MB). Foto akan ditampilkan pada catatan transaksi.
+                                        Format didukung: JPG, PNG, WEBP, PDF (maks. 10 MB). File akan ditampilkan pada catatan transaksi.
                                     </div>
                                 </div>
 
                                 {{-- Preview State (File Baru Dipilih) --}}
-                                <div id="cashbook-new-attachment-preview" class="d-none align-items-center justify-content-between p-2 bg-light rounded-3 text-start position-relative" style="z-index: 3;">
-                                    <div class="d-flex align-items-center gap-2.5 overflow-hidden">
-                                        <img id="cashbook-new-attachment-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 24 24'%3E%3Cpath fill='%2394a3b8' d='M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z'/%3E%3C/svg%3E" alt="Foto Baru" class="rounded-2 border object-fit-cover shadow-xs" style="width: 48px; height: 48px; background: #fff;">
-                                        <div class="text-truncate">
-                                            <div class="d-flex align-items-center gap-1.5 mb-0.5">
-                                                <span class="badge bg-success-subtle text-success border border-success-subtle py-0.5 px-1.5" style="font-size: 0.65rem;">Foto Baru</span>
-                                                <span class="small fw-bold text-dark text-truncate" id="cashbook-new-attachment-name"></span>
+                                <div id="cashbook-new-attachment-preview" class="d-none align-items-center justify-content-between p-2.5 bg-light rounded-3 text-start position-relative border" style="z-index: 3;">
+                                    <div class="d-flex align-items-center gap-3 overflow-hidden me-2 min-w-0">
+                                        <img id="cashbook-new-attachment-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 24 24'%3E%3Cpath fill='%2394a3b8' d='M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z'/%3E%3C/svg%3E" alt="Foto Baru" class="rounded-2 border object-fit-cover shadow-xs" style="width: 48px; height: 48px; background: #fff; flex-shrink: 0;">
+                                        
+                                        <div id="cashbook-new-attachment-pdf-icon" class="d-none align-items-center justify-content-center rounded-2 border shadow-xs" style="width: 48px; height: 48px; background: #fef2f2; border-color: #fecaca !important; flex-shrink: 0;">
+                                            <i class="fas fa-file-pdf text-danger fs-4"></i>
+                                        </div>
+
+                                        <div class="min-w-0">
+                                            <div class="d-flex align-items-center gap-2 mb-0.5 flex-wrap">
+                                                <span class="small fw-semibold text-dark text-truncate" id="cashbook-new-attachment-name" style="max-width: 250px;"></span>
+                                                <span class="badge" style="background-color: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; font-size: 0.68rem; font-weight: 500; border-radius: 9999px; padding: 2px 8px;">File Baru</span>
                                             </div>
-                                            <span class="badge bg-white text-muted border py-0.5 px-1.5" id="cashbook-new-attachment-size" style="font-size: 0.7rem;"></span>
+                                            <div class="text-muted" style="font-size: 0.75rem; color: #64748b;" id="cashbook-new-attachment-size"></div>
                                         </div>
                                     </div>
-                                    <button type="button" id="cashbook-new-attachment-clear" class="btn btn-sm btn-outline-danger px-2.5 py-1" style="font-size: 0.75rem;">
-                                        <i class="fas fa-times me-1"></i>Batal
+                                    <button type="button" id="cashbook-new-attachment-clear" class="btn btn-sm d-inline-flex align-items-center gap-1.5 px-2.5 py-1" style="font-size: 0.75rem; border-radius: 6px; font-weight: 500; background: #fef2f2; color: #dc2626; border: 1px solid #fecaca;">
+                                        <i class="fas fa-times" style="font-size: 0.72rem;"></i>
+                                        <span>Batal</span>
                                     </button>
                                 </div>
                             </div>
@@ -1272,12 +1331,16 @@
             const attachmentInput = document.getElementById('cashbook-attachment');
             const currentAttachmentWrap = document.getElementById('cashbook-current-attachment');
             const currentAttachmentThumb = document.getElementById('cashbook-current-attachment-thumb');
+            const currentAttachmentPdfIcon = document.getElementById('cashbook-current-attachment-pdf-icon');
             const currentAttachmentName = document.getElementById('cashbook-current-attachment-name');
+            const currentAttachmentSize = document.getElementById('cashbook-current-attachment-size');
             const currentAttachmentLink = document.getElementById('cashbook-current-attachment-link');
             const removeAttachmentCheckbox = document.getElementById('cashbook-remove-attachment');
+            const btnToggleRemove = document.getElementById('cashbook-btn-toggle-remove');
             const uploadIdle = document.getElementById('cashbook-upload-idle');
             const newAttachmentPreview = document.getElementById('cashbook-new-attachment-preview');
             const newAttachmentImg = document.getElementById('cashbook-new-attachment-img');
+            const newAttachmentPdfIcon = document.getElementById('cashbook-new-attachment-pdf-icon');
             const newAttachmentName = document.getElementById('cashbook-new-attachment-name');
             const newAttachmentSize = document.getElementById('cashbook-new-attachment-size');
             const newAttachmentClear = document.getElementById('cashbook-new-attachment-clear');
@@ -1292,7 +1355,14 @@
                     newAttachmentPreview.classList.remove('d-flex');
                 }
                 if (uploadIdle) uploadIdle.classList.remove('d-none');
-                if (newAttachmentImg) newAttachmentImg.src = placeholderSvg;
+                if (newAttachmentImg) {
+                    newAttachmentImg.src = placeholderSvg;
+                    newAttachmentImg.classList.remove('d-none');
+                }
+                if (newAttachmentPdfIcon) {
+                    newAttachmentPdfIcon.classList.add('d-none');
+                    newAttachmentPdfIcon.classList.remove('d-flex');
+                }
             }
 
             newAttachmentClear?.addEventListener('click', event => {
@@ -1301,11 +1371,47 @@
                 clearNewAttachment();
             });
 
-            removeAttachmentCheckbox?.addEventListener('change', () => {
-                if (currentAttachmentThumb) {
-                    currentAttachmentThumb.style.opacity = removeAttachmentCheckbox.checked ? '0.3' : '1';
-                    currentAttachmentThumb.style.filter = removeAttachmentCheckbox.checked ? 'grayscale(100%)' : 'none';
+            function setRemoveAttachmentState(isRemoving) {
+                if (removeAttachmentCheckbox) removeAttachmentCheckbox.checked = isRemoving;
+                const activeThumb = currentAttachmentPdfIcon && !currentAttachmentPdfIcon.classList.contains('d-none')
+                    ? currentAttachmentPdfIcon
+                    : currentAttachmentThumb;
+
+                if (activeThumb) {
+                    activeThumb.style.opacity = isRemoving ? '0.35' : '1';
+                    activeThumb.style.filter = isRemoving ? 'grayscale(100%)' : 'none';
                 }
+                if (currentAttachmentName) {
+                    currentAttachmentName.style.textDecoration = isRemoving ? 'line-through' : 'none';
+                    currentAttachmentName.style.opacity = isRemoving ? '0.5' : '1';
+                }
+                if (btnToggleRemove) {
+                    if (isRemoving) {
+                        btnToggleRemove.className = 'btn btn-sm btn-danger text-white d-inline-flex align-items-center gap-1.5 px-2.5 py-1';
+                        btnToggleRemove.removeAttribute('style');
+                        btnToggleRemove.style.fontSize = '0.75rem';
+                        btnToggleRemove.style.borderRadius = '6px';
+                        btnToggleRemove.style.fontWeight = '500';
+                        btnToggleRemove.innerHTML = '<i class="fas fa-undo-alt" style="font-size: 0.72rem;"></i><span>Batal Hapus</span>';
+                    } else {
+                        btnToggleRemove.className = 'btn btn-sm d-inline-flex align-items-center gap-1.5 px-2.5 py-1';
+                        btnToggleRemove.removeAttribute('style');
+                        btnToggleRemove.style.fontSize = '0.75rem';
+                        btnToggleRemove.style.borderRadius = '6px';
+                        btnToggleRemove.style.fontWeight = '500';
+                        btnToggleRemove.style.background = '#fef2f2';
+                        btnToggleRemove.style.color = '#dc2626';
+                        btnToggleRemove.style.border = '1px solid #fecaca';
+                        btnToggleRemove.innerHTML = '<i class="fas fa-trash-alt" style="font-size: 0.72rem;"></i><span>Hapus</span>';
+                    }
+                }
+            }
+
+            btnToggleRemove?.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const isCurrentlyChecked = Boolean(removeAttachmentCheckbox?.checked);
+                setRemoveAttachmentState(!isCurrentlyChecked);
             });
 
             attachmentInput?.addEventListener('change', () => {
@@ -1314,22 +1420,42 @@
                     clearNewAttachment();
                     return;
                 }
-                if (file.type.startsWith('image/')) {
-                    const reader = new FileReader();
-                    reader.onload = e => {
-                        if (newAttachmentImg) newAttachmentImg.src = e.target.result;
-                        if (newAttachmentName) newAttachmentName.textContent = file.name;
-                        if (newAttachmentSize) {
-                            const kb = file.size / 1024;
-                            newAttachmentSize.textContent = kb >= 1024 ? (kb / 1024).toFixed(2) + ' MB' : kb.toFixed(1) + ' KB';
+                const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+                const isImg = file.type.startsWith('image/');
+
+                if (isPdf || isImg) {
+                    if (newAttachmentName) newAttachmentName.textContent = file.name;
+                    if (newAttachmentSize) {
+                        const kb = file.size / 1024;
+                        newAttachmentSize.textContent = kb >= 1024 ? (kb / 1024).toFixed(2) + ' MB' : kb.toFixed(1) + ' KB';
+                    }
+
+                    if (isPdf) {
+                        if (newAttachmentImg) newAttachmentImg.classList.add('d-none');
+                        if (newAttachmentPdfIcon) {
+                            newAttachmentPdfIcon.classList.remove('d-none');
+                            newAttachmentPdfIcon.classList.add('d-flex');
                         }
-                        if (uploadIdle) uploadIdle.classList.add('d-none');
-                        if (newAttachmentPreview) {
-                            newAttachmentPreview.classList.remove('d-none');
-                            newAttachmentPreview.classList.add('d-flex');
+                    } else {
+                        if (newAttachmentPdfIcon) {
+                            newAttachmentPdfIcon.classList.add('d-none');
+                            newAttachmentPdfIcon.classList.remove('d-flex');
                         }
-                    };
-                    reader.readAsDataURL(file);
+                        if (newAttachmentImg) {
+                            newAttachmentImg.classList.remove('d-none');
+                            const reader = new FileReader();
+                            reader.onload = e => {
+                                newAttachmentImg.src = e.target.result;
+                            };
+                            reader.readAsDataURL(file);
+                        }
+                    }
+
+                    if (uploadIdle) uploadIdle.classList.add('d-none');
+                    if (newAttachmentPreview) {
+                        newAttachmentPreview.classList.remove('d-none');
+                        newAttachmentPreview.classList.add('d-flex');
+                    }
                 } else {
                     clearNewAttachment();
                 }
@@ -1659,26 +1785,48 @@
                 updatePreview();
 
                 clearNewAttachment();
-                if (removeAttachmentCheckbox) removeAttachmentCheckbox.checked = false;
-                if (currentAttachmentThumb) {
-                    currentAttachmentThumb.style.opacity = '1';
-                    currentAttachmentThumb.style.filter = 'none';
-                }
+                setRemoveAttachmentState(false);
 
                 if (transaction?.attachment) {
                     if (currentAttachmentWrap) {
                         currentAttachmentWrap.classList.remove('d-none');
                         currentAttachmentWrap.hidden = false;
                     }
-                    if (currentAttachmentThumb) currentAttachmentThumb.src = transaction.attachment.url;
-                    if (currentAttachmentName) currentAttachmentName.textContent = transaction.attachment.original_name + (transaction.attachment.formatted_size ? ' (' + transaction.attachment.formatted_size + ')' : '');
+                    const isPdf = Boolean(transaction.attachment.is_pdf || (transaction.attachment.original_name && transaction.attachment.original_name.toLowerCase().endsWith('.pdf')));
+
+                    if (isPdf) {
+                        if (currentAttachmentThumb) currentAttachmentThumb.classList.add('d-none');
+                        if (currentAttachmentPdfIcon) {
+                            currentAttachmentPdfIcon.classList.remove('d-none');
+                            currentAttachmentPdfIcon.classList.add('d-flex');
+                        }
+                    } else {
+                        if (currentAttachmentPdfIcon) {
+                            currentAttachmentPdfIcon.classList.add('d-none');
+                            currentAttachmentPdfIcon.classList.remove('d-flex');
+                        }
+                        if (currentAttachmentThumb) {
+                            currentAttachmentThumb.classList.remove('d-none');
+                            currentAttachmentThumb.src = transaction.attachment.url;
+                        }
+                    }
+
+                    if (currentAttachmentName) currentAttachmentName.textContent = transaction.attachment.original_name || '-';
+                    if (currentAttachmentSize) currentAttachmentSize.textContent = transaction.attachment.formatted_size || '';
                     if (currentAttachmentLink) currentAttachmentLink.href = transaction.attachment.url;
                 } else {
                     if (currentAttachmentWrap) {
                         currentAttachmentWrap.classList.add('d-none');
                         currentAttachmentWrap.hidden = true;
                     }
-                    if (currentAttachmentThumb) currentAttachmentThumb.src = placeholderSvg;
+                    if (currentAttachmentThumb) {
+                        currentAttachmentThumb.src = placeholderSvg;
+                        currentAttachmentThumb.classList.remove('d-none');
+                    }
+                    if (currentAttachmentPdfIcon) {
+                        currentAttachmentPdfIcon.classList.add('d-none');
+                        currentAttachmentPdfIcon.classList.remove('d-flex');
+                    }
                 }
 
                 if (transaction?.last_edited_at_display) {
@@ -1753,16 +1901,40 @@
 
                     const attDt = document.getElementById('detail-attachment-dt');
                     const attDd = document.getElementById('detail-attachment-dd');
+                    const attImgWrap = document.getElementById('detail-attachment-img-wrap');
                     const attImg = document.getElementById('detail-attachment-img');
+                    const attPdfWrap = document.getElementById('detail-attachment-pdf-wrap');
+                    const attPdfName = document.getElementById('detail-attachment-pdf-name');
                     const attLink = document.getElementById('detail-attachment-link');
                     const attBtn = document.getElementById('detail-attachment-btn');
 
                     if (tx.attachment) {
                         if (attDt) attDt.hidden = false;
                         if (attDd) attDd.hidden = false;
-                        if (attImg) attImg.src = tx.attachment.url;
-                        if (attLink) attLink.href = tx.attachment.url;
-                        if (attBtn) attBtn.href = tx.attachment.url;
+                        const isPdf = Boolean(tx.attachment.is_pdf || (tx.attachment.original_name && tx.attachment.original_name.toLowerCase().endsWith('.pdf')));
+
+                        if (isPdf) {
+                            if (attImgWrap) attImgWrap.classList.add('d-none');
+                            if (attPdfWrap) {
+                                attPdfWrap.classList.remove('d-none');
+                                if (attPdfName) attPdfName.textContent = tx.attachment.original_name || 'Dokumen PDF';
+                            }
+                            if (attBtn) {
+                                attBtn.href = tx.attachment.url;
+                                attBtn.className = 'btn btn-xs btn-outline-danger w-100';
+                                attBtn.innerHTML = '<i class="fas fa-file-pdf me-1"></i>Buka dokumen PDF';
+                            }
+                        } else {
+                            if (attPdfWrap) attPdfWrap.classList.add('d-none');
+                            if (attImgWrap) attImgWrap.classList.remove('d-none');
+                            if (attImg) attImg.src = tx.attachment.url;
+                            if (attLink) attLink.href = tx.attachment.url;
+                            if (attBtn) {
+                                attBtn.href = tx.attachment.url;
+                                attBtn.className = 'btn btn-xs btn-outline-primary w-100';
+                                attBtn.innerHTML = '<i class="fas fa-external-link-alt me-1"></i>Buka foto penuh';
+                            }
+                        }
                     } else {
                         if (attDt) attDt.hidden = true;
                         if (attDd) attDd.hidden = true;
@@ -1794,6 +1966,7 @@
             const filterSearch = document.getElementById('filter-search-input');
             const transRows = document.querySelectorAll('.cashbook-row');
             const transCounter = document.getElementById('trans-count-label');
+            const noMatchRow = document.getElementById('cashbook-no-filter-match');
 
             function applyTableFilters() {
                 const selectedType = filterType ? filterType.value.toLowerCase() : '';
@@ -1821,6 +1994,10 @@
                     }
                 });
 
+                if (noMatchRow) {
+                    noMatchRow.style.display = (visibleCount === 0 && transRows.length > 0) ? '' : 'none';
+                }
+
                 if (transCounter) {
                     transCounter.textContent = `${visibleCount} transaksi ditemukan`;
                 }
@@ -1829,7 +2006,13 @@
             if (filterType) filterType.addEventListener('change', applyTableFilters);
             if (filterStatus) filterStatus.addEventListener('change', applyTableFilters);
             if (filterCode) filterCode.addEventListener('change', applyTableFilters);
-            if (filterSearch) filterSearch.addEventListener('input', applyTableFilters);
+            if (filterSearch) {
+                filterSearch.addEventListener('input', applyTableFilters);
+                filterSearch.addEventListener('search', applyTableFilters);
+            }
+
+            // Jalankan filter awal untuk sinkronisasi tampilan jika sudah ada filter aktif
+            applyTableFilters();
 
             updatePreview();
             if (form.dataset.reopen === '1') bootstrap.Modal.getOrCreateInstance(modal).show();
@@ -1843,8 +2026,6 @@
             }
 
             const colMonthYear = document.getElementById('filter-col-month-year');
-            const colMonth = document.getElementById('filter-col-month');
-            const colYear = document.getElementById('filter-col-year');
             const colDates = document.getElementById('filter-col-dates');
 
             const inputMonth = document.getElementById('filter-month');
@@ -1862,11 +2043,14 @@
                 if (inputEndDate) inputEndDate.disabled = false;
             } else if (mode === 'tahun') {
                 if (colMonthYear) colMonthYear.classList.remove('d-none');
-                if (colMonth) colMonth.classList.add('d-none');
-                if (inputMonth) inputMonth.disabled = true;
-
-                if (colYear) colYear.classList.remove('d-none');
-                if (inputYear) inputYear.disabled = false;
+                if (inputMonth) {
+                    inputMonth.classList.add('d-none');
+                    inputMonth.disabled = true;
+                }
+                if (inputYear) {
+                    inputYear.classList.remove('d-none');
+                    inputYear.disabled = false;
+                }
 
                 if (colDates) colDates.classList.add('d-none');
                 if (inputStartDate) inputStartDate.disabled = true;
@@ -1874,11 +2058,14 @@
             } else {
                 // Mode 'bulan' (Bulan + Tahun)
                 if (colMonthYear) colMonthYear.classList.remove('d-none');
-                if (colMonth) colMonth.classList.remove('d-none');
-                if (inputMonth) inputMonth.disabled = false;
-
-                if (colYear) colYear.classList.remove('d-none');
-                if (inputYear) inputYear.disabled = false;
+                if (inputMonth) {
+                    inputMonth.classList.remove('d-none');
+                    inputMonth.disabled = false;
+                }
+                if (inputYear) {
+                    inputYear.classList.remove('d-none');
+                    inputYear.disabled = false;
+                }
 
                 if (colDates) colDates.classList.add('d-none');
                 if (inputStartDate) inputStartDate.disabled = true;

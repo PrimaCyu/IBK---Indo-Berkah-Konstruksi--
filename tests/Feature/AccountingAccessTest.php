@@ -55,7 +55,7 @@ class AccountingAccessTest extends TestCase
 
     public function test_admin_can_create_accounting_account_but_accounting_cannot_create_users(): void
     {
-        $admin = User::factory()->create(['role' => 'admin']);
+        $admin = User::factory()->create(['role' => 'superadmin']);
         $attributes = [
             'name' => 'Staf Keuangan',
             'email' => 'keuangan@example.test',
@@ -92,7 +92,7 @@ class AccountingAccessTest extends TestCase
 
     public function test_bookkeeping_history_prevents_deletion_of_project_and_client_even_after_a_transaction_is_removed(): void
     {
-        $admin = User::factory()->create(['role' => 'admin']);
+        $admin = User::factory()->create(['role' => 'superadmin']);
         $owner = User::factory()->create(['role' => 'owner']);
         $project = $this->project($owner);
         $cashflow = $project->cashflows()->create([

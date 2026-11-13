@@ -17,7 +17,7 @@ class UserFeedbackController extends Controller
         ]);
 
         $project = \App\Models\Project::findOrFail($request->project_id);
-        abort_if(Auth::user()->role !== 'admin' && $project->user_id !== Auth::id(), 403, 'Anda tidak memiliki akses ke proyek ini.');
+        abort_if(! Auth::user()->isAdmin() && $project->user_id !== Auth::id(), 403, 'Anda tidak memiliki akses ke proyek ini.');
 
         UserFeedback::create([
             'user_id'    => Auth::id(),

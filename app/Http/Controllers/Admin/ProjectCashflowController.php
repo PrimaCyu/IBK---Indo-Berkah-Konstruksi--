@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\CashflowOption;
 use App\Models\Project;
 use App\Models\ProjectCashflow;
+use App\Models\TransactionCategory;
 use Brick\Math\BigDecimal;
 use Brick\Math\RoundingMode;
 use Carbon\Carbon;
@@ -450,6 +451,9 @@ class ProjectCashflowController extends Controller
             'start_month' => ['nullable', 'integer', 'between:1,12'],
             'end_month' => ['nullable', 'integer', 'between:1,12'],
             'status' => ['nullable', 'string', 'in:all,lunas,piutang,pending,ditolak'],
+            'type' => ['nullable', 'string', 'in:all,penerimaan,pengeluaran'],
+            'code' => ['nullable', 'string', 'max:255'],
+            'search' => ['nullable', 'string', 'max:255'],
         ]);
 
         $periodMode = $request->query('period_mode');
@@ -485,15 +489,21 @@ class ProjectCashflowController extends Controller
             $endDate = null;
             $selectedMonth = null;
             $periodTitle = 'Semua Periode';
-        } elseif ($request->has('month') && $selectedMonth) {
+        } elseif ($request->filled('month') && $selectedMonth) {
             $activeMode = 'bulan';
             $startDate = Carbon::create($selectedYear, $selectedMonth, 1)->startOfMonth();
             $endDate = Carbon::create($selectedYear, $selectedMonth, 1)->endOfMonth();
             $periodTitle = ($monthNames[$selectedMonth] ?? 'Bulan ' . $selectedMonth) . ' ' . $selectedYear;
+        } elseif ($request->filled('year') && $request->has('period_mode')) {
+            $activeMode = 'bulan';
+            $selectedMonth = null;
+            $startDate = Carbon::create($selectedYear, 1, 1)->startOfYear();
+            $endDate = Carbon::create($selectedYear, 12, 31)->endOfYear();
+            $periodTitle = 'Tahun ' . $selectedYear . ' (Semua Bulan)';
         } else {
             // Unfiltered initial state: tampilkan seluruh data buku kas
             $activeMode = 'bulan';
-            $selectedMonth = (int) now()->month;
+            $selectedMonth = null;
             $startDate = null;
             $endDate = null;
             $periodTitle = 'Semua Transaksi';
@@ -503,16 +513,28 @@ class ProjectCashflowController extends Controller
         $years = $ledger['transactions']->map(fn ($transaction) => $transaction->transaction_date->year)->unique()->sortDesc()->values();
 
         $statusFilter = $request->query('status');
-        $ledger['transactions'] = $ledger['transactions']->filter(function ($transaction) use ($startDate, $endDate, $statusFilter) {
+        $typeFilter = $request->query('type');
+        $codeFilter = $request->query('code');
+        $searchFilter = is_string($request->query('search')) ? trim($request->query('search')) : '';
+
+        $ledger['transactions'] = $ledger['transactions']->filter(function ($transaction) use ($startDate, $endDate, $statusFilter, $typeFilter, $codeFilter, $searchFilter) {
             $cfDate = $transaction->transaction_date instanceof CarbonInterface ? $transaction->transaction_date : Carbon::parse($transaction->transaction_date);
             $matchDate = ($startDate === null || $cfDate->gte($startDate->startOfDay()))
                 && ($endDate === null || $cfDate->lte($endDate->endOfDay()));
             $matchStatus = $statusFilter === null || $statusFilter === '' || $statusFilter === 'all'
                 || ($statusFilter === 'lunas' && in_array($transaction->status, ['lunas', null], true))
-                || ($statusFilter === 'piutang' && in_array($transaction->status, ['pending', 'piutang'], true))
+                || (in_array($statusFilter, ['piutang', 'pending'], true) && in_array($transaction->status, ['pending', 'piutang'], true))
                 || ($transaction->status === $statusFilter);
+            $matchType = empty($typeFilter) || $typeFilter === 'all' || $transaction->type === $typeFilter;
+            $matchCode = empty($codeFilter) || strcasecmp((string) $transaction->code, $codeFilter) === 0;
+            $trxCode = 'TRX-' . $cfDate->format('Ym') . '-' . str_pad((string) $transaction->id, 4, '0', STR_PAD_LEFT);
+            $matchSearch = empty($searchFilter)
+                || str_contains(strtolower($transaction->description ?? ''), strtolower($searchFilter))
+                || str_contains(strtolower($transaction->code ?? ''), strtolower($searchFilter))
+                || str_contains(strtolower($transaction->notes ?? ''), strtolower($searchFilter))
+                || str_contains(strtolower($trxCode), strtolower($searchFilter));
 
-            return $matchDate && $matchStatus;
+            return $matchDate && $matchStatus && $matchType && $matchCode && $matchSearch;
         });
 
         $income = $expense = $receivable = BigDecimal::of('0.00');
@@ -542,6 +564,7 @@ class ProjectCashflowController extends Controller
             'codeOptions' => CashflowOption::optionsFor('code'),
             'unitOptions' => CashflowOption::optionsFor('unit'),
             'years' => $years,
+            'months' => $monthNames,
             'filters' => $filters,
             'preset' => $preset,
             'activeMode' => $activeMode,
@@ -555,6 +578,9 @@ class ProjectCashflowController extends Controller
             'startMonth' => $request->query('start_month'),
             'endMonth' => $request->query('end_month'),
             'statusFilter' => $statusFilter,
+            'typeFilter' => $typeFilter,
+            'codeFilter' => $codeFilter,
+            'searchFilter' => $searchFilter,
         ] + $ledger);
     }
 
@@ -588,8 +614,11 @@ class ProjectCashflowController extends Controller
         unset($validated['attachment'], $validated['remove_attachment']);
 
         $validated['created_by'] = auth()->id();
+        if (empty($validated['category_id'])) {
+            $validated['category_id'] = $this->resolveCategoryId($validated['code'] ?? null, $validated['type']);
+        }
         $validated['status'] = $validated['status'] ?? (auth()->user()?->role === 'accounting' ? 'pending' : 'lunas');
-        if ($validated['status'] === 'lunas' && auth()->user()?->role === 'admin') {
+        if ($validated['status'] === 'lunas' && in_array(auth()->user()?->role, ['superadmin', 'admin'], true)) {
             $validated['approved_by'] = auth()->id();
             $validated['approved_at'] = now();
         }
@@ -601,7 +630,7 @@ class ProjectCashflowController extends Controller
                 'disk' => 'public',
                 'file_path' => $path,
                 'original_name' => $attachment->getClientOriginalName(),
-                'mime_type' => $attachment->getClientMimeType() ?: ($attachment->getMimeType() ?? 'image/jpeg'),
+                'mime_type' => $attachment->getClientMimeType() ?: ($attachment->getMimeType() ?? 'application/octet-stream'),
                 'file_size' => $attachment->getSize(),
                 'uploaded_by' => auth()->id(),
             ]);
@@ -622,6 +651,9 @@ class ProjectCashflowController extends Controller
 
         $validated['updated_by'] = auth()->id();
         $validated['last_edited_at'] = now();
+        if (empty($validated['category_id'])) {
+            $validated['category_id'] = $this->resolveCategoryId($validated['code'] ?? null, $validated['type']);
+        }
 
         if (isset($validated['status']) && $validated['status'] === 'lunas' && $cashflow->status !== 'lunas') {
             $validated['approved_by'] = auth()->id();
@@ -645,7 +677,7 @@ class ProjectCashflowController extends Controller
                 'disk' => 'public',
                 'file_path' => $path,
                 'original_name' => $attachment->getClientOriginalName(),
-                'mime_type' => $attachment->getClientMimeType() ?: ($attachment->getMimeType() ?? 'image/jpeg'),
+                'mime_type' => $attachment->getClientMimeType() ?: ($attachment->getMimeType() ?? 'application/octet-stream'),
                 'file_size' => $attachment->getSize(),
                 'uploaded_by' => auth()->id(),
             ]);
@@ -669,7 +701,7 @@ class ProjectCashflowController extends Controller
 
     public function approve(Project $project, ProjectCashflow $cashflow): RedirectResponse
     {
-        abort_unless(auth()->user()?->role === 'admin', 403, 'Hanya Super Admin / Manager yang dapat menyetujui transaksi.');
+        abort_unless(in_array(auth()->user()?->role, ['superadmin', 'admin'], true), 403, 'Hanya Super Admin / Manager yang dapat menyetujui transaksi.');
         abort_unless((string) $cashflow->project_id === (string) $project->getKey(), 404);
 
         $cashflow->update([
@@ -683,7 +715,7 @@ class ProjectCashflowController extends Controller
 
     public function reject(Project $project, ProjectCashflow $cashflow): RedirectResponse
     {
-        abort_unless(auth()->user()?->role === 'admin', 403, 'Hanya Super Admin / Manager yang dapat menolak transaksi.');
+        abort_unless(in_array(auth()->user()?->role, ['superadmin', 'admin'], true), 403, 'Hanya Super Admin / Manager yang dapat menolak transaksi.');
         abort_unless((string) $cashflow->project_id === (string) $project->getKey(), 404);
 
         $cashflow->update([
@@ -732,7 +764,7 @@ class ProjectCashflowController extends Controller
             'unit_price' => ['bail', 'required', 'string', 'max:32', 'regex:/\A[0-9]+(?:\.[0-9]{1,2})?\z/', $positiveDecimal(ProjectCashflow::MAX_UNIT_PRICE)],
             'notes' => ['nullable', 'string', 'max:2000'],
             'status' => ['nullable', 'in:pending,lunas,ditolak'],
-            'attachment' => ['nullable', 'file', 'image', 'max:10240'],
+            'attachment' => ['nullable', 'file', 'mimes:jpeg,png,jpg,webp,pdf', 'max:10240'],
             'remove_attachment' => ['nullable', 'boolean'],
         ]);
 
@@ -745,5 +777,32 @@ class ProjectCashflowController extends Controller
         unset($validated['quantity'], $validated['unit_price']);
 
         return $validated;
+    }
+
+    private function resolveCategoryId(?string $code, string $type): ?int
+    {
+        $codeUpper = strtoupper(trim((string) $code));
+        $slug = null;
+        if (str_starts_with($codeUpper, 'MAT')) {
+            $slug = 'pembelian-material';
+        } elseif (str_starts_with($codeUpper, 'UPAH')) {
+            $slug = 'gaji';
+        } elseif (str_starts_with($codeUpper, 'SEWA')) {
+            $slug = 'peralatan';
+        } elseif (str_starts_with($codeUpper, 'KONS')) {
+            $slug = 'konsumsi';
+        } elseif (str_starts_with($codeUpper, 'TRANS')) {
+            $slug = 'transportasi';
+        } elseif (str_starts_with($codeUpper, 'ADM')) {
+            $slug = 'administrasi';
+        } elseif (str_starts_with($codeUpper, 'OPS')) {
+            $slug = 'operasional';
+        } elseif (str_starts_with($codeUpper, 'INV') || $type === 'penerimaan') {
+            $slug = 'pembayaran-klien';
+        } else {
+            $slug = 'operasional';
+        }
+
+        return TransactionCategory::where('slug', $slug)->value('id');
     }
 }
