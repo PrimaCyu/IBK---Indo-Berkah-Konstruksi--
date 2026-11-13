@@ -809,6 +809,7 @@
         $isSuperAdmin = $userRole === 'superadmin';
         $isAdmin = in_array($userRole, ['superadmin', 'admin'], true);
         $isAccounting = $userRole === 'accounting';
+        $canAccessFinance = in_array($userRole, ['superadmin', 'accounting'], true);
         $panelHome = $isAdmin ? route('admin.dashboard') : route('admin.cashbook.index');
         $panelRole = match($userRole) {
             'superadmin' => 'Super Admin',
@@ -1021,6 +1022,7 @@
                     </li>
                     @endif
 
+                    @if($canAccessFinance)
                     <!-- MANAJEMEN KEUANGAN -->
                     <li class="nav-header">Manajemen Keuangan</li>
 
@@ -1050,6 +1052,7 @@
                             </div>
                         </a>
                     </li>
+                    @endif
 
                     @if($isAdmin)
                     <!-- PENJUALAN & KLIEN -->

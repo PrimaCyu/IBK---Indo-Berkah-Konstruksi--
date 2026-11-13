@@ -402,7 +402,7 @@
     <div class="card-header py-2.5 px-3.5 d-flex justify-content-between align-items-center flex-wrap gap-2 bg-white border-bottom">
         <div class="d-flex align-items-center gap-2">
             <i class="fas fa-table-cells text-primary"></i>
-            <h2 class="h6 fw-bold mb-0 text-dark">Rekapan Pendapatan Bulanan (Semua Proyek)</h2>
+            <h2 class="h6 fw-bold mb-0 text-dark">Rekapan Pendapatan (Semua Proyek)</h2>
             <span class="badge-soft-primary">{{ $totalProjectsCount }} Proyek</span>
         </div>
         <form method="GET" action="{{ route('admin.cashbook.general') }}" class="d-flex align-items-center gap-2">

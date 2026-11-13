@@ -16,12 +16,31 @@
             border-radius: 12px;
             box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04), 0 1px 2px rgba(15, 23, 42, 0.02);
             background: #ffffff;
-            overflow: hidden;
+            overflow: visible;
         }
         .project-header-eyebrow {
             background-color: #f8fafc;
             border-bottom: 1px solid #f1f5f9 !important;
+            border-top-left-radius: 11px;
+            border-top-right-radius: 11px;
             padding: 0.55rem 1.25rem;
+        }
+        .cashbook-header-actions {
+            flex-shrink: 0;
+            align-self: center;
+        }
+        .cashbook-header-actions > .dropdown > .project-btn-secondary,
+        .cashbook-header-actions > .project-btn-primary {
+            box-sizing: border-box;
+            height: 38px !important;
+            min-height: 38px;
+            line-height: 1;
+            margin: 0;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+        .cashbook-header-actions .dropdown-menu {
+            z-index: 1055;
         }
         @media (min-width: 768px) {
             .project-header-eyebrow {
@@ -440,14 +459,31 @@
                 </div>
 
                 {{-- Right: Quick Action Buttons --}}
-                <div class="d-flex align-items-center gap-2 flex-wrap flex-sm-nowrap w-100 w-md-auto justify-content-start justify-content-md-end mt-2 mt-md-0">
-                    {{-- Secondary Action: Export XLSX --}}
-                    <a href="{{ route('admin.cashbook.export', $project) }}" 
-                       class="btn btn-sm project-btn-secondary d-inline-flex align-items-center justify-content-center gap-2" 
-                       title="Unduh rekap kas (.xlsx)">
-                        <i class="fas fa-file-excel text-success" style="font-size: 0.875rem;"></i>
-                        <span>Unduh (.xlsx)</span>
-                    </a>
+                <div class="cashbook-header-actions d-flex align-items-center gap-2 flex-nowrap mt-2 mt-md-0">
+                    {{-- Export Dropdown (Excel & PDF) --}}
+                    <div class="dropdown position-relative">
+                        <button type="button"
+                                class="btn btn-sm project-btn-secondary dropdown-toggle d-inline-flex align-items-center justify-content-center gap-2"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false">
+                            <i class="fas fa-download" aria-hidden="true"></i>
+                            <span>Unduh</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-start dropdown-menu-md-end shadow-sm border-light-subtle" style="min-width: 175px;">
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="{{ route('admin.cashbook.export', $project) }}">
+                                    <i class="fas fa-file-excel text-success" aria-hidden="true"></i>
+                                    <span>Excel (.xlsx)</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="{{ route('admin.cashbook.pdf', $project) }}" target="_blank" rel="noopener">
+                                    <i class="fas fa-file-pdf text-danger" aria-hidden="true"></i>
+                                    <span>Cetak / PDF</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
 
                     {{-- Primary Action: Add Cashflow --}}
                     <button type="button" 
@@ -826,13 +862,18 @@
                                 <td class="text-nowrap">
                                     <span class="text-secondary small">{{ $transaction->transaction_date->format('d/m/Y') }}</span>
                                     @if($transaction->last_edited_at)
-                                        <div class="mt-1">
-                                            <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle text-wrap text-start" title="Terakhir diedit pada {{ $transaction->last_edited_at->format('d/m/Y H:i:s') }}@if($transaction->editor) oleh {{ $transaction->editor->name }}@endif" style="font-size: 0.72rem; font-weight: 500;">
-                                                <i class="fas fa-edit me-1" aria-hidden="true"></i>Last edited: {{ $transaction->last_edited_at->format('d/m/Y H:i') }}
-                                                @if($transaction->editor)
-                                                    <span class="d-block">{{ $transaction->editor->name }}</span>
-                                                @endif
-                                            </span>
+                                        <div class="mt-1" style="line-height: 1.2;">
+                                            <button type="button"
+                                                    class="btn btn-link p-0 border-0 text-muted text-decoration-none js-edit-history-trigger"
+                                                    style="font-size: 0.7rem;"
+                                                    data-code="{{ $displayCode }}"
+                                                    data-description="{{ $transaction->description }}"
+                                                    data-editor="{{ $transaction->editor?->name ?? 'Tidak diketahui' }}"
+                                                    data-edited-at="{{ $transaction->last_edited_at->format('d/m/Y H:i:s') }}"
+                                                    data-created-at="{{ $transaction->created_at?->format('d/m/Y H:i:s') ?? '-' }}"
+                                                    title="Lihat riwayat edit">
+                                                <i class="fas fa-pen me-1" style="font-size: 0.6rem;" aria-hidden="true"></i>Edited
+                                            </button>
                                         </div>
                                     @endif
                                 </td>
@@ -908,10 +949,6 @@
                                 <!-- AKSI (Square Icon Buttons matching reference) -->
                                 <td class="text-end pe-3 text-nowrap">
                                     <div class="d-inline-flex gap-1 align-items-center">
-                                        <!-- Print / Invoice Icon -->
-                                        <a href="{{ route('admin.cashbook.invoice', [$project, $transaction]) }}" target="_blank" class="btn-action-icon text-decoration-none" title="Cetak / Download Invoice">
-                                            <i class="fas fa-print"></i>
-                                        </a>
                                         <!-- Detail Icon -->
                                         <button type="button" class="btn-action-icon" data-bs-toggle="modal" data-bs-target="#cashbook-detail-modal" data-cashflow="{{ json_encode($transactionData, JSON_THROW_ON_ERROR) }}" title="Lihat detail transaksi">
                                             <i class="fas fa-eye"></i>
@@ -1040,6 +1077,36 @@
                     <button type="button" class="btn btn-primary" id="detail-edit-trigger">
                         <i class="fas fa-pen me-1" aria-hidden="true"></i> Ubah transaksi
                     </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Modal Minimalis Riwayat Edit --}}
+    <div class="modal fade" id="cashbook-edit-history-modal" tabindex="-1" aria-labelledby="cashbook-edit-history-title" aria-hidden="true">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header py-2">
+                    <h2 class="modal-title fs-6 fw-bold mb-0" id="cashbook-edit-history-title">Riwayat Edit</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                </div>
+                <div class="modal-body py-3">
+                    <dl class="row mb-0 small g-2">
+                        <dt class="col-5 text-secondary">Kode</dt>
+                        <dd class="col-7 text-dark fw-semibold mb-0 font-monospace" id="edit-history-code">-</dd>
+
+                        <dt class="col-5 text-secondary">Transaksi</dt>
+                        <dd class="col-7 text-dark mb-0" id="edit-history-description">-</dd>
+
+                        <dt class="col-5 text-secondary">Diedit oleh</dt>
+                        <dd class="col-7 text-dark fw-semibold mb-0" id="edit-history-editor">-</dd>
+
+                        <dt class="col-5 text-secondary">Waktu edit</dt>
+                        <dd class="col-7 text-dark mb-0" id="edit-history-edited-at">-</dd>
+
+                        <dt class="col-5 text-secondary">Dibuat pada</dt>
+                        <dd class="col-7 text-muted mb-0" id="edit-history-created-at">-</dd>
+                    </dl>
                 </div>
             </div>
         </div>
@@ -2076,6 +2143,21 @@
         document.addEventListener('DOMContentLoaded', function () {
             const initialMode = document.getElementById('filter-period-mode-show')?.value || 'bulan';
             setShowPeriodMode(initialMode);
+
+            const editHistoryModalEl = document.getElementById('cashbook-edit-history-modal');
+            const editHistoryModal = editHistoryModalEl && window.bootstrap ? bootstrap.Modal.getOrCreateInstance(editHistoryModalEl) : null;
+
+            document.addEventListener('click', function (e) {
+                const trigger = e.target.closest('.js-edit-history-trigger');
+                if (!trigger || !editHistoryModal) return;
+
+                document.getElementById('edit-history-code').textContent = trigger.dataset.code || '-';
+                document.getElementById('edit-history-description').textContent = trigger.dataset.description || '-';
+                document.getElementById('edit-history-editor').textContent = trigger.dataset.editor || '-';
+                document.getElementById('edit-history-edited-at').textContent = trigger.dataset.editedAt || '-';
+                document.getElementById('edit-history-created-at').textContent = trigger.dataset.createdAt || '-';
+                editHistoryModal.show();
+            });
         });
     </script>
 @endpush
